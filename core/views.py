@@ -10,7 +10,7 @@ def index(request):
                 "seizure occurrences": 2,
                 "breathing pattern": "Low",
                 "GMFCS Level": "IV",
-                "price": 1643.00,
+                "DOB": "2011-01-01",
             },
         ]
     }

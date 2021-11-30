@@ -68,10 +68,15 @@ void loop()
       selectMuxPinRead(pin); // Select one at a time
       float inputValue = analogRead(A0)*0.0048339; // and read Z
       Serial.print(String(inputValue) + " ");
+      // Serial.print(String(inputValue));
+      // Serial.write(13);
+      // Serial.write(10);
     }
-      Serial.println();
-    }
-  delay(1000);
-  Serial.print("---------------------------------");  
-  Serial.println();
+      // Serial.println();
+  }
+  // delay(1000);
+  // Serial.print("---------------------------------");  
+  //Serial.println();
+    Serial.write(13);
+    Serial.write(10);
 }

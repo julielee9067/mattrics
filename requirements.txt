@@ -3,3 +3,4 @@ pre-commit
 colorlog
 gunicorn
 django-heroku
+mysqlclient

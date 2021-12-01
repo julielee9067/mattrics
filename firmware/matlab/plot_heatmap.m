@@ -2,9 +2,9 @@ clear all
 
 % Heatmap creation
 global h;
-meas = zeros(6);
-min = 220;
-max = 2200;
+meas = zeros(11);
+min = 250;
+max = 1000;
 lims = [min, max];
 %h = heatmap(meas, 'ColorScaling', 'scaled', 'ColorLimits', lims, 'CellLabelColor', 'none', 'GridVisible', 'off');
 h = heatmap(meas, 'ColorScaling', 'scaled', 'ColorLimits', lims, 'GridVisible', 'off');

@@ -9,7 +9,7 @@ function plotMat(src, ~)
         data_string_split(end) = [];
         data_string_split = transpose(data_string_split);
         data_double = str2double(data_string_split)
-        data2d = convert_1d_to_2d_matrix(data_double, 6, 6)
+        data2d = convert_1d_to_2d_matrix(data_double, 11, 11)
         h.ColorData = data2d;
         drawnow;
         configureCallback(src, "terminator", @plotMat);

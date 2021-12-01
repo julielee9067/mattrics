@@ -82,11 +82,21 @@ void loop()
       float inputValue = analogRead(A0)*0.0048339; // and read Z
       float data = convert_to_pressure(calc_r1(inputValue));
       Serial.print(String(data) + " ");
+      if (pin != 5) {
+        Serial.print(String(0) + " ");
+      }
       // Serial.print(String(inputValue));
       // Serial.write(13);
       // Serial.write(10);
     }
-      // Serial.println();
+    if (i != 5)
+    {
+      for (int j = 0; j < 11; j++){
+      Serial.print(String(0) + " ");
+      }
+  //       + String(0) + " "+ String(0) + " " + String(0) + " " + String(0) + " " + String(0) + " ");
+        // Serial.println();
+    }
   }
   // delay(1000);
   // Serial.print("---------------------------------");  

@@ -1,6 +1,6 @@
 // 1 multiplexer only write to 1 channel
 // Other multiplexer reads from all channels in order
-#include math.h
+//#include math.h
 
 /////////////////////
 // Pin Definitions //
@@ -12,7 +12,7 @@ const int zInput = A0; // Connect common (Z) to A0 (analog input)
 const int r2 = 470;
 const int vs = 5;
 const float gravity = 9.81;
-const float area = 3.14159265359 * (0.002597 / 2) ^ 2;
+const float area = 3.14159265359 * (0.02597 / 2) * (0.02597 / 2);
 
 float calc_r1(float vo)
 {
@@ -21,7 +21,7 @@ float calc_r1(float vo)
 
 float convert_to_pressure(float resistance)
 {
-  return ((937 * exp(-0.006438 * resistance)) / area);
+  return ((937 * exp(-0.006438 * resistance)) / area * gravity / 1000);
 }
 
 void write_mux(int pin){
@@ -81,7 +81,7 @@ void loop()
       selectMuxPinRead(pin); // Select one at a time
       float inputValue = analogRead(A0)*0.0048339; // and read Z
       float data = convert_to_pressure(calc_r1(inputValue));
-      Serial.print(String(inputValue) + " ");
+      Serial.print(String(data) + " ");
       // Serial.print(String(inputValue));
       // Serial.write(13);
       // Serial.write(10);

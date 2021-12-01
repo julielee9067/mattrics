@@ -3,11 +3,11 @@ clear all
 % Heatmap creation
 global h;
 meas = zeros(6);
-min = 3;
-max = 3.7;
+min = 220;
+max = 2200;
 lims = [min, max];
-h = heatmap(meas, 'ColorScaling', 'scaled', 'ColorLimits', lims, 'CellLabelColor', 'none', 'GridVisible', 'off');
-%h = heatmap(meas, 'ColorScaling', 'scaled', 'ColorLimits', lims, 'GridVisible', 'off');
+%h = heatmap(meas, 'ColorScaling', 'scaled', 'ColorLimits', lims, 'CellLabelColor', 'none', 'GridVisible', 'off');
+h = heatmap(meas, 'ColorScaling', 'scaled', 'ColorLimits', lims, 'GridVisible', 'off');
 h.Title = 'Force Application Heatmap';
 h.XLabel = 'col #';
 h.YLabel = 'row #';

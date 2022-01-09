@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 data_file = '17.23.06.csv'
-NUM_MEASUREMENTS = 36 # 1 extra because of timestamp + 36 measurements
+NUM_MEASUREMENTS = 36 # number of nodes
 
 mean_array = np.zeros(NUM_MEASUREMENTS) # stores NUM_MEASUREMENTS mean values
 min_array = np.zeros(NUM_MEASUREMENTS) # Stores NUM_MEASUREMENTS min values
@@ -35,11 +35,10 @@ with open(data_file) as csv_file:
 
 
     for row in csv_reader:
-        # one_time_entry = ""
         time_entry = True
         for col in row:
             if time_entry:
-                # print("time entry")
+                # Time entries in first column of each row in data set
                 time_entry = False
                 time_list.append(col)
             else:
@@ -56,12 +55,12 @@ with open(data_file) as csv_file:
                 # Set sum array
                 sum_array[col_idx] += float(col)
                 # Calculate mean array
-                mean_array[col_idx] = sum_array[col_idx]/ (row_idx + 1)
+                mean_array[col_idx] = sum_array[col_idx]/ (row_idx + 1) # row_idx starts from 0
 
 
                 # Plotting at NODE
                 if col_idx == NODE:
-                    mean_list.append(mean_array[col_idx])
+                    mean_list.append(mean_array[col_idx]) # Appending mean values calculated overtime at 1 node
                     min = min_array[col_idx]
                     max = max_array[col_idx]
 
@@ -71,13 +70,13 @@ with open(data_file) as csv_file:
         row_idx +=1
     
     if end_idx > row_idx: # make sure user isn't asking for an end index out of scope
-        print("Error! asking for end index out of bounds")
+        print("Error! Requesting end index out of bounds")
     else:
-        plt.scatter(time_list[start_idx:end_idx],mean_list[start_idx:end_idx])
+        plt.scatter(time_list[start_idx:end_idx],mean_list[start_idx:end_idx]) # Plot specified range
 
     plt.show()
-    print("min data point over entire cycle: " + str(min))
-    print("max data point over entire cycle: " + str(max))
+    print("Min data point over entire cycle: " + str(min))
+    print("Max data point over entire cycle: " + str(max))
 
     print(f'Processed {row_idx*2} minutes of data.') # assume that new data is collected every 30 seconds
 

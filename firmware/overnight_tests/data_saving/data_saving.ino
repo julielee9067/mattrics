@@ -7,8 +7,8 @@
 /////////////////////
 const int selectPinsWrite[3] = {8, 9, 10}; 
 const int selectPinsRead[3] = {2, 3, 4}; 
-const int zOutput = 5; 
-const int zInput = A0; // Connect common (Z) to A0 (analog input)
+const int zOutput = 5; // Connect to the write mux
+const int zInput = A0; // Connect to the read mux
 const int r2 = 470;
 const int vs = 5;
 const float gravity = 9.81;
@@ -89,16 +89,15 @@ void loop()
       for (byte pin = 0; pin <= 5; pin++)
       {
         selectMuxPinRead(pin); // Select one at a time
-        float inputValue = analogRead(A0) * 0.0048339; // And read Z
-        float data = convert_to_pressure(calc_r1(inputValue));
-        Serial.print(String(data));
+        int inputValue = analogRead(A0); // * 0.0048339; // And read Z
+        //float data = convert_to_pressure(calc_r1(inputValue));
+        Serial.print(String(inputValue));
         if (i != 5 || pin != 5)
         { 
           Serial.print(",");   
         }
       }
     }
-      Serial.println();
       Serial.write(13);
       Serial.write(10);
   }

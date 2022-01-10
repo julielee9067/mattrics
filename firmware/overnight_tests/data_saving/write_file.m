@@ -2,10 +2,10 @@ clear all
 
 % Heatmap creation
 global f;
-f = fopen("overnight_data_results.csv", "at");
+f = fopen("8h_drift_test.csv", "wt");
 meas = zeros(1, 36);
 
-arduino_obj = serialport("COM4", 9600)
+arduino_obj = serialport("COM3", 9600)
 
 configureTerminator(arduino_obj, "CR/LF");
 flush(arduino_obj);

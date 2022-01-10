@@ -13,7 +13,7 @@ h.XLabel = 'col #';
 h.YLabel = 'row #';
 colorbar;
 
-arduino_obj = serialport("COM4", 9600)
+arduino_obj = serialport("COM3", 9600)
 
 configureTerminator(arduino_obj, "CR/LF");
 flush(arduino_obj);

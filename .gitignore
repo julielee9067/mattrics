@@ -131,3 +131,5 @@ dmypy.json
 .idea/
 
 my.cnf
+secret_config.py
+ssl/*

@@ -14,6 +14,7 @@ const int vs = 5;
 const float gravity = 9.81;
 const float area = 3.14159265359 * (0.02597 / 2) * (0.02597 / 2);
 unsigned long curr_milli = 0;
+const double VCC = 5.091;
 
 float calc_r1(float vo)
 {

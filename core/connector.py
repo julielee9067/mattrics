@@ -8,15 +8,11 @@ class DatabaseConnector:
         self.connection = mysql.connector.connect(**MYSQL_SECRET)
         self.cursor = self.connection.cursor()
 
-    def insert_therapist(
-        self, first_name: str, last_name: str, email: str, password: str
-    ):
+    def insert_therapist(self, first_name: str, last_name: str, email: str):
         query = (
-            "INSERT INTO Therapist (_id, firstname, lastname, email, password) "
-            "VALUES (%s, %s, %s, %s, %s)"
+            "INSERT INTO Therapist (firstname, lastname, email) " "VALUES (%s, %s, %s)"
         )
-        id = f"{first_name}_{last_name}_{email}"
-        self.cursor.execute(query, (id, first_name, last_name, email, password))
+        self.cursor.execute(query, (first_name, last_name, email))
         self.connection.commit()
 
 
@@ -26,5 +22,4 @@ if __name__ == "__main__":
         first_name="Julie",
         last_name="Lee",
         email="julielee9067@gmail.com",
-        password="testpassword",
     )

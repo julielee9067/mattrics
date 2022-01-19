@@ -1,4 +1,4 @@
-CREATE TABLE core.Therapist(
+CREATE TABLE mattrics.Therapist(
     _id int NOT NULL AUTO_INCREMENT,
     _createdDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     _updatedDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
@@ -10,7 +10,7 @@ CREATE TABLE core.Therapist(
     PRIMARY KEY (_id)
 );
 
-CREATE TABLE core.Patient(
+CREATE TABLE mattrics.Patient(
     _id int NOT NULL AUTO_INCREMENT,
     _createdDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     _updatedDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
@@ -22,10 +22,10 @@ CREATE TABLE core.Patient(
     gmfcsLevel int NOT NULL,
     dateOfBirth DATE NOT NULL,
     PRIMARY KEY (_id),
-    FOREIGN KEY (therapistId) REFERENCES core.Therapist(_id)
+    FOREIGN KEY (therapistId) REFERENCES mattrics.Therapist(_id)
 );
 
-CREATE TABLE core.Rental(
+CREATE TABLE mattrics.Rental(
     _id int NOT NULL AUTO_INCREMENT,
     _createdDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     _updatedDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
@@ -35,10 +35,10 @@ CREATE TABLE core.Rental(
     endDate DATE NOT NULL,
     returnedDate DATE NOT NULL,
     PRIMARY KEY (_id),
-    FOREIGN KEY (patientId) REFERENCES core.Patient(_id)
+    FOREIGN KEY (patientId) REFERENCES mattrics.Patient(_id)
 );
 
-CREATE TABLE core.Pressure(
+CREATE TABLE mattrics.Pressure(
     _id int NOT NULL AUTO_INCREMENT,
     _createdDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     _updatedDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
@@ -47,7 +47,7 @@ CREATE TABLE core.Pressure(
     PRIMARY KEY (_id)
 );
 
-CREATE TABLE core.Movement(
+CREATE TABLE mattrics.Movement(
     _id int NOT NULL AUTO_INCREMENT,
     _createdDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     _updatedDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
@@ -56,7 +56,7 @@ CREATE TABLE core.Movement(
     PRIMARY KEY (_id)
 );
 
-CREATE TABLE core.Breathing(
+CREATE TABLE mattrics.Breathing(
     _id int NOT NULL AUTO_INCREMENT,
     _createdDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     _updatedDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
@@ -70,7 +70,7 @@ CREATE TABLE core.Breathing(
     PRIMARY KEY (_id)
 );
 
-CREATE TABLE core.DailyData(
+CREATE TABLE mattrics.DailyData(
     _id int NOT NULL AUTO_INCREMENT,
     _createdDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     _updatedDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
@@ -82,13 +82,13 @@ CREATE TABLE core.DailyData(
     timeToFallAsleep int,
     sleepAwakening int,
     PRIMARY KEY (_id),
-    FOREIGN KEY (patientId) REFERENCES core.Patient(_id),
-    FOREIGN KEY (pressureId) REFERENCES core.Pressure(_id),
-    FOREIGN KEY (movementId) REFERENCES core.Movement(_id),
-    FOREIGN KEY (breathingId) REFERENCES core.Breathing(_id)
+    FOREIGN KEY (patientId) REFERENCES mattrics.Patient(_id),
+    FOREIGN KEY (pressureId) REFERENCES mattrics.Pressure(_id),
+    FOREIGN KEY (movementId) REFERENCES mattrics.Movement(_id),
+    FOREIGN KEY (breathingId) REFERENCES mattrics.Breathing(_id)
 );
 
-CREATE TABLE core.WeeklyData(
+CREATE TABLE mattrics.WeeklyData(
     _id int NOT NULL AUTO_INCREMENT,
     _createdDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     _updatedDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
@@ -98,8 +98,8 @@ CREATE TABLE core.WeeklyData(
     movementId int NOT NULL,
     breathingId int NOT NULL,
     PRIMARY KEY (_id),
-    FOREIGN KEY (patientId) REFERENCES core.Patient(_id),
-    FOREIGN KEY (pressureId) REFERENCES core.Pressure(_id),
-    FOREIGN KEY (movementId) REFERENCES core.Movement(_id),
-    FOREIGN KEY (breathingId) REFERENCES core.Breathing(_id)
+    FOREIGN KEY (patientId) REFERENCES mattrics.Patient(_id),
+    FOREIGN KEY (pressureId) REFERENCES mattrics.Pressure(_id),
+    FOREIGN KEY (movementId) REFERENCES mattrics.Movement(_id),
+    FOREIGN KEY (breathingId) REFERENCES mattrics.Breathing(_id)
 );

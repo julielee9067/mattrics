@@ -1,4 +1,5 @@
 pre-commit
 colorlog
-gunicorn
 mysqlclient
+gcloud
+google-cloud-storage

@@ -1,6 +1,6 @@
 import mysql.connector
 
-from core.secret_config import MYSQL_SECRET
+from core.secrets.secret_config import MYSQL_SECRET
 
 
 class DatabaseConnector:

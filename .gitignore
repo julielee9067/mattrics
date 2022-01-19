@@ -132,4 +132,3 @@ dmypy.json
 
 my.cnf
 core/secrets/*
-core/ssl/*

@@ -1,5 +1,5 @@
 CREATE TABLE core.Therapist(
-    _id varchar(50) NOT NULL,
+    _id int NOT NULL AUTO_INCREMENT,
     _createdDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     _updatedDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     _owner varchar(50) DEFAULT NULL,
@@ -11,11 +11,11 @@ CREATE TABLE core.Therapist(
 );
 
 CREATE TABLE core.Patient(
-    _id varchar(50) NOT NULL,
+    _id int NOT NULL AUTO_INCREMENT,
     _createdDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     _updatedDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     _owner varchar(50) DEFAULT NULL,
-    therapistId varchar(50) NOT NULL,
+    therapistId int NOT NULL,
     firstName varchar(30) NOT NULL,
     lastName varchar(30) NOT NULL,
     email varchar(30) NOT NULL,
@@ -26,11 +26,11 @@ CREATE TABLE core.Patient(
 );
 
 CREATE TABLE core.Rental(
-    _id varchar(50) NOT NULL,
+    _id int NOT NULL AUTO_INCREMENT,
     _createdDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     _updatedDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     _owner varchar(50) DEFAULT NULL,
-    patientId varchar(50) NOT NULL,
+    patientId int NOT NULL,
     startDate DATE NOT NULL,
     endDate DATE NOT NULL,
     returnedDate DATE NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE core.Rental(
 );
 
 CREATE TABLE core.Pressure(
-    _id varchar(50) NOT NULL,
+    _id int NOT NULL AUTO_INCREMENT,
     _createdDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     _updatedDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     _owner varchar(50) DEFAULT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE core.Pressure(
 );
 
 CREATE TABLE core.Movement(
-    _id varchar(50) NOT NULL,
+    _id int NOT NULL AUTO_INCREMENT,
     _createdDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     _updatedDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     _owner varchar(50) DEFAULT NULL,
@@ -57,7 +57,7 @@ CREATE TABLE core.Movement(
 );
 
 CREATE TABLE core.Breathing(
-    _id varchar(50) NOT NULL,
+    _id int NOT NULL AUTO_INCREMENT,
     _createdDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     _updatedDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     _owner varchar(50) DEFAULT NULL,
@@ -71,14 +71,14 @@ CREATE TABLE core.Breathing(
 );
 
 CREATE TABLE core.DailyData(
-    _id varchar(50) NOT NULL,
+    _id int NOT NULL AUTO_INCREMENT,
     _createdDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     _updatedDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     _owner varchar(50) DEFAULT NULL,
-    patientId varchar(50) NOT NULL,
-    pressureId varchar(50) NOT NULL,
-    movementId varchar(50) NOT NULL,
-    breathingId varchar(50) NOT NULL,
+    patientId int NOT NULL,
+    pressureId int NOT NULL,
+    movementId int NOT NULL,
+    breathingId int NOT NULL,
     timeToFallAsleep int,
     sleepAwakening int,
     PRIMARY KEY (_id),
@@ -89,14 +89,14 @@ CREATE TABLE core.DailyData(
 );
 
 CREATE TABLE core.WeeklyData(
-    _id varchar(50) NOT NULL,
+    _id int NOT NULL AUTO_INCREMENT,
     _createdDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     _updatedDate timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     _owner varchar(50) DEFAULT NULL,
-    patientId varchar(50) NOT NULL,
-    pressureId varchar(50) NOT NULL,
-    movementId varchar(50) NOT NULL,
-    breathingId varchar(50) NOT NULL,
+    patientId int NOT NULL,
+    pressureId int NOT NULL,
+    movementId int NOT NULL,
+    breathingId int NOT NULL,
     PRIMARY KEY (_id),
     FOREIGN KEY (patientId) REFERENCES core.Patient(_id),
     FOREIGN KEY (pressureId) REFERENCES core.Pressure(_id),

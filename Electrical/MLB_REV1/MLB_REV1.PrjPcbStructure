@@ -1,1 +1,4 @@
-Record=TopLevelDocument|FileName=POWER.SchDoc
+Record=TopLevelDocument|FileName=BUTTONS.SchDoc|SheetNumber= 
+Record=NoMainPathDocument|SourceDocument=BUTTONS.SchDoc|FileName=MUXES.SchDoc|SheetNumber= 
+Record=NoMainPathDocument|SourceDocument=BUTTONS.SchDoc|FileName=POWER.SchDoc|SheetNumber= 
+Record=NoMainPathDocument|SourceDocument=BUTTONS.SchDoc|FileName=SD_CARD.SchDoc|SheetNumber= 

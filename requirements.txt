@@ -3,3 +3,5 @@ colorlog
 mysqlclient
 gcloud
 google-cloud-storage
+seaborn
+matplotlib

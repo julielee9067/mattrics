@@ -15,4 +15,4 @@ def upload_pressure_image(image_path: str) -> None:
 
 
 if __name__ == "__main__":
-    upload_pressure_image(image_path="pressure_image/test.jpeg")
+    upload_pressure_image(image_path="pressure_data/test.jpeg")

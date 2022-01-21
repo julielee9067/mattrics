@@ -136,26 +136,28 @@ void calibration() {
 void loop() 
 {
   unsigned long new_milli = millis();
-  if (new_milli - timer_sample >= sample_time)
-  {
-    timer_sample = new_milli;
-    // Loop over 6 rows
-    for (int row = 0; row < 6; row++){
-      // Turn on row
-      write_mux(row);
-      // Loop over 6 columns
-      for (byte col = 0; col <= 5; col++)
-      {
-        selectMuxPinRead(col); // Select one at a time
-        int inputValue = analogRead(zInput) + calibration_array[row][col]; // calibration
-        Serial.print(String(inputValue));
-        if (row != 5 || col != 5)
-        { 
-          Serial.print(",");   
-        }
+  timer_sample = new_milli;
+  // Loop over 6 rows
+  for (int row = 0; row < 6; row++){
+    // Turn on row
+    write_mux(row);
+    // Loop over 6 columns
+    for (byte col = 0; col <= 5; col++)
+    {
+      selectMuxPinRead(col); // Select one at a time
+      int inputValue = analogRead(zInput) + calibration_array[row][col]; // calibration
+      Serial.print(String(inputValue) + " ");
+      if (col != 5) {
+        Serial.print(String(0) + " ");
       }
     }
-    Serial.write(13);
-    Serial.write(10);
+    if (row != 5)
+    {
+      for (int j = 0; j < 11; j++){
+      Serial.print(String(0) + " ");
+      }
+    }
   }
+  Serial.write(13);
+  Serial.write(10);
 }

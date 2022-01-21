@@ -2,7 +2,7 @@ clear all
 
 % Heatmap creation
 global f;
-f = fopen("Jan20_moving_load.csv", "wt");
+f = fopen("Jan21_calibration.csv", "wt");
 meas = zeros(1, 36);
 
 arduino_obj = serialport("COM3", 9600)

@@ -3,8 +3,8 @@ clear all
 % Heatmap creation
 global h;
 meas = zeros(11);
-min = 250;
-max = 450;
+min = 270;
+max = 500;
 lims = [min, max];
 %h = heatmap(meas, 'ColorScaling', 'scaled', 'ColorLimits', lims, 'CellLabelColor', 'none', 'GridVisible', 'off');
 h = heatmap(meas, 'ColorScaling', 'scaled', 'ColorLimits', lims, 'GridVisible', 'off');

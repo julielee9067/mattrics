@@ -1,4 +1,7 @@
 Record=TopLevelDocument|FileName=BUTTONS.SchDoc|SheetNumber= 
+Record=NoMainPathDocument|SourceDocument=BUTTONS.SchDoc|FileName=CONNECTORS.SchDoc|SheetNumber= 
+Record=NoMainPathDocument|SourceDocument=BUTTONS.SchDoc|FileName=MCU.SchDoc|SheetNumber= 
 Record=NoMainPathDocument|SourceDocument=BUTTONS.SchDoc|FileName=MUXES.SchDoc|SheetNumber= 
 Record=NoMainPathDocument|SourceDocument=BUTTONS.SchDoc|FileName=POWER.SchDoc|SheetNumber= 
 Record=NoMainPathDocument|SourceDocument=BUTTONS.SchDoc|FileName=SD_CARD.SchDoc|SheetNumber= 
+Record=NoMainPathDocument|SourceDocument=BUTTONS.SchDoc|FileName=Wi-Fi, DEBUG.SchDoc|SheetNumber= 

@@ -23,24 +23,15 @@ DefaultPcbPcad=0
 ReorderDocumentsOnCompile=1
 NameNetsHierarchically=0
 PowerPortNamesTakePriority=0
-AutoSheetNumbering=0
-AutoCrossReferences=0
 PushECOToAnnotationFile=1
 DItemRevisionGUID=
 ReportSuppressedErrorsInMessages=0
 FSMCodingStyle=eFMSDropDownList_OneProcess
 FSMEncodingStyle=eFMSDropDownList_OneHot
-IsProjectConflictPreventionWarningsEnabled=1
 OutputPath=
 LogFolderPath=
 ManagedProjectGUID=
 IncludeDesignInRelease=0
-CrossRefSheetStyle=1
-CrossRefLocationStyle=1
-CrossRefPorts=3
-CrossRefCrossSheets=1
-CrossRefSheetEntries=0
-CrossRefFollowFromMainSettings=1
 
 [Preferences]
 PrefsVaultGUID=
@@ -149,7 +140,24 @@ GenerateClassCluster=0
 DocumentUniqueId=QWOIULOV
 
 [Document7]
-DocumentPath=SENSE MUXES.SchDoc
+DocumentPath=POWER_MUXES.SchDoc
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotationIndexControlEnabled=0
+AnnotateSuffix=
+AnnotateScope=All
+AnnotateOrder=-1
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
+ClassGenCCAutoEnabled=1
+ClassGenCCAutoRoomEnabled=1
+ClassGenNCAutoScope=None
+DItemRevisionGUID=
+GenerateClassCluster=0
+DocumentUniqueId=KXGEHVCU
+
+[Document8]
+DocumentPath=SENSE_MUXES.SchDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
@@ -165,8 +173,8 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=TNRMKKRI
 
-[Document8]
-DocumentPath=SENSING.SchDoc
+[Document9]
+DocumentPath=VELOSTAT_SENSING.SchDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
@@ -182,8 +190,8 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=ZUSVCEJK
 
-[Document9]
-DocumentPath=CONNECTORS.SchDoc
+[Document10]
+DocumentPath=MAT_CABLING_CONNECTOR.SchDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
@@ -199,8 +207,8 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=QCJIYXMX
 
-[Document10]
-DocumentPath=AUDIO.SchDoc
+[Document11]
+DocumentPath=MICROPHONE.SchDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
@@ -540,18 +548,6 @@ OutputName6=Report Single Pin Nets
 OutputDocumentPath6=
 OutputVariantName6=[No Variations]
 OutputDefault6=0
-OutputType7=BOM_ReportCompare
-OutputName7=BOM Compare
-OutputDocumentPath7=
-OutputVariantName7=[No Variations]
-OutputDefault7=0
-PageOptions7=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-3|MediaType=1|DitherType=10|PrintScaleMode=1|PaperKind=Letter|PaperIndex=1
-OutputType8=Export Comments
-OutputName8=Export Comments
-OutputDocumentPath8=
-OutputVariantName8=[No Variations]
-OutputDefault8=0
-PageOptions8=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-3|MediaType=1|DitherType=10|PrintScaleMode=1|PaperKind=Letter|PaperIndex=1
 
 [OutputGroup7]
 Name=Other Outputs
@@ -1092,8 +1088,6 @@ MultiChannelAlternate=2
 AlternateItemFail=3
 Type122=2
 Type123=1
-Type124=1
-Type125=1
 
 [ERC Connection Matrix]
 L1=NNNNNNNNNNNWNNNWW
@@ -1136,10 +1130,22 @@ NetClassManualEnabled=1
 NetClassSeparateForBusSections=0
 
 [LibraryUpdateOptions]
-SelectedOnly=0
+SelectedOnly=1
 UpdateVariants=1
 UpdateToLatestRevision=1
 PartTypes=0
+ComponentLibIdentifierKind0=Library Name And Type
+ComponentLibraryIdentifier0=MLBSchLib.SchLib
+ComponentDesignItemID0=1-787082-8
+ComponentSymbolReference0=1-787082-8
+ComponentUpdate0=1
+ComponentIsDeviceSheet0=0
+ComponentLibIdentifierKind1=Library Name Only
+ComponentLibraryIdentifier1=Altium Content Vault
+ComponentDesignItemID1=CMP-26527-000017-1
+ComponentSymbolReference1=1029c3af85768c4190bb7ad29bc67b5
+ComponentUpdate1=0
+ComponentIsDeviceSheet1=0
 FullReplace=1
 UpdateDesignatorLock=1
 UpdatePartIDLock=1
@@ -1153,6 +1159,93 @@ RemoveParameters=0
 AddModels=1
 RemoveModels=1
 UpdateCurrentModels=1
+ParameterName0=Case Code (Imperial)
+ParameterUpdate0=1
+ParameterName1=Case Code (Metric)
+ParameterUpdate1=1
+ParameterName2=Case/Package
+ParameterUpdate2=1
+ParameterName3=Comment
+ParameterUpdate3=1
+ParameterName4=Component Kind
+ParameterUpdate4=1
+ParameterName5=Composition
+ParameterUpdate5=1
+ParameterName6=Contact Plating
+ParameterUpdate6=1
+ParameterName7=Copyright
+ParameterUpdate7=1
+ParameterName8=Depth
+ParameterUpdate8=1
+ParameterName9=Description
+ParameterUpdate9=1
+ParameterName10=Digi-Key_Part_Number_1
+ParameterUpdate10=1
+ParameterName11=Features
+ParameterUpdate11=1
+ParameterName12=Height
+ParameterUpdate12=1
+ParameterName13=Lead Free
+ParameterUpdate13=1
+ParameterName14=Length
+ParameterUpdate14=1
+ParameterName15=Library Reference
+ParameterUpdate15=1
+ParameterName16=Manufacturer
+ParameterUpdate16=1
+ParameterName17=Manufacturer Part Number
+ParameterUpdate17=1
+ParameterName18=Manufacturer_Part_Number
+ParameterUpdate18=1
+ParameterName19=Max Operating Temperature
+ParameterUpdate19=1
+ParameterName20=Max Power Dissipation
+ParameterUpdate20=1
+ParameterName21=Mfr_Name
+ParameterUpdate21=1
+ParameterName22=Military Standard
+ParameterUpdate22=1
+ParameterName23=Min Operating Temperature
+ParameterUpdate23=1
+ParameterName24=Mount
+ParameterUpdate24=1
+ParameterName25=Number of Terminations
+ParameterUpdate25=1
+ParameterName26=Packaging
+ParameterUpdate26=1
+ParameterName27=Power Rating
+ParameterUpdate27=1
+ParameterName28=Radiation Hardening
+ParameterUpdate28=1
+ParameterName29=RefDes
+ParameterUpdate29=1
+ParameterName30=Resistance
+ParameterUpdate30=1
+ParameterName31=Supplier
+ParameterUpdate31=1
+ParameterName32=Supplier Part Number
+ParameterUpdate32=1
+ParameterName33=Type
+ParameterUpdate33=1
+ParameterName34=Width
+ParameterUpdate34=1
+ModelTypeGroup0=PCBLIB
+ModelTypeUpdate0=1
+ModelType0=PCBLIB
+ModelName0=CONN100_1-787082-8_TEC
+ModelUpdate0=1
+ModelType1=PCBLIB
+ModelName1=FP-RMCF0805-IPC_A
+ModelUpdate1=1
+ModelType2=PCBLIB
+ModelName2=FP-RMCF0805-IPC_B
+ModelUpdate2=1
+ModelType3=PCBLIB
+ModelName3=FP-RMCF0805-IPC_C
+ModelUpdate3=1
+ModelType4=PCBLIB
+ModelName4=FP-RMCF0805-MFG
+ModelUpdate4=1
 
 [DatabaseUpdateOptions]
 SelectedOnly=0
@@ -1161,12 +1254,12 @@ UpdateToLatestRevision=1
 PartTypes=0
 
 [Comparison Options]
-ComparisonOptions0=Kind=Net|MinPercent=75|MinMatch=3|ShowMatch=-1|UseName=-1|InclAllRules=0
-ComparisonOptions1=Kind=Net Class|MinPercent=75|MinMatch=3|ShowMatch=-1|UseName=-1|InclAllRules=0
-ComparisonOptions2=Kind=Component Class|MinPercent=75|MinMatch=3|ShowMatch=-1|UseName=-1|InclAllRules=0
-ComparisonOptions3=Kind=Rule|MinPercent=75|MinMatch=3|ShowMatch=-1|UseName=-1|InclAllRules=0
-ComparisonOptions4=Kind=Differential Pair|MinPercent=50|MinMatch=1|ShowMatch=0|UseName=0|InclAllRules=0
-ComparisonOptions5=Kind=Structure Class|MinPercent=75|MinMatch=3|ShowMatch=-1|UseName=-1|InclAllRules=0
+ComparisonOptions0=Kind=Net|MinPercent=75|MinMatch=3|ShowMatch=-1|Confirm=-1|UseName=-1|InclAllRules=0
+ComparisonOptions1=Kind=Net Class|MinPercent=75|MinMatch=3|ShowMatch=-1|Confirm=-1|UseName=-1|InclAllRules=0
+ComparisonOptions2=Kind=Component Class|MinPercent=75|MinMatch=3|ShowMatch=-1|Confirm=-1|UseName=-1|InclAllRules=0
+ComparisonOptions3=Kind=Rule|MinPercent=75|MinMatch=3|ShowMatch=-1|Confirm=-1|UseName=-1|InclAllRules=0
+ComparisonOptions4=Kind=Differential Pair|MinPercent=50|MinMatch=1|ShowMatch=0|Confirm=0|UseName=0|InclAllRules=0
+ComparisonOptions5=Kind=Structure Class|MinPercent=75|MinMatch=3|ShowMatch=-1|Confirm=-1|UseName=-1|InclAllRules=0
 
 [SmartPDF]
 PageOptions=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-3|MediaType=1|DitherType=10|PrintScaleMode=1|PaperKind=Letter|PaperIndex=1

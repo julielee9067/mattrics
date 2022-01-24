@@ -639,13 +639,17 @@ Configuration1_Item1=CaptionAsName
 Configuration1_Name2=ForceUpdateSettings
 Configuration1_Item2=False
 Configuration1_Name3=General
-Configuration1_Item3=OpenExported=False|AddToProject=False|ReportBOMViolationsInMessages=False|ForceFit=False|NotFitted=False|Database=False|DatabasePriority=False|IncludePcbData=False|IncludeVaultData=False|IncludeCloudData=False|IncludeDocumentData=True|IncludeAlternatives=False|ShowExportOptions=True|TemplateFilename=|TemplateVaultGuid=|TemplateRevisionGuid=|BatchMode=5|FormWidth=1200|FormHeight=710|SupplierProdQty=1|SupplierAutoQty=False|SupplierUseCachedPricing=False|SupplierCurrency=USD|SolutionsPerItem=1|SuppliersPerSolution=1|ViewType=0|UseDirectApi=False|BomSetName=
+Configuration1_Item3=OpenExported=False|AddToProject=False|ReportBOMViolationsInMessages=False|ForceFit=False|NotFitted=False|Database=False|DatabasePriority=False|IncludePcbData=False|IncludeVaultData=False|IncludeCloudData=False|IncludeDocumentData=False|IncludeAlternatives=True|ShowExportOptions=True|TemplateFilename=|TemplateVaultGuid=|TemplateRevisionGuid=|BatchMode=5|FormWidth=1200|FormHeight=710|SupplierProdQty=1|SupplierAutoQty=True|SupplierUseCachedPricing=False|SupplierCurrency=USD|SolutionsPerItem=1|SuppliersPerSolution=1|ViewType=0|UseDirectApi=True|BomSetName=
 Configuration1_Name4=GroupOrder
-Configuration1_Item4=Comment=True|Footprint=True
-Configuration1_Name5=SortOrder
-Configuration1_Item5=Designator=Up|Comment=Up|Footprint=Up
-Configuration1_Name6=VisibleOrder
-Configuration1_Item6=Comment=120|Description=120|Designator=120|Footprint=120|LibRef=120|Quantity=120
+Configuration1_Item4=
+Configuration1_Name5=VisibleOrder
+Configuration1_Item5=Line #=52|Comment=198|Description=133|Designator=194|Quantity=66|Manufacturer=90|Manufacturer Part Number=156|Supplier=99|Supplier Part Number=129
+Configuration1_Name6=VisibleOrder_Base
+Configuration1_Item6=Line #=52|Comment=198|Description=133|Designator=194|Quantity=66|Manufacturer=90|Manufacturer Part Number=156|Supplier=99|Supplier Part Number=129
+Configuration1_Name7=VisibleOrder_Consolidated
+Configuration1_Item7=Line #=53|Comment=52|Description=79|Designator=77|Revision ID=148|Revision State=139|Revision Status=97|Quantity=67|Manufacturer 1=99|Manufacturer Part Number 1=166|Manufacturer Lifecycle 1=143|Supplier 1=72|Supplier Part Number 1=139|Supplier Unit Price 1=123|Supplier Subtotal 1=116
+Configuration1_Name8=VisibleOrder_Flat
+Configuration1_Item8=Line #=53|Comment=52|Description=79|Designator=77|Revision ID=148|Revision State=139|Revision Status=97|Manufacturer 1=99|Manufacturer Part Number 1=166|Manufacturer Lifecycle 1=143|Supplier 1=72|Supplier Part Number 1=139|Supplier Unit Price 1=123|Supplier Subtotal 1=116
 OutputType2=ComponentCrossReference
 OutputName2=Component Cross Reference Report
 OutputDocumentPath2=
@@ -884,36 +888,6 @@ OutputName11=Specctra Design PCB
 OutputDocumentPath11=
 OutputVariantName11=
 OutputDefault11=0
-OutputType12=Ansoft Neutral
-OutputName12=Ansoft Neutral (AutoPCB)
-OutputDocumentPath12=
-OutputVariantName12=
-OutputDefault12=0
-OutputType13=HyperLynx
-OutputName13=HyperLynx (AutoPCB)
-OutputDocumentPath13=
-OutputVariantName13=
-OutputDefault13=0
-OutputType14=Orcad v7 Capture Design
-OutputName14=Orcad v7 Capture Design (AutoSCH)
-OutputDocumentPath14=
-OutputVariantName14=
-OutputDefault14=0
-OutputType15=P-CAD ASCII
-OutputName15=P-CAD ASCII (AutoPCB)
-OutputDocumentPath15=
-OutputVariantName15=
-OutputDefault15=0
-OutputType16=P-CAD V16 Schematic Design
-OutputName16=P-CAD V16 Schematic Design (AutoSCH)
-OutputDocumentPath16=
-OutputVariantName16=
-OutputDefault16=0
-OutputType17=SiSoft
-OutputName17=SiSoft (AutoPCB)
-OutputDocumentPath17=
-OutputVariantName17=
-OutputDefault17=0
 
 [OutputGroup10]
 Name=PostProcess Outputs
@@ -1127,7 +1101,7 @@ Type6=2
 Type7=0
 Type8=1
 Type9=1
-Type10=1
+Type10=0
 Type11=2
 Type12=0
 Type13=0
@@ -1240,23 +1214,23 @@ Type119=3
 MultiChannelAlternate=2
 AlternateItemFail=3
 Type122=2
-Type123=1
+Type123=2
 
 [ERC Connection Matrix]
 L1=NNNNNNNNNNNWNNNWW
-L2=NNWNNNNWWWNWNWNWN
+L2=NNWNNNNENNNWNNNWN
 L3=NWEENEEEENEWNEEWN
 L4=NNENNNWEENNWNENWN
 L5=NNNNNNNNNNNNNNNNN
 L6=NNENNNNEENNWNENWN
 L7=NNEWNNWEENNWNENWN
-L8=NWEENEENEEENNEENN
-L9=NWEENEEEENEWNEEWW
-L10=NWNNNNNENNEWNNEWN
+L8=NEEENEENEEENNEENN
+L9=NNEENEEEENEWNEEWW
+L10=NNNNNNNENNEWNNEWN
 L11=NNENNNNEEENWNENWN
 L12=WWWWNWWNWWWNWWWNN
 L13=NNNNNNNNNNNWNNNWW
-L14=NWEENEEEENEWNEEWW
+L14=NNEENEEEENEWNEEWW
 L15=NNENNNNEEENWNENWW
 L16=WWWWNWWNWWWNWWWNW
 L17=WNNNNNNNWNNNWWWWN
@@ -1316,18 +1290,22 @@ ParameterName3=Description
 ParameterUpdate3=1
 ParameterName4=Library Reference
 ParameterUpdate4=1
-ParameterName5=Manufacturer_Part_Number
+ParameterName5=Manufacturer
 ParameterUpdate5=1
-ParameterName6=Mfr_Name
+ParameterName6=Manufacturer Part Number
 ParameterUpdate6=1
 ParameterName7=RefDes
 ParameterUpdate7=1
-ParameterName8=Type
+ParameterName8=Supplier
 ParameterUpdate8=1
+ParameterName9=Supplier Part Number
+ParameterUpdate9=1
+ParameterName10=Type
+ParameterUpdate10=1
 ModelTypeGroup0=PCBLIB
 ModelTypeUpdate0=1
 ModelType0=PCBLIB
-ModelName0=S-PAK-3_R_MCH-M
+ModelName0=S-PAK-3_R_MCH
 ModelUpdate0=1
 
 [DatabaseUpdateOptions]

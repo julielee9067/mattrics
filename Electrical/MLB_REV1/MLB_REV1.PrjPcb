@@ -23,30 +23,38 @@ DefaultPcbPcad=0
 ReorderDocumentsOnCompile=1
 NameNetsHierarchically=0
 PowerPortNamesTakePriority=0
-AutoSheetNumbering=0
-AutoCrossReferences=0
 PushECOToAnnotationFile=1
 DItemRevisionGUID=
 ReportSuppressedErrorsInMessages=0
 FSMCodingStyle=eFMSDropDownList_OneProcess
 FSMEncodingStyle=eFMSDropDownList_OneHot
-IsProjectConflictPreventionWarningsEnabled=1
 OutputPath=
 LogFolderPath=
 ManagedProjectGUID=
 IncludeDesignInRelease=0
-CrossRefSheetStyle=1
-CrossRefLocationStyle=1
-CrossRefPorts=3
-CrossRefCrossSheets=1
-CrossRefSheetEntries=0
-CrossRefFollowFromMainSettings=1
 
 [Preferences]
 PrefsVaultGUID=
 PrefsRevisionGUID=
 
 [Document1]
+DocumentPath=BLOCK_DIAGRAM.SchDoc
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotationIndexControlEnabled=0
+AnnotateSuffix=
+AnnotateScope=All
+AnnotateOrder=7
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
+ClassGenCCAutoEnabled=1
+ClassGenCCAutoRoomEnabled=1
+ClassGenNCAutoScope=None
+DItemRevisionGUID=
+GenerateClassCluster=0
+DocumentUniqueId=TGAMQQVH
+
+[Document2]
 DocumentPath=POWER_MCU.SchDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -63,7 +71,7 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=GOTVSCCQ
 
-[Document2]
+[Document3]
 DocumentPath=Library\AZ1117IH-3.3TRG1\SOT230P700X170-4N.PcbLib
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -80,7 +88,7 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=TAAHCTCP
 
-[Document3]
+[Document4]
 DocumentPath=Library\AZ1117IH-3.3TRG1\AZ1117IH-3.3TRG1.SchLib
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -97,7 +105,7 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=MDQEZZCN
 
-[Document4]
+[Document5]
 DocumentPath=MLBSchLib.SchLib
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -114,7 +122,7 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=KQHUTATJ
 
-[Document5]
+[Document6]
 DocumentPath=MLB_PCBLib.PcbLib
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -131,7 +139,7 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=XTYFEUWN
 
-[Document6]
+[Document7]
 DocumentPath=SD_CARD_WiFi.SchDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -148,7 +156,7 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=QWOIULOV
 
-[Document7]
+[Document8]
 DocumentPath=POWER_MUXES.SchDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -165,7 +173,7 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=KXGEHVCU
 
-[Document8]
+[Document9]
 DocumentPath=SENSE_MUXES.SchDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -182,7 +190,7 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=TNRMKKRI
 
-[Document9]
+[Document10]
 DocumentPath=VELOSTAT_SENSING.SchDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -199,7 +207,7 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=ZUSVCEJK
 
-[Document10]
+[Document11]
 DocumentPath=MAT_CABLING_CONNECTOR.SchDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -216,7 +224,7 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=QCJIYXMX
 
-[Document11]
+[Document12]
 DocumentPath=MICROPHONE.SchDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -233,7 +241,7 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=MZZYLKSL
 
-[Document12]
+[Document13]
 DocumentPath=MLB_REV1.OutJob
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -249,23 +257,6 @@ ClassGenNCAutoScope=None
 DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=
-
-[Document13]
-DocumentPath=BLOCK_DIAGRAM.SchDoc
-AnnotationEnabled=1
-AnnotateStartValue=1
-AnnotationIndexControlEnabled=0
-AnnotateSuffix=
-AnnotateScope=All
-AnnotateOrder=7
-DoLibraryUpdate=1
-DoDatabaseUpdate=1
-ClassGenCCAutoEnabled=1
-ClassGenCCAutoRoomEnabled=1
-ClassGenNCAutoScope=None
-DItemRevisionGUID=
-GenerateClassCluster=0
-DocumentUniqueId=TGAMQQVH
 
 [Document14]
 DocumentPath=MLB_REV1.BomDoc
@@ -684,18 +675,6 @@ OutputName6=Report Single Pin Nets
 OutputDocumentPath6=
 OutputVariantName6=[No Variations]
 OutputDefault6=0
-OutputType7=BOM_ReportCompare
-OutputName7=BOM Compare
-OutputDocumentPath7=
-OutputVariantName7=[No Variations]
-OutputDefault7=0
-PageOptions7=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-3|MediaType=1|DitherType=10|PrintScaleMode=1|PaperKind=Letter|PaperIndex=1
-OutputType8=Export Comments
-OutputName8=Export Comments
-OutputDocumentPath8=
-OutputVariantName8=[No Variations]
-OutputDefault8=0
-PageOptions8=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-3|MediaType=1|DitherType=10|PrintScaleMode=1|PaperKind=Letter|PaperIndex=1
 
 [OutputGroup7]
 Name=Other Outputs
@@ -1236,8 +1215,6 @@ MultiChannelAlternate=2
 AlternateItemFail=3
 Type122=2
 Type123=2
-Type124=1
-Type125=1
 
 [ERC Connection Matrix]
 L1=NNNNNNNNNNNWNNNWW
@@ -1286,16 +1263,34 @@ UpdateToLatestRevision=1
 PartTypes=0
 ComponentLibIdentifierKind0=Library Name And Type
 ComponentLibraryIdentifier0=MLBSchLib.SchLib
-ComponentDesignItemID0=CMP-03211-005885-1
-ComponentSymbolReference0=CMP-03211-005885-1
-ComponentUpdate0=1
+ComponentDesignItemID0=CMP-13271-003098-1
+ComponentSymbolReference0=CMP-13271-003098-1
+ComponentUpdate0=0
 ComponentIsDeviceSheet0=0
 ComponentLibIdentifierKind1=Library Name And Type
 ComponentLibraryIdentifier1=MLBSchLib.SchLib
-ComponentDesignItemID1=CMP-2002-07511-1
-ComponentSymbolReference1=CMP-2002-07511-1
+ComponentDesignItemID1=LTC2451ITS8#TRMPBF
+ComponentSymbolReference1=LTC2451ITS8#TRMPBF
 ComponentUpdate1=1
 ComponentIsDeviceSheet1=0
+ComponentLibIdentifierKind2=Library Name And Type
+ComponentLibraryIdentifier2=MLBSchLib.SchLib
+ComponentDesignItemID2=MCP6411T-E_OT
+ComponentSymbolReference2=MCP6411T-E_OT
+ComponentUpdate2=0
+ComponentIsDeviceSheet2=0
+ComponentLibIdentifierKind3=Library Name Only
+ComponentLibraryIdentifier3=Altium Content Vault
+ComponentDesignItemID3=CMP-2100-03671-1
+ComponentSymbolReference3=RES-2
+ComponentUpdate3=0
+ComponentIsDeviceSheet3=0
+ComponentLibIdentifierKind4=Library Name Only
+ComponentLibraryIdentifier4=Altium Content Vault
+ComponentDesignItemID4=CMP-26527-001731-1
+ComponentSymbolReference4=1029c3af85768c4190bb7ad29bc67b5
+ComponentUpdate4=0
+ComponentIsDeviceSheet4=0
 FullReplace=1
 UpdateDesignatorLock=1
 UpdatePartIDLock=1
@@ -1309,98 +1304,158 @@ RemoveParameters=0
 AddModels=1
 RemoveModels=1
 UpdateCurrentModels=1
-ParameterName0=Ambient Temperature Range High
+ParameterName0=Arrow Part Number
 ParameterUpdate0=1
-ParameterName1=Automotive
+ParameterName1=Arrow Price/Stock
 ParameterUpdate1=1
-ParameterName2=Category
+ParameterName2=Capacitance
 ParameterUpdate2=1
-ParameterName3=Comment
+ParameterName3=Case Code (Imperial)
 ParameterUpdate3=1
-ParameterName4=Component Kind
+ParameterName4=Case Code (Metric)
 ParameterUpdate4=1
-ParameterName5=ComponentLink2Description
+ParameterName5=Case/Package
 ParameterUpdate5=1
-ParameterName6=ComponentLink2URL
+ParameterName6=Comment
 ParameterUpdate6=1
-ParameterName7=Composition
+ParameterName7=Component Kind
 ParameterUpdate7=1
-ParameterName8=Description
+ParameterName8=Composition
 ParameterUpdate8=1
-ParameterName9=Device Class L1
+ParameterName9=Construction
 ParameterUpdate9=1
-ParameterName10=Device Class L2
+ParameterName10=Contact Plating
 ParameterUpdate10=1
-ParameterName11=Device Class L3
+ParameterName11=Datasheet Link
 ParameterUpdate11=1
-ParameterName12=Digikey Description
+ParameterName12=Datasheet URL
 ParameterUpdate12=1
-ParameterName13=Height
+ParameterName13=Datasheet Version
 ParameterUpdate13=1
-ParameterName14=Ipc Land Pattern Name
+ParameterName14=Depth
 ParameterUpdate14=1
-ParameterName15=Lead Free
+ParameterName15=Description
 ParameterUpdate15=1
-ParameterName16=Library Reference
+ParameterName16=Dielectric
 ParameterUpdate16=1
-ParameterName17=Manufacturer
+ParameterName17=Features
 ParameterUpdate17=1
-ParameterName18=Manufacturer Part Number
+ParameterName18=Height
 ParameterUpdate18=1
-ParameterName19=Mouser Description
+ParameterName19=Lead Free
 ParameterUpdate19=1
-ParameterName20=Octopart
+ParameterName20=Length
 ParameterUpdate20=1
-ParameterName21=Package
+ParameterName21=Library Reference
 ParameterUpdate21=1
-ParameterName22=Package Reference
+ParameterName22=Manufacturer
 ParameterUpdate22=1
-ParameterName23=Power Rating
+ParameterName23=Manufacturer Part Number
 ParameterUpdate23=1
-ParameterName24=Resistance
+ParameterName24=Manufacturer URL
 ParameterUpdate24=1
-ParameterName25=RoHS
+ParameterName25=Max Operating Temperature
 ParameterUpdate25=1
-ParameterName26=Series
+ParameterName26=Max Power Dissipation
 ParameterUpdate26=1
-ParameterName27=Supplier
+ParameterName27=Military Standard
 ParameterUpdate27=1
-ParameterName28=Supplier Part Number
+ParameterName28=Min Operating Temperature
 ParameterUpdate28=1
-ParameterName29=Temperature
+ParameterName29=Mount
 ParameterUpdate29=1
-ParameterName30=Temperature Coefficient
+ParameterName30=Mouser Part Number
 ParameterUpdate30=1
-ParameterName31=Temperature Range High
+ParameterName31=Mouser Price/Stock
 ParameterUpdate31=1
-ParameterName32=Temperature Range Low
+ParameterName32=Number of Pins
 ParameterUpdate32=1
-ParameterName33=Tolerance
+ParameterName33=Number of Terminations
 ParameterUpdate33=1
-ParameterName34=Value
+ParameterName34=Package Description
 ParameterUpdate34=1
-ParameterName35=Voltage Rating
+ParameterName35=Package Quantity
 ParameterUpdate35=1
+ParameterName36=Package Reference
+ParameterUpdate36=1
+ParameterName37=Packaging
+ParameterUpdate37=1
+ParameterName38=Power Rating
+ParameterUpdate38=1
+ParameterName39=Radiation Hardening
+ParameterUpdate39=1
+ParameterName40=REACH SVHC
+ParameterUpdate40=1
+ParameterName41=Resistance
+ParameterUpdate41=1
+ParameterName42=Resistor Type
+ParameterUpdate42=1
+ParameterName43=RoHS Compliant
+ParameterUpdate43=1
+ParameterName44=RoHSCompliant
+ParameterUpdate44=1
+ParameterName45=Series
+ParameterUpdate45=1
+ParameterName46=Size Code
+ParameterUpdate46=1
+ParameterName47=Supplier
+ParameterUpdate47=1
+ParameterName48=Supplier Part Number
+ParameterUpdate48=1
+ParameterName49=Temperature Coefficient
+ParameterUpdate49=1
+ParameterName50=Termination
+ParameterUpdate50=1
+ParameterName51=Thickness
+ParameterUpdate51=1
+ParameterName52=Tolerance
+ParameterUpdate52=1
+ParameterName53=Voltage
+ParameterUpdate53=1
+ParameterName54=Voltage Rating
+ParameterUpdate54=1
+ParameterName55=Voltage Rating (DC)
+ParameterUpdate55=1
+ParameterName56=Width
+ParameterUpdate56=1
 ModelTypeGroup0=PCBLIB
 ModelTypeUpdate0=1
 ModelType0=PCBLIB
-ModelName0=FP-CRGCQ0402-IPC_A
+ModelName0=FP-CL21-IPC_A
 ModelUpdate0=1
 ModelType1=PCBLIB
-ModelName1=FP-CRGCQ0402-IPC_B
+ModelName1=FP-CL21-IPC_B
 ModelUpdate1=1
 ModelType2=PCBLIB
-ModelName2=FP-CRGCQ0402-IPC_C
+ModelName2=FP-CL21-IPC_C
 ModelUpdate2=1
 ModelType3=PCBLIB
-ModelName3=RESC1005X40X25LL05T10
+ModelName3=FP-RMCF0805-IPC_A
 ModelUpdate3=1
 ModelType4=PCBLIB
-ModelName4=RESC1005X40X25ML05T10
+ModelName4=FP-RMCF0805-IPC_B
 ModelUpdate4=1
 ModelType5=PCBLIB
-ModelName5=RESC1005X40X25NL05T10
+ModelName5=FP-RMCF0805-IPC_C
 ModelUpdate5=1
+ModelType6=PCBLIB
+ModelName6=FP-RMCF0805-MFG
+ModelUpdate6=1
+ModelType7=PCBLIB
+ModelName7=RESC2013X60X35LL10T20
+ModelUpdate7=1
+ModelType8=PCBLIB
+ModelName8=RESC2013X60X35ML10T20
+ModelUpdate8=1
+ModelType9=PCBLIB
+ModelName9=RESC2013X60X35NL10T20
+ModelUpdate9=1
+ModelType10=PCBLIB
+ModelName10=SOT65P280X100-8N
+ModelUpdate10=1
+ModelType11=PCBLIB
+ModelName11=SOT95P280X145-5N
+ModelUpdate11=1
 
 [DatabaseUpdateOptions]
 SelectedOnly=0
@@ -1409,12 +1464,12 @@ UpdateToLatestRevision=1
 PartTypes=0
 
 [Comparison Options]
-ComparisonOptions0=Kind=Net|MinPercent=75|MinMatch=3|ShowMatch=-1|UseName=-1|InclAllRules=0
-ComparisonOptions1=Kind=Net Class|MinPercent=75|MinMatch=3|ShowMatch=-1|UseName=-1|InclAllRules=0
-ComparisonOptions2=Kind=Component Class|MinPercent=75|MinMatch=3|ShowMatch=-1|UseName=-1|InclAllRules=0
-ComparisonOptions3=Kind=Rule|MinPercent=75|MinMatch=3|ShowMatch=-1|UseName=-1|InclAllRules=0
-ComparisonOptions4=Kind=Differential Pair|MinPercent=50|MinMatch=1|ShowMatch=0|UseName=0|InclAllRules=0
-ComparisonOptions5=Kind=Structure Class|MinPercent=75|MinMatch=3|ShowMatch=-1|UseName=-1|InclAllRules=0
+ComparisonOptions0=Kind=Net|MinPercent=75|MinMatch=3|ShowMatch=-1|Confirm=-1|UseName=-1|InclAllRules=0
+ComparisonOptions1=Kind=Net Class|MinPercent=75|MinMatch=3|ShowMatch=-1|Confirm=-1|UseName=-1|InclAllRules=0
+ComparisonOptions2=Kind=Component Class|MinPercent=75|MinMatch=3|ShowMatch=-1|Confirm=-1|UseName=-1|InclAllRules=0
+ComparisonOptions3=Kind=Rule|MinPercent=75|MinMatch=3|ShowMatch=-1|Confirm=-1|UseName=-1|InclAllRules=0
+ComparisonOptions4=Kind=Differential Pair|MinPercent=50|MinMatch=1|ShowMatch=0|Confirm=0|UseName=0|InclAllRules=0
+ComparisonOptions5=Kind=Structure Class|MinPercent=75|MinMatch=3|ShowMatch=-1|Confirm=-1|UseName=-1|InclAllRules=0
 
 [SmartPDF]
 PageOptions=Record=PageOptions|CenterHorizontal=True|CenterVertical=True|PrintScale=1.00|XCorrection=1.00|YCorrection=1.00|PrintKind=1|BorderSize=5000000|LeftOffset=0|BottomOffset=0|Orientation=2|PaperLength=1000|PaperWidth=1000|Scale=100|PaperSource=7|PrintQuality=-3|MediaType=1|DitherType=10|PrintScaleMode=1|PaperKind=Letter|PaperIndex=1

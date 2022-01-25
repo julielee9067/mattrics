@@ -1,8 +1,1 @@
-Record=TopLevelDocument|FileName=BLOCK_DIAGRAM.SchDoc|SheetNumber=1
-Record=NoMainPathDocument|SourceDocument=BLOCK_DIAGRAM.SchDoc|FileName=MAT_CABLING_CONNECTOR.SchDoc|SheetNumber=7
-Record=NoMainPathDocument|SourceDocument=BLOCK_DIAGRAM.SchDoc|FileName=MICROPHONE.SchDoc|SheetNumber=8
-Record=NoMainPathDocument|SourceDocument=BLOCK_DIAGRAM.SchDoc|FileName=POWER_MCU.SchDoc|SheetNumber=2
-Record=NoMainPathDocument|SourceDocument=BLOCK_DIAGRAM.SchDoc|FileName=POWER_MUXES.SchDoc|SheetNumber=4
-Record=NoMainPathDocument|SourceDocument=BLOCK_DIAGRAM.SchDoc|FileName=SD_CARD_WiFi.SchDoc|SheetNumber=3
-Record=NoMainPathDocument|SourceDocument=BLOCK_DIAGRAM.SchDoc|FileName=SENSE_MUXES.SchDoc|SheetNumber=5
-Record=NoMainPathDocument|SourceDocument=BLOCK_DIAGRAM.SchDoc|FileName=VELOSTAT_SENSING.SchDoc|SheetNumber=6
+Record=TopLevelDocument|FileName=BLOCK_DIAGRAM.SchDoc

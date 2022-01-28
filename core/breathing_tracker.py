@@ -1,26 +1,42 @@
+import csv
 import re
+import statistics
+from pathlib import Path
 from typing import List
 
 import matplotlib.pyplot as plt
 
+from utils import logger
 
-def read_file(file_path: str) -> List[List[int]]:
+
+def read_csv_file(file_path: str) -> List[List[int]]:
+    result = []
+
+    with open(file_path, newline="") as f:
+        reader = csv.reader(f)
+        for row in reader:
+            result.append(list(map(int, row[1:])))
+
+    return result
+
+
+def read_txt_file(file_path: str) -> List[List[int]]:
     result = []
     with open(file_path, "r+") as f:
         contents = f.readlines()
+
         for content in contents:
             content = re.sub(r"\t", " ", content).split()
-            int_list = list(map(int, content))
-            result.append(int_list)
+            result.append(list(map(int, content)))
 
     return result
 
 
 def get_total_pressure_list(data: List[List[int]]) -> List[int]:
-    return [sum(stream) for stream in data]
+    return [statistics.mean(stream) for stream in data]
 
 
-def plot_respiratory_pattern(pressure_list: List[int]) -> None:
+def plot_respiratory_pattern(pressure_list: List[int], save_path: Path) -> None:
     x_data = range(len(pressure_list))
     y_data = pressure_list
     fig = plt.figure()
@@ -29,10 +45,15 @@ def plot_respiratory_pattern(pressure_list: List[int]) -> None:
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Total Pressure")
 
-    plt.show()
+    plt.savefig(save_path)
+    logger.info(f"Successfully created respiratory graph: {save_path}")
 
 
 if __name__ == "__main__":
-    result = read_file("pressure_data/Matrix_Air_B2.txt")
+    file_path = "pressure_data/Jan13_drift_test.csv"
+    # result = read_txt_file("pressure_data/Matrix_Air_B2.txt")
+    result = read_csv_file(file_path=file_path)
     pressure_list = get_total_pressure_list(data=result)
-    plot_respiratory_pattern(pressure_list=pressure_list)
+    plot_respiratory_pattern(
+        pressure_list=pressure_list, save_path=Path(file_path).with_suffix(".png")
+    )

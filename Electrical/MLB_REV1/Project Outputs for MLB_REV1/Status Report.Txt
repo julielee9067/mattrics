@@ -1,14 +1,36 @@
-Project Outputs Generation Report
----------------------------------
-Start Output Generation At 8:49:18 PM On 1/22/2022
+Output: Gerber X2 Files
+Type  : GerberX2
+From  : PCB Document [MLB_REV1.PcbDoc]
+   Generated File[MLB_REV1_Copper_Signal_Top.gbr]
+   Generated File[MLB_REV1_Copper_Signal_Bot.gbr]
+   Generated File[MLB_REV1_Pads_Bot.gbr]
+   Generated File[MLB_REV1_Pads_Top.gbr]
+   Generated File[MLB_REV1_Legend_Bot.gbr]
+   Generated File[MLB_REV1_Soldermask_Bot.gbr]
+   Generated File[MLB_REV1_Paste_Bot.gbr]
+   Generated File[MLB_REV1_Legend_Top.gbr]
+   Generated File[MLB_REV1_Paste_Top.gbr]
+   Generated File[MLB_REV1_Soldermask_Top.gbr]
+   Generated File[MLB_REV1_Keep-out.gbr]
+   Generated File[MLB_REV1_Mechanical_13.gbr]
+   Generated File[MLB_REV1_Mechanical_24.gbr]
+   Generated File[MLB_REV1_Mechanical_21.gbr]
+   Generated File[MLB_REV1_Mechanical_20.gbr]
+   Generated File[MLB_REV1_Mechanical_2.gbr]
+   Generated File[MLB_REV1_Mechanical_5.gbr]
+   Generated File[MLB_REV1_Mechanical_10.gbr]
+   Generated File[MLB_REV1_Mechanical_1.gbr]
+   Generated File[MLB_REV1_Mechanical_12.gbr]
+   Generated File[MLB_REV1_Mechanical_16.gbr]
+   Generated File[MLB_REV1_Mechanical_23.gbr]
+   Generated File[MLB_REV1_Mechanical_15.gbr]
+   Generated File[MLB_REV1_Profile.gbr]
+   Generated File[MLB_REV1.RUL]
+   Generated File[MLB_REV1.EXTREP]
+   Generated File[MLB_REV1.REP]
 
-Output: Electrical Rules Check
-Type  : ERC
-From  : Project [MLB_REV1.PrjPcb]
-   Generated File[MLB_REV1.html]
 
-
-Files Generated   : 1
+Files Generated   : 27
 Documents Printed : 0
 
-Finished Output Generation At 8:49:19 PM On 1/22/2022
+Finished Output Generation At 4:49:31 AM On 1/27/2022

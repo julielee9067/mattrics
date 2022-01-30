@@ -6,7 +6,7 @@ import csv
 import numpy as np
 import matplotlib.pyplot as plt
 
-data_file = '8h_drift_test.csv'
+data_file = 'Jan27_6by6.csv'
 NUM_MEASUREMENTS = 36 # number of nodes
 
 mean_array = np.zeros(NUM_MEASUREMENTS) # stores NUM_MEASUREMENTS mean values

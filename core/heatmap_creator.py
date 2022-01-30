@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn
 
+from utils import logger
+
 
 def get_first_row_data(csv_path: str) -> List:
     with open(csv_path, newline="") as f:
@@ -29,6 +31,7 @@ def plot_heatmap(data: np.array, num_col: int, num_row: int, save_path: str):
     plt.title("Pressure Heat Map")
     seaborn.heatmap(data, linewidth=0.30, annot=False, cmap="Blues")
     plt.savefig(save_path)
+    logger.info(f"Successfully created heatmap: {save_path}")
 
 
 if __name__ == "__main__":

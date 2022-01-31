@@ -297,7 +297,135 @@ DocumentPath=Project Outputs for MLB_REV1\Design Rule Check - MLB_REV1.html
 DItemRevisionGUID=
 
 [GeneratedDocument2]
+DocumentPath=Project Outputs for MLB_REV1\NC Drill\MLB_REV1-RoundHoles.TXT
+DItemRevisionGUID=
+
+[GeneratedDocument3]
+DocumentPath=Project Outputs for MLB_REV1\NC Drill\MLB_REV1-SlotHoles.TXT
+DItemRevisionGUID=
+
+[GeneratedDocument4]
+DocumentPath=Project Outputs for MLB_REV1\NC Drill\MLB_REV1.DRR
+DItemRevisionGUID=
+
+[GeneratedDocument5]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.EXTREP
+DItemRevisionGUID=
+
+[GeneratedDocument6]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.G1
+DItemRevisionGUID=
+
+[GeneratedDocument7]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.G2
+DItemRevisionGUID=
+
+[GeneratedDocument8]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GBL
+DItemRevisionGUID=
+
+[GeneratedDocument9]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GBO
+DItemRevisionGUID=
+
+[GeneratedDocument10]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GBP
+DItemRevisionGUID=
+
+[GeneratedDocument11]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GBS
+DItemRevisionGUID=
+
+[GeneratedDocument12]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GKO
+DItemRevisionGUID=
+
+[GeneratedDocument13]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GM1
+DItemRevisionGUID=
+
+[GeneratedDocument14]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GM2
+DItemRevisionGUID=
+
+[GeneratedDocument15]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GM5
+DItemRevisionGUID=
+
+[GeneratedDocument16]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GM10
+DItemRevisionGUID=
+
+[GeneratedDocument17]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GM12
+DItemRevisionGUID=
+
+[GeneratedDocument18]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GM13
+DItemRevisionGUID=
+
+[GeneratedDocument19]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GM15
+DItemRevisionGUID=
+
+[GeneratedDocument20]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GM16
+DItemRevisionGUID=
+
+[GeneratedDocument21]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GM20
+DItemRevisionGUID=
+
+[GeneratedDocument22]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GM21
+DItemRevisionGUID=
+
+[GeneratedDocument23]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GM23
+DItemRevisionGUID=
+
+[GeneratedDocument24]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GM24
+DItemRevisionGUID=
+
+[GeneratedDocument25]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GPB
+DItemRevisionGUID=
+
+[GeneratedDocument26]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GPT
+DItemRevisionGUID=
+
+[GeneratedDocument27]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GTL
+DItemRevisionGUID=
+
+[GeneratedDocument28]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GTO
+DItemRevisionGUID=
+
+[GeneratedDocument29]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GTP
+DItemRevisionGUID=
+
+[GeneratedDocument30]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GTS
+DItemRevisionGUID=
+
+[GeneratedDocument31]
 DocumentPath=Project Outputs for MLB_REV1\ERC\MLB_REV1.html
+DItemRevisionGUID=
+
+[GeneratedDocument32]
+DocumentPath=Project Outputs for MLB_REV1\NC Drill\MLB_REV1.LDP
+DItemRevisionGUID=
+
+[GeneratedDocument33]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.REP
+DItemRevisionGUID=
+
+[GeneratedDocument34]
+DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.RUL
 DItemRevisionGUID=
 
 [Configuration1]
@@ -1267,8 +1395,8 @@ UpdateToLatestRevision=1
 PartTypes=0
 ComponentLibIdentifierKind0=Library Name And Type
 ComponentLibraryIdentifier0=MLBSchLib.SchLib
-ComponentDesignItemID0=ECS-200-9-33B-CKY-TR
-ComponentSymbolReference0=ECS-200-9-33B-CKY-TR
+ComponentDesignItemID0=DF2S10FS,L3M
+ComponentSymbolReference0=DF2S10FS,L3M
 ComponentUpdate0=1
 ComponentIsDeviceSheet0=0
 FullReplace=1
@@ -1284,42 +1412,42 @@ RemoveParameters=0
 AddModels=1
 RemoveModels=1
 UpdateCurrentModels=1
-ParameterName0=Availability
+ParameterName0=Arrow Part Number
 ParameterUpdate0=1
-ParameterName1=Check_prices
+ParameterName1=Arrow Price/Stock
 ParameterUpdate1=1
 ParameterName2=Comment
 ParameterUpdate2=1
 ParameterName3=Component Kind
 ParameterUpdate3=1
-ParameterName4=Description
+ParameterName4=Datasheet Link
 ParameterUpdate4=1
-ParameterName5=Library Reference
+ParameterName5=Description
 ParameterUpdate5=1
-ParameterName6=Manufacturer
+ParameterName6=Height
 ParameterUpdate6=1
-ParameterName7=Manufacturer Part Number
+ParameterName7=Library Reference
 ParameterUpdate7=1
-ParameterName8=MF
+ParameterName8=Manufacturer
 ParameterUpdate8=1
-ParameterName9=Package
+ParameterName9=Manufacturer Part Number
 ParameterUpdate9=1
-ParameterName10=Price
+ParameterName10=Manufacturer_Name
 ParameterUpdate10=1
-ParameterName11=Purchase-URL
+ParameterName11=Manufacturer_Part_Number
 ParameterUpdate11=1
-ParameterName12=SnapEDA_Link
+ParameterName12=Mouser Part Number
 ParameterUpdate12=1
-ParameterName13=Supplier
+ParameterName13=Mouser Price/Stock
 ParameterUpdate13=1
-ParameterName14=Supplier Part Number
+ParameterName14=Supplier
 ParameterUpdate14=1
-ParameterName15=Value
+ParameterName15=Supplier Part Number
 ParameterUpdate15=1
 ModelTypeGroup0=PCBLIB
 ModelTypeUpdate0=1
 ModelType0=PCBLIB
-ModelName0=XTAL_ECS-260-9-33B-CKY-TR
+ModelName0=DIOM106X45N
 ModelUpdate0=1
 
 [DatabaseUpdateOptions]

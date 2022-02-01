@@ -1,7 +1,7 @@
 Protel Design System Design Rule Check
 PCB File : C:\Users\User\Documents\mattrics\Electrical\MLB_REV1\MLB_REV1.PcbDoc
 Date     : 2/1/2022
-Time     : 1:11:09 PM
+Time     : 4:59:34 PM
 
 Processing Rule : Clearance Constraint (Gap=0.152mm) (All),(All)
    Violation between Clearance Constraint: (0.065mm < 0.152mm) Between Area Fill (161.678mm,97.386mm) (162.228mm,99.536mm) on Top Layer And Pad SD1-10(160.763mm,97.671mm) on Top Layer 
@@ -29,8 +29,8 @@ Processing Rule : Minimum Annular Ring (Minimum=0.178mm) (All)
 Rule Violations :0
 
 Processing Rule : Hole Size Constraint (Min=0.025mm) (Max=2.54mm) (All)
-   Violation between Hole Size Constraint: (2.769mm > 2.54mm) Pad J21-101(59.251mm,30.6mm) on Multi-Layer Actual Hole Size = 2.769mm
-   Violation between Hole Size Constraint: (2.769mm > 2.54mm) Pad J21-102(137.481mm,30.6mm) on Multi-Layer Actual Hole Size = 2.769mm
+   Violation between Hole Size Constraint: (2.769mm > 2.54mm) Pad J23-101(59.251mm,30.6mm) on Multi-Layer Actual Hole Size = 2.769mm
+   Violation between Hole Size Constraint: (2.769mm > 2.54mm) Pad J23-102(137.481mm,30.6mm) on Multi-Layer Actual Hole Size = 2.769mm
    Violation between Hole Size Constraint: (3mm > 2.54mm) Via (100.671mm,115.166mm) from Top Layer to Bottom Layer Actual Hole Size = 3mm
    Violation between Hole Size Constraint: (3mm > 2.54mm) Via (100.882mm,65.395mm) from Top Layer to Bottom Layer Actual Hole Size = 3mm
    Violation between Hole Size Constraint: (3mm > 2.54mm) Via (165.481mm,114.808mm) from Top Layer to Bottom Layer Actual Hole Size = 3mm

@@ -2,42 +2,55 @@
 FileName = MLB_REV1.GBR
 AutoAperture = True
 *************************************************************
-Generating : Bottom Layer
-      File : MLB_REV1.GBL
+Generating : Board Shape
+      File : MLB_REV1.GM2
 
-    Adding Layer      : Bottom Layer
+    Adding Layer      : Board Shape
+
+
+Used DCodes :
+    D139
+*************************************************************
+
+*************************************************************
+Generating : Power
+      File : MLB_REV1.G2
+
+    Adding Layer      : Power
 
     Adding Layer      : Multi-Layer
 
 
 Used DCodes :
-    D17
-    D78
-    D82
-    D83
-    D84
+    D11
     D85
+    D88
     D128
-    D129
-    D130
-    D131
     D132
-    D133
-    D134
-    D135
-    D136
     D137
 *************************************************************
 
 *************************************************************
-Generating : Bottom Overlay
-      File : MLB_REV1.GBO
+Generating : GND
+      File : MLB_REV1.G1
 
-    Adding Layer      : Bottom Overlay
+    Adding Layer      : GND
+
+    Adding Layer      : Multi-Layer
 
 
 Used DCodes :
-    D10
+    D11
+    D85
+    D88
+    D128
+    D130
+    D131
+    D133
+    D134
+    D135
+    D137
+    D138
 *************************************************************
 
 *************************************************************
@@ -126,6 +139,38 @@ Used DCodes :
 *************************************************************
 
 *************************************************************
+Generating : Bottom Overlay
+      File : MLB_REV1.GBO
+
+    Adding Layer      : Bottom Overlay
+
+
+Used DCodes :
+    D13
+*************************************************************
+
+*************************************************************
+Generating : Top Overlay
+      File : MLB_REV1.GTO
+
+    Adding Layer      : Top Overlay
+
+
+Used DCodes :
+    D10
+    D11
+    D12
+    D13
+    D14
+    D15
+    D16
+    D17
+    D18
+    D19
+    D20
+*************************************************************
+
+*************************************************************
 Generating : Top Layer
       File : MLB_REV1.GTL
 
@@ -135,33 +180,32 @@ Generating : Top Layer
 
 
 Used DCodes :
-    D10
-    D17
+    D13
+    D19
+    D21
+    D22
+    D23
     D24
-    D26
     D27
-    D31
-    D35
-    D38
-    D42
+    D28
+    D29
+    D32
+    D34
+    D40
     D43
-    D45
-    D56
-    D57
-    D58
+    D47
+    D49
     D60
     D61
-    D63
-    D66
-    D71
-    D72
-    D75
-    D76
-    D78
-    D82
-    D83
-    D84
+    D62
+    D64
+    D65
+    D69
+    D74
     D85
+    D86
+    D88
+    D89
     D92
     D93
     D94
@@ -208,6 +252,7 @@ Used DCodes :
     D135
     D136
     D137
+    D138
 *************************************************************
 
 *************************************************************
@@ -239,73 +284,30 @@ Used DCodes :
 *************************************************************
 
 *************************************************************
-Generating : GND
-      File : MLB_REV1.G1
+Generating : Bottom Layer
+      File : MLB_REV1.GBL
 
-    Adding Layer      : GND
+    Adding Layer      : Bottom Layer
 
     Adding Layer      : Multi-Layer
 
 
 Used DCodes :
-    D20
-    D78
-    D83
-    D84
+    D19
+    D85
+    D86
+    D88
+    D89
     D128
+    D129
     D130
+    D131
     D132
     D133
     D134
-    D136
-    D137
-*************************************************************
-
-*************************************************************
-Generating : Power
-      File : MLB_REV1.G2
-
-    Adding Layer      : Power
-
-    Adding Layer      : Multi-Layer
-
-
-Used DCodes :
-    D20
-    D78
     D135
     D136
-*************************************************************
-
-*************************************************************
-Generating : Top Overlay
-      File : MLB_REV1.GTO
-
-    Adding Layer      : Top Overlay
-
-
-Used DCodes :
-    D10
-    D11
-    D12
-    D13
-    D14
-    D15
-    D16
-    D17
-    D18
-    D19
-    D20
-*************************************************************
-
-*************************************************************
-Generating : Board Shape
-      File : MLB_REV1.GM2
-
-    Adding Layer      : Board Shape
-
-
-Used DCodes :
+    D137
     D138
 *************************************************************
 

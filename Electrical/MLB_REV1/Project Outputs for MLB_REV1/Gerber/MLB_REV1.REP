@@ -2,101 +2,21 @@
 FileName = MLB_REV1.GBR
 AutoAperture = True
 *************************************************************
-Generating : Board Shape
-      File : MLB_REV1.GM2
+Generating : Bottom Layer
+      File : MLB_REV1.GBL
 
-    Adding Layer      : Board Shape
-
-
-Used DCodes :
-    D138
-*************************************************************
-
-*************************************************************
-Generating : Bottom Overlay
-      File : MLB_REV1.GBO
-
-    Adding Layer      : Bottom Overlay
-
-
-Used DCodes :
-    D14
-*************************************************************
-
-*************************************************************
-Generating : Top Layer
-      File : MLB_REV1.GTL
-
-    Adding Layer      : Top Layer
+    Adding Layer      : Bottom Layer
 
     Adding Layer      : Multi-Layer
 
 
 Used DCodes :
-    D14
-    D24
-    D26
-    D29
-    D30
-    D33
-    D37
-    D38
-    D40
-    D51
-    D52
-    D53
-    D54
-    D56
-    D57
-    D59
-    D64
-    D69
-    D70
-    D73
-    D74
-    D77
-    D79
-    D80
+    D17
+    D78
+    D82
+    D83
     D84
-    D89
-    D90
-    D91
-    D92
-    D93
-    D94
-    D95
-    D96
-    D97
-    D98
-    D99
-    D100
-    D101
-    D102
-    D103
-    D104
-    D105
-    D106
-    D107
-    D108
-    D109
-    D110
-    D111
-    D112
-    D113
-    D114
-    D115
-    D116
-    D117
-    D118
-    D119
-    D120
-    D121
-    D122
-    D123
-    D124
-    D125
-    D126
-    D127
+    D85
     D128
     D129
     D130
@@ -107,6 +27,17 @@ Used DCodes :
     D135
     D136
     D137
+*************************************************************
+
+*************************************************************
+Generating : Bottom Overlay
+      File : MLB_REV1.GBO
+
+    Adding Layer      : Bottom Overlay
+
+
+Used DCodes :
+    D10
 *************************************************************
 
 *************************************************************
@@ -121,8 +52,6 @@ Generating : Top Solder
 
 
 Used DCodes :
-    D19
-    D20
     D21
     D22
     D23
@@ -191,23 +120,82 @@ Used DCodes :
     D86
     D87
     D88
+    D89
+    D90
+    D91
 *************************************************************
 
 *************************************************************
-Generating : Bottom Layer
-      File : MLB_REV1.GBL
+Generating : Top Layer
+      File : MLB_REV1.GTL
 
-    Adding Layer      : Bottom Layer
+    Adding Layer      : Top Layer
 
     Adding Layer      : Multi-Layer
 
 
 Used DCodes :
-    D77
-    D79
-    D80
+    D10
+    D17
+    D24
+    D26
+    D27
+    D31
+    D35
+    D38
+    D42
+    D43
+    D45
+    D56
+    D57
+    D58
+    D60
+    D61
+    D63
+    D66
+    D71
+    D72
+    D75
+    D76
+    D78
+    D82
+    D83
     D84
-    D89
+    D85
+    D92
+    D93
+    D94
+    D95
+    D96
+    D97
+    D98
+    D99
+    D100
+    D101
+    D102
+    D103
+    D104
+    D105
+    D106
+    D107
+    D108
+    D109
+    D110
+    D111
+    D112
+    D113
+    D114
+    D115
+    D116
+    D117
+    D118
+    D119
+    D120
+    D121
+    D122
+    D123
+    D124
+    D125
     D126
     D127
     D128
@@ -223,6 +211,57 @@ Used DCodes :
 *************************************************************
 
 *************************************************************
+Generating : Bottom Solder
+      File : MLB_REV1.GBS
+
+    Adding Layer      : Bottom Solder
+
+    Adding Layer      : Bottom Layer
+
+    Adding Layer      : Multi-Layer
+
+
+Used DCodes :
+    D77
+    D78
+    D79
+    D80
+    D81
+    D82
+    D83
+    D84
+    D85
+    D86
+    D87
+    D88
+    D89
+    D91
+*************************************************************
+
+*************************************************************
+Generating : GND
+      File : MLB_REV1.G1
+
+    Adding Layer      : GND
+
+    Adding Layer      : Multi-Layer
+
+
+Used DCodes :
+    D20
+    D78
+    D83
+    D84
+    D128
+    D130
+    D132
+    D133
+    D134
+    D136
+    D137
+*************************************************************
+
+*************************************************************
 Generating : Power
       File : MLB_REV1.G2
 
@@ -232,10 +271,10 @@ Generating : Power
 
 
 Used DCodes :
-    D79
-    D127
-    D134
+    D20
+    D78
     D135
+    D136
 *************************************************************
 
 *************************************************************
@@ -255,45 +294,18 @@ Used DCodes :
     D16
     D17
     D18
+    D19
+    D20
 *************************************************************
 
 *************************************************************
-Generating : GND
-      File : MLB_REV1.G1
+Generating : Board Shape
+      File : MLB_REV1.GM2
 
-    Adding Layer      : GND
-
-    Adding Layer      : Multi-Layer
+    Adding Layer      : Board Shape
 
 
 Used DCodes :
-*************************************************************
-
-*************************************************************
-Generating : Bottom Solder
-      File : MLB_REV1.GBS
-
-    Adding Layer      : Bottom Solder
-
-    Adding Layer      : Bottom Layer
-
-    Adding Layer      : Multi-Layer
-
-
-Used DCodes :
-    D75
-    D76
-    D77
-    D78
-    D79
-    D80
-    D81
-    D82
-    D83
-    D84
-    D85
-    D86
-    D87
-    D88
+    D138
 *************************************************************
 

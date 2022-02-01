@@ -33,11 +33,17 @@ def read_txt_file(file_path: str) -> List[List[int]]:
 
 
 def get_total_pressure_list(data: List[List[int]]) -> List[int]:
-    return [statistics.mean(stream) for stream in data]
+    # Get average
+    # return [statistics.mean(stream) for stream in data]
+
+    # Get total
+    return [sum(stream) for stream in data]
 
 
 def plot_respiratory_pattern(pressure_list: List[int], save_path: Path) -> None:
-    x_data = range(len(pressure_list))
+    x_data = [
+        value / 2 for value in range(len(pressure_list))
+    ]  # Considering we are sampling twice per second
     y_data = pressure_list
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
@@ -50,7 +56,7 @@ def plot_respiratory_pattern(pressure_list: List[int], save_path: Path) -> None:
 
 
 if __name__ == "__main__":
-    file_path = "pressure_data/Jan13_drift_test.csv"
+    file_path = "pressure_data/Feb1_breathing.csv"
     # result = read_txt_file("pressure_data/Matrix_Air_B2.txt")
     result = read_csv_file(file_path=file_path)
     pressure_list = get_total_pressure_list(data=result)

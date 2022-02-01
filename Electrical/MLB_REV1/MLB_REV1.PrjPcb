@@ -329,103 +329,35 @@ DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GBO
 DItemRevisionGUID=
 
 [GeneratedDocument10]
-DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GBP
-DItemRevisionGUID=
-
-[GeneratedDocument11]
 DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GBS
 DItemRevisionGUID=
 
-[GeneratedDocument12]
-DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GKO
-DItemRevisionGUID=
-
-[GeneratedDocument13]
-DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GM1
-DItemRevisionGUID=
-
-[GeneratedDocument14]
+[GeneratedDocument11]
 DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GM2
 DItemRevisionGUID=
 
-[GeneratedDocument15]
-DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GM5
-DItemRevisionGUID=
-
-[GeneratedDocument16]
-DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GM10
-DItemRevisionGUID=
-
-[GeneratedDocument17]
-DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GM12
-DItemRevisionGUID=
-
-[GeneratedDocument18]
-DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GM13
-DItemRevisionGUID=
-
-[GeneratedDocument19]
-DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GM15
-DItemRevisionGUID=
-
-[GeneratedDocument20]
-DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GM16
-DItemRevisionGUID=
-
-[GeneratedDocument21]
-DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GM20
-DItemRevisionGUID=
-
-[GeneratedDocument22]
-DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GM21
-DItemRevisionGUID=
-
-[GeneratedDocument23]
-DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GM23
-DItemRevisionGUID=
-
-[GeneratedDocument24]
-DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GM24
-DItemRevisionGUID=
-
-[GeneratedDocument25]
-DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GPB
-DItemRevisionGUID=
-
-[GeneratedDocument26]
-DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GPT
-DItemRevisionGUID=
-
-[GeneratedDocument27]
+[GeneratedDocument12]
 DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GTL
 DItemRevisionGUID=
 
-[GeneratedDocument28]
+[GeneratedDocument13]
 DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GTO
 DItemRevisionGUID=
 
-[GeneratedDocument29]
-DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GTP
-DItemRevisionGUID=
-
-[GeneratedDocument30]
+[GeneratedDocument14]
 DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.GTS
 DItemRevisionGUID=
 
-[GeneratedDocument31]
+[GeneratedDocument15]
 DocumentPath=Project Outputs for MLB_REV1\ERC\MLB_REV1.html
 DItemRevisionGUID=
 
-[GeneratedDocument32]
+[GeneratedDocument16]
 DocumentPath=Project Outputs for MLB_REV1\NC Drill\MLB_REV1.LDP
 DItemRevisionGUID=
 
-[GeneratedDocument33]
+[GeneratedDocument17]
 DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.REP
-DItemRevisionGUID=
-
-[GeneratedDocument34]
-DocumentPath=Project Outputs for MLB_REV1\Gerber\MLB_REV1.RUL
 DItemRevisionGUID=
 
 [Configuration1]

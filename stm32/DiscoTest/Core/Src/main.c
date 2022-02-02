@@ -18,14 +18,10 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "ESP_DATA_HANDLER.h"
-#include "UartRingbuffer.h"
-#include <string.h>
-#include <stdio.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "stdio.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -39,11 +35,10 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
+#define ITM_Port32(n)   (*((volatile unsigned long *)(0xE0000000+4*n)))
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
 
@@ -52,25 +47,14 @@ UART_HandleTypeDef huart1;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-int _write(int file, char *ptr, int len) {
-	int i = 0;
-	for (i=0; i < len; i++)
-		ITM_SendChar((*ptr++));
-	return len;
-}
+uint16_t Loop = 0;
+uint16_t Data = 0;
 /* USER CODE END 0 */
-
-void UART_helper(uint8_t *msg) {
-  HAL_UART_Transmit(&huart1, msg, sizeof(msg), 100);
-  HAL_Delay(500);
-}
 
 /**
   * @brief  The application entry point.
@@ -79,13 +63,13 @@ void UART_helper(uint8_t *msg) {
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
+
   /* USER CODE BEGIN Init */
 
   /* USER CODE END Init */
@@ -94,37 +78,47 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+  ITM_Port32(31) = 1;
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+  printf("GPIO Init Done \r\n");
+  ITM_Port32(31) = 2; // change value of same port from 1 to 2
 //  ESP_Init("Cloudwifi-167-504-P", "CWAE1923", "10.20.101.219");
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  uint8_t MSG[35] = {'\0'};
-  uint8_t X = 0;
-  const char PSWD[] = "CWAE1923\r\n";
-  const char SSID[] = "Cloudwifi-167-504-P\r\n";
-  const char IP[] = "34.135.184.1\r\n";
-
-  printf("Trying to establish a connection to %s with SSID %s and password %s\r\n", IP, SSID, PSWD);
-  UART_helper("AT+RST\r\n");
+//  uint8_t MSG[35] = {'\0'};
+//  uint8_t X = 0;
+//  const char PSWD[] = "CWAE1923\r\n";
+//  const char SSID[] = "Cloudwifi-167-504-P\r\n";
+//  const char IP[] = "34.135.184.1\r\n";
+//
+//  printf("Trying to establish a connection to %s with SSID %s and password %s\r\n", IP, SSID, PSWD);
+//  UART_helper("AT+RST\r\n");
   // Setup wifi connection
 
   while (1)
   {
     /* USER CODE END WHILE */
-	  sprintf(MSG, "Hello! Tracing X = %d\r\n", X);
-	  UART_helper(MSG);
-	  X++;
-	  printf("X: %d\r\n", X);
-//	  Server_Start();
+
     /* USER CODE BEGIN 3 */
+	  printf("I'm in the main loop!\r\n");
+	  HAL_Delay(500);
+	  printf("Loop counter = %i\r\n", Loop);
+	  Loop++;
+	  if (Loop > 100){
+		  Loop = 0;
+	  }
+	  HAL_Delay(50);
+	  if (Loop < 25) {
+		  Data +=5;
+	  } else {
+		  Data -=1000;
+	  }
   }
   /* USER CODE END 3 */
 }
@@ -144,10 +138,9 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_MSI;
-  RCC_OscInitStruct.MSIState = RCC_MSI_ON;
-  RCC_OscInitStruct.MSICalibrationValue = 0;
-  RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_5;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
@@ -157,7 +150,7 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_MSI;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
@@ -166,39 +159,6 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-}
-
-/**
-  * @brief USART1 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_USART1_UART_Init(void)
-{
-
-  /* USER CODE BEGIN USART1_Init 0 */
-
-  /* USER CODE END USART1_Init 0 */
-
-  /* USER CODE BEGIN USART1_Init 1 */
-
-  /* USER CODE END USART1_Init 1 */
-  huart1.Instance = USART1;
-  huart1.Init.BaudRate = 115200;
-  huart1.Init.WordLength = UART_WORDLENGTH_8B;
-  huart1.Init.StopBits = UART_STOPBITS_1;
-  huart1.Init.Parity = UART_PARITY_NONE;
-  huart1.Init.Mode = UART_MODE_TX_RX;
-  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN USART1_Init 2 */
-
-  /* USER CODE END USART1_Init 2 */
-
 }
 
 /**
@@ -211,11 +171,20 @@ static void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
 
 }
 
 /* USER CODE BEGIN 4 */
-
+// Use GCC for printf
+// Avoid wasting a UART terminal just for writing
+int _write(int file, char *ptr, int len) {
+	int DataIdx;
+	for (DataIdx = 0; DataIdx < len; DataIdx++) {
+		ITM_SendChar(*ptr++);
+	}
+	return len;
+}
 /* USER CODE END 4 */
 
 /**

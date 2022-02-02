@@ -1,10 +1,9 @@
 ----------------------------------------------------------------------------------------------------------------------------------
-NCDrill File Report For: MLB_REV1.PcbDoc   2/1/2022  5:00:35 PM
+NCDrill File Report For: MLB_REV1.PcbDoc   2/2/2022  12:24:50 AM
 ----------------------------------------------------------------------------------------------------------------------------------
 
 Layer Pair : Top Layer to Bottom Layer
-ASCII RoundHoles File : MLB_REV1-RoundHoles.TXT
-ASCII SlotHoles File : MLB_REV1-SlotHoles.TXT
+ASCII RoundHoles File : MLB_REV1.TXT
 
 Tool       Hole Size               Hole Tolerance               Hole Type       Hole Count   Plated         Tool Travel
 ----------------------------------------------------------------------------------------------------------------------------------
@@ -14,8 +13,8 @@ T3      30mil (0.75mm)                                            Round         
 T4      32mil (0.813mm)                                           Round             4         PTH        0.00inch (0.00mm)
 T5      34mil (0.864mm)                                           Round             100       PTH        0.00inch (0.00mm)
 T6      39mil (1mm)                                               Round             28        PTH        0.00inch (0.00mm)
-T7      39mil (1mm)                                               Slot              3         PTH        0.00inch (0.00mm)
-T8      40mil (1.02mm)                                            Round             8         PTH        0.00inch (0.00mm)
+T7      40mil (1.02mm)                                            Round             8         PTH        0.00inch (0.00mm)
+T8      63mil (1.6mm)                                             Round             3         PTH        0.00inch (0.00mm)
 T9      109mil (2.769mm)                                          Round             2         PTH        0.00inch (0.00mm)
 T10     118mil (3mm)                                              Round             6         PTH        0.00inch (0.00mm)
 ----------------------------------------------------------------------------------------------------------------------------------

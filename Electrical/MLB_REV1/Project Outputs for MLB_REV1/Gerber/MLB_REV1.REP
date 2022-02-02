@@ -2,6 +2,33 @@
 FileName = MLB_REV1.GBR
 AutoAperture = True
 *************************************************************
+Generating : Bottom Solder
+      File : MLB_REV1.GBS
+
+    Adding Layer      : Bottom Solder
+
+    Adding Layer      : Bottom Layer
+
+    Adding Layer      : Multi-Layer
+
+
+Used DCodes :
+    D77
+    D78
+    D79
+    D80
+    D81
+    D82
+    D83
+    D84
+    D85
+    D86
+    D87
+    D88
+    D90
+*************************************************************
+
+*************************************************************
 Generating : Board Shape
       File : MLB_REV1.GM2
 
@@ -9,48 +36,139 @@ Generating : Board Shape
 
 
 Used DCodes :
-    D139
-*************************************************************
-
-*************************************************************
-Generating : Power
-      File : MLB_REV1.G2
-
-    Adding Layer      : Power
-
-    Adding Layer      : Multi-Layer
-
-
-Used DCodes :
-    D11
-    D85
-    D88
-    D128
-    D132
     D137
 *************************************************************
 
 *************************************************************
-Generating : GND
-      File : MLB_REV1.G1
+Generating : Top Layer
+      File : MLB_REV1.GTL
 
-    Adding Layer      : GND
+    Adding Layer      : Top Layer
 
     Adding Layer      : Multi-Layer
 
 
 Used DCodes :
-    D11
+    D13
+    D19
+    D21
+    D22
+    D23
+    D24
+    D27
+    D28
+    D29
+    D32
+    D34
+    D40
+    D43
+    D47
+    D49
+    D60
+    D61
+    D62
+    D64
+    D65
+    D69
+    D74
+    D84
     D85
+    D87
     D88
+    D91
+    D92
+    D93
+    D94
+    D95
+    D96
+    D97
+    D98
+    D99
+    D100
+    D101
+    D102
+    D103
+    D104
+    D105
+    D106
+    D107
+    D108
+    D109
+    D110
+    D111
+    D112
+    D113
+    D114
+    D115
+    D116
+    D117
+    D118
+    D119
+    D120
+    D121
+    D122
+    D123
+    D124
+    D125
+    D126
+    D127
     D128
+    D129
     D130
     D131
+    D132
     D133
     D134
     D135
-    D137
-    D138
+    D136
+*************************************************************
+
+*************************************************************
+Generating : Top Overlay
+      File : MLB_REV1.GTO
+
+    Adding Layer      : Top Overlay
+
+
+Used DCodes :
+    D10
+    D11
+    D12
+    D13
+    D14
+    D15
+    D16
+    D17
+    D18
+    D19
+    D20
+*************************************************************
+
+*************************************************************
+Generating : Bottom Layer
+      File : MLB_REV1.GBL
+
+    Adding Layer      : Bottom Layer
+
+    Adding Layer      : Multi-Layer
+
+
+Used DCodes :
+    D19
+    D84
+    D85
+    D87
+    D88
+    D127
+    D128
+    D129
+    D130
+    D131
+    D132
+    D133
+    D134
+    D135
+    D136
 *************************************************************
 
 *************************************************************
@@ -135,7 +253,46 @@ Used DCodes :
     D88
     D89
     D90
-    D91
+*************************************************************
+
+*************************************************************
+Generating : GND
+      File : MLB_REV1.G1
+
+    Adding Layer      : GND
+
+    Adding Layer      : Multi-Layer
+
+
+Used DCodes :
+    D11
+    D84
+    D87
+    D127
+    D128
+    D130
+    D131
+    D133
+    D135
+    D136
+*************************************************************
+
+*************************************************************
+Generating : Power
+      File : MLB_REV1.G2
+
+    Adding Layer      : Power
+
+    Adding Layer      : Multi-Layer
+
+
+Used DCodes :
+    D11
+    D84
+    D87
+    D128
+    D132
+    D135
 *************************************************************
 
 *************************************************************
@@ -147,167 +304,5 @@ Generating : Bottom Overlay
 
 Used DCodes :
     D13
-*************************************************************
-
-*************************************************************
-Generating : Top Overlay
-      File : MLB_REV1.GTO
-
-    Adding Layer      : Top Overlay
-
-
-Used DCodes :
-    D10
-    D11
-    D12
-    D13
-    D14
-    D15
-    D16
-    D17
-    D18
-    D19
-    D20
-*************************************************************
-
-*************************************************************
-Generating : Top Layer
-      File : MLB_REV1.GTL
-
-    Adding Layer      : Top Layer
-
-    Adding Layer      : Multi-Layer
-
-
-Used DCodes :
-    D13
-    D19
-    D21
-    D22
-    D23
-    D24
-    D27
-    D28
-    D29
-    D32
-    D34
-    D40
-    D43
-    D47
-    D49
-    D60
-    D61
-    D62
-    D64
-    D65
-    D69
-    D74
-    D85
-    D86
-    D88
-    D89
-    D92
-    D93
-    D94
-    D95
-    D96
-    D97
-    D98
-    D99
-    D100
-    D101
-    D102
-    D103
-    D104
-    D105
-    D106
-    D107
-    D108
-    D109
-    D110
-    D111
-    D112
-    D113
-    D114
-    D115
-    D116
-    D117
-    D118
-    D119
-    D120
-    D121
-    D122
-    D123
-    D124
-    D125
-    D126
-    D127
-    D128
-    D129
-    D130
-    D131
-    D132
-    D133
-    D134
-    D135
-    D136
-    D137
-    D138
-*************************************************************
-
-*************************************************************
-Generating : Bottom Solder
-      File : MLB_REV1.GBS
-
-    Adding Layer      : Bottom Solder
-
-    Adding Layer      : Bottom Layer
-
-    Adding Layer      : Multi-Layer
-
-
-Used DCodes :
-    D77
-    D78
-    D79
-    D80
-    D81
-    D82
-    D83
-    D84
-    D85
-    D86
-    D87
-    D88
-    D89
-    D91
-*************************************************************
-
-*************************************************************
-Generating : Bottom Layer
-      File : MLB_REV1.GBL
-
-    Adding Layer      : Bottom Layer
-
-    Adding Layer      : Multi-Layer
-
-
-Used DCodes :
-    D19
-    D85
-    D86
-    D88
-    D89
-    D128
-    D129
-    D130
-    D131
-    D132
-    D133
-    D134
-    D135
-    D136
-    D137
-    D138
 *************************************************************
 

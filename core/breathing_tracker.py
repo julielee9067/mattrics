@@ -42,7 +42,9 @@ def get_total_pressure_list(data: List[List[int]]) -> List[int]:
     return [sum(stream) for stream in data]
 
 
-def get_local_minima_and_maxima(data, threshold=0) -> Tuple[np.ndarray, np.ndarray]:
+def get_local_minima_and_maxima_indexes(
+    data, threshold=0
+) -> Tuple[np.ndarray, np.ndarray]:
     # indexes = find_peaks(data, threshold=threshold, distance=3)[0]
     maxima_index = argrelextrema(data, np.greater)[0]
     minima_index = argrelextrema(data, np.less)[0]
@@ -59,17 +61,37 @@ def apply_fft(data: List[int], fft_threshold=350) -> np.ndarray:
     return irfft(yf_clean)
 
 
+def get_time_intervals(minima_index: np.ndarray, maxima_index: np.ndarray):
+    minima_interval = []
+    maxima_interval = []
+    for i in range(1, len(minima_index)):
+        minima_interval.append((minima_index[i] - minima_index[i - 1]) / 2)
+        maxima_interval.append((maxima_index[i] - maxima_index[i - 1]) / 2)
+
+    return minima_interval, maxima_interval
+
+
 def plot_respiratory_pattern(pressure_list: List[int], save_path: Path) -> None:
     clean_data = apply_fft(data=pressure_list, fft_threshold=2000)
     t = np.arange(start=0, stop=int(len(pressure_list) / 2), step=0.5)
 
-    # get peaks
+    # get local minima and maxima
     peak_threshold = 30
-    minima_index, maxima_index = get_local_minima_and_maxima(data=clean_data)
+    minima_index, maxima_index = get_local_minima_and_maxima_indexes(data=clean_data)
     minima = clean_data[minima_index]
     maxima = clean_data[maxima_index]
     logger.info(f"Number of peaks: {len(maxima)} with threshold: {peak_threshold}")
 
+    # get intervals
+    minima_interval, maxima_interval = get_time_intervals(minima_index, maxima_index)
+    logger.info(
+        f"Minima interval: {minima_interval}, average: {sum(minima_interval)/len(minima_interval)}"
+    )
+    logger.info(
+        f"Minima interval: {maxima_interval}, average: {sum(maxima_interval)/len(maxima_interval)}"
+    )
+
+    # plot graph
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     ax.set_xlabel("Time (s)")

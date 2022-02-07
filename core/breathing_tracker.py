@@ -1,6 +1,7 @@
 import csv
 import re
 from pathlib import Path
+from statistics import mean
 from typing import List, Tuple
 
 import matplotlib.pyplot as plt
@@ -85,10 +86,10 @@ def plot_respiratory_pattern(pressure_list: List[int], save_path: Path) -> None:
     # get intervals
     minima_interval, maxima_interval = get_time_intervals(minima_index, maxima_index)
     logger.info(
-        f"Minima interval: {minima_interval}, average: {sum(minima_interval)/len(minima_interval)}"
+        f"Minima interval: {minima_interval}, average: {round(mean(minima_interval), 2)}"
     )
     logger.info(
-        f"Minima interval: {maxima_interval}, average: {sum(maxima_interval)/len(maxima_interval)}"
+        f"Maxima interval: {maxima_interval}, average: {round(mean(maxima_interval), 2)}"
     )
 
     # plot graph

@@ -1,14 +1,12 @@
 import csv
 import re
-import statistics
 from pathlib import Path
-from typing import List
+from typing import List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy import stats
-from scipy.fft import irfft, rfft, rfftfreq
-from scipy.signal import argrelextrema, find_peaks
+from scipy.fft import irfft, rfft
+from scipy.signal import argrelextrema
 
 from utils import logger
 
@@ -44,8 +42,12 @@ def get_total_pressure_list(data: List[List[int]]) -> List[int]:
     return [sum(stream) for stream in data]
 
 
-def get_peaks(data, threshold=0) -> np.ndarray:
-    return data[find_peaks(data, threshold=threshold)[0]]
+def get_local_minima_and_maxima(data, threshold=0) -> Tuple[np.ndarray, np.ndarray]:
+    # indexes = find_peaks(data, threshold=threshold, distance=3)[0]
+    maxima_index = argrelextrema(data, np.greater)[0]
+    minima_index = argrelextrema(data, np.less)[0]
+
+    return minima_index, maxima_index
 
 
 def apply_fft(data: List[int], fft_threshold=350) -> np.ndarray:
@@ -58,23 +60,26 @@ def apply_fft(data: List[int], fft_threshold=350) -> np.ndarray:
 
 
 def plot_respiratory_pattern(pressure_list: List[int], save_path: Path) -> None:
-    clean_data = apply_fft(data=pressure_list, fft_threshold=370)
+    clean_data = apply_fft(data=pressure_list, fft_threshold=2000)
     t = np.arange(start=0, stop=int(len(pressure_list) / 2), step=0.5)
 
     # get peaks
-    peak_threshold = 4
-    peaks = get_peaks(data=clean_data, threshold=4)
-    logger.info(f"Number of peaks: {len(peaks)} with threshold: {peak_threshold}")
-
-    plt.plot(t, clean_data)
+    peak_threshold = 30
+    minima_index, maxima_index = get_local_minima_and_maxima(data=clean_data)
+    minima = clean_data[minima_index]
+    maxima = clean_data[maxima_index]
+    logger.info(f"Number of peaks: {len(maxima)} with threshold: {peak_threshold}")
 
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
-    ax.plot(t, clean_data)
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Total Pressure")
+    ax.plot(t, clean_data)
+    ax.plot(minima_index / 2, minima, "x")
+    ax.plot(maxima_index / 2, maxima, "x")
+    plt.show()
 
-    plt.savefig(save_path)
+    fig.savefig(save_path)
     logger.info(f"Successfully created respiratory graph: {save_path}")
 
 

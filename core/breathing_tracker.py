@@ -5,6 +5,10 @@ from pathlib import Path
 from typing import List
 
 import matplotlib.pyplot as plt
+import numpy as np
+from scipy import stats
+from scipy.fft import irfft, rfft, rfftfreq
+from scipy.signal import argrelextrema, find_peaks
 
 from utils import logger
 
@@ -40,14 +44,33 @@ def get_total_pressure_list(data: List[List[int]]) -> List[int]:
     return [sum(stream) for stream in data]
 
 
+def get_peaks(data, threshold=0) -> np.ndarray:
+    return data[find_peaks(data, threshold=threshold)[0]]
+
+
+def apply_fft(data: List[int], fft_threshold=350) -> np.ndarray:
+    yf = rfft(data)
+    yf_abs = np.abs(yf)
+    indices = yf_abs > fft_threshold  # filter out those value under threshold
+    yf_clean = indices * yf  # noise frequency will be set to 0
+
+    return irfft(yf_clean)
+
+
 def plot_respiratory_pattern(pressure_list: List[int], save_path: Path) -> None:
-    x_data = [
-        value / 2 for value in range(len(pressure_list))
-    ]  # Considering we are sampling twice per second
-    y_data = pressure_list
+    clean_data = apply_fft(data=pressure_list, fft_threshold=370)
+    t = np.arange(start=0, stop=int(len(pressure_list) / 2), step=0.5)
+
+    # get peaks
+    peak_threshold = 4
+    peaks = get_peaks(data=clean_data, threshold=4)
+    logger.info(f"Number of peaks: {len(peaks)} with threshold: {peak_threshold}")
+
+    plt.plot(t, clean_data)
+
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
-    ax.plot(x_data, y_data)
+    ax.plot(t, clean_data)
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Total Pressure")
 

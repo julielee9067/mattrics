@@ -1,3 +1,6 @@
+## Project
+- Database should be configured using `my.cnf` file. Ask for the file before cloning the repository!
+
 ## Django
 
 ### run migration

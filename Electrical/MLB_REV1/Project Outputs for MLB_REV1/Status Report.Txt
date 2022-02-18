@@ -1,0 +1,10 @@
+Output: Electrical Rules Check
+Type  : ERC
+From  : Project [MLB_REV1.PrjPcb]
+   Generated File[MLB_REV1.html]
+
+
+Files Generated   : 1
+Documents Printed : 0
+
+Finished Output Generation At 10:12:32 PM On 2/4/2022

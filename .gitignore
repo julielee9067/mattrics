@@ -129,3 +129,6 @@ dmypy.json
 .pyre/
 
 .idea/
+
+my.cnf
+core/secrets/*

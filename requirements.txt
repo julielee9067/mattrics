@@ -1,5 +1,7 @@
-django
 pre-commit
 colorlog
-gunicorn
-django-heroku
+mysqlclient
+gcloud
+google-cloud-storage
+seaborn
+matplotlib

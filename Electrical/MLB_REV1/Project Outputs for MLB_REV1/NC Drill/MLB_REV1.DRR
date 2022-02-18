@@ -1,0 +1,23 @@
+----------------------------------------------------------------------------------------------------------------------------------
+NCDrill File Report For: MLB_REV1.PcbDoc   2/4/2022  10:12:29 PM
+----------------------------------------------------------------------------------------------------------------------------------
+
+Layer Pair : Top Layer to Bottom Layer
+ASCII RoundHoles File : MLB_REV1.TXT
+
+Tool       Hole Size               Hole Tolerance               Hole Type       Hole Count   Plated         Tool Travel
+----------------------------------------------------------------------------------------------------------------------------------
+T1      12mil (0.3mm)                                             Round             651       PTH        0.00inch (0.00mm)
+T2      20mil (0.508mm)                                           Round             3         PTH        0.00inch (0.00mm)
+T3      30mil (0.75mm)                                            Round             3         PTH        0.00inch (0.00mm)
+T4      32mil (0.813mm)                                           Round             4         PTH        0.00inch (0.00mm)
+T5      34mil (0.864mm)                                           Round             100       PTH        0.00inch (0.00mm)
+T6      39mil (1mm)                                               Round             28        PTH        0.00inch (0.00mm)
+T7      40mil (1.02mm)                                            Round             8         PTH        0.00inch (0.00mm)
+T8      63mil (1.6mm)                                             Round             3         PTH        0.00inch (0.00mm)
+T9      109mil (2.769mm)                                          Round             2         PTH        0.00inch (0.00mm)
+T10     118mil (3mm)                                              Round             6         PTH        0.00inch (0.00mm)
+----------------------------------------------------------------------------------------------------------------------------------
+Totals                                                                              808
+
+Total Processing Time (hh:mm:ss) : 00:00:01

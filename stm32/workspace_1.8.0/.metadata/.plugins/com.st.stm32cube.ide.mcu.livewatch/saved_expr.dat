@@ -1,4 +1,6 @@
 _rx_buffer
 _tx_buffer
 len
-data
+Rx_Byte
+Rx_Buffer
+byte

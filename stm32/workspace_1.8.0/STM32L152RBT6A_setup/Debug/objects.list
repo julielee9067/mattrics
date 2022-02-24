@@ -1,3 +1,4 @@
+"./Core/Src/UartRingbuffer.o"
 "./Core/Src/main.o"
 "./Core/Src/stm32l1xx_hal_msp.o"
 "./Core/Src/stm32l1xx_it.o"

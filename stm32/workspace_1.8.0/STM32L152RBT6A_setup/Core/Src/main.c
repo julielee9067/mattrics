@@ -21,6 +21,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "stdio.h"
+#include "string.h"
+#include <stdbool.h>
+#include "UartRingbuffer.h"
 
 /* USER CODE END Includes */
 
@@ -35,6 +39,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
+#define ITM_Port32(n)   (*((volatile unsigned long *)(0xE0000000+4*n)))
 
 /* USER CODE END PM */
 
@@ -64,8 +69,53 @@ static void MX_USART3_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+const char SSID[] = "DreamersCottage-5G";
+const char PASSWD[] = "good4everyone";
+const int senseMuxEnable[8] = {SENSE_EN1_L_Pin, SENSE_EN2_L_Pin, SENSE_EN3_L_Pin, SENSE_EN4_L_Pin, SENSE_EN5_L_Pin, SENSE_EN6_L_Pin, SENSE_EN7_L_Pin, SENSE_EN8_L_Pin};
+const int pwrMuxEnable[4] = {PWR_EN1_L_Pin, PWR_EN2_L_Pin, PWR_EN3_L_Pin, PWR_EN4_L_Pin};
+const int senseMuxSelect[3] = {SENSE_S1_Pin, SENSE_S2_Pin, SENSE_S3_Pin};
+const int pwrMuxSelect[3] = {PWR_S1_Pin, PWR_S1_Pin, PWR_S1_Pin};
+
+/**
+  * @brief  Sets to S0, S1, and S2 select pins on a sense mux for reading
+  */
+void senseMuxPinRead(int pin) {
+	for (int i = 0; i < 3; i++) {
+		if (pin & (i << i)) {
+			HAL_GPIO_WritePin(GPIOA, senseMuxSelect[i], GPIO_PIN_SET);
+		} else {
+			HAL_GPIO_WritePin(GPIOA, senseMuxSelect[i], GPIO_PIN_RESET);
+		}
+	}
+}
+
+/**
+  * @brief  Sets to S0, S1, and S2 select pins on a pwr mux for writing
+  */
+void pwrMuxPinWrite(int pin) {
+	for (int i = 0; i < 3; i++) {
+		if (pin & (i << i)) {
+			HAL_GPIO_WritePin(GPIOA, pwrMuxSelect[i], GPIO_PIN_SET);
+		} else {
+			HAL_GPIO_WritePin(GPIOA, pwrMuxSelect[i], GPIO_PIN_RESET);
+		}
+	}
+}
+
+/**
+  * @brief  Select mux for writing
+  */
+void write_mux(int pin) {
+	pwrMuxPinWrite(pin);
+	HAL_ADC
+}
+
+void wifi_init() {
+
+}
 
 /* USER CODE END 0 */
+
 
 /**
   * @brief  The application entry point.
@@ -90,7 +140,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+  ITM_Port32(31) = 1;
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -100,6 +150,9 @@ int main(void)
   MX_SPI2_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
+//  wifi_init();
+
+
 
   /* USER CODE END 2 */
 
@@ -107,21 +160,22 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 //  while (1)
   // Assume pressing sets to 0
-  while (HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin))
+//  while (HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin))
+  while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
   }
   // Test LEDs
-  int cnt = 0;
-  while (cnt < 4) {
-	  HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_SET);
-	  HAL_Delay(500);
-	  HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_RESET);
-	  HAL_Delay(500);
-	  cnt++;
-  }
+//  int cnt = 0;
+//  while (cnt < 4) {
+//	  HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_SET);
+//	  HAL_Delay(500);
+//	  HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_RESET);
+//	  HAL_Delay(500);
+//	  cnt++;
+//  }
   /* USER CODE END 3 */
 }
 
@@ -346,8 +400,8 @@ static void MX_GPIO_Init(void)
                           |GPIO_RGB_B_Pin|GPIO_RGB_G_Pin|GPIO_RGB_R_Pin|WIFI_EN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, SENSE_S1_Pin|SENSE_S2_Pin|PWR_S1_Pin|PWR_S2_Pin
-                          |PWR_S3_Pin|PWR_EN4_L_Pin|MCU_PA12_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, SENSE_S1_Pin|SENSE_S2_Pin|SENSE_S3_Pin|PWR_S1_Pin
+                          |PWR_S2_Pin|PWR_S3_Pin|PWR_EN4_L_Pin|MCU_PA12_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, PWR_EN1_L_Pin|MCU_BOOT1_Pin|SENSE_EN3_L_Pin|SENSE_EN4_L_Pin
@@ -367,10 +421,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : SENSE_S1_Pin SENSE_S2_Pin PWR_S1_Pin PWR_S2_Pin
-                           PWR_S3_Pin PWR_EN4_L_Pin MCU_PA12_Pin */
-  GPIO_InitStruct.Pin = SENSE_S1_Pin|SENSE_S2_Pin|PWR_S1_Pin|PWR_S2_Pin
-                          |PWR_S3_Pin|PWR_EN4_L_Pin|MCU_PA12_Pin;
+  /*Configure GPIO pins : SENSE_S1_Pin SENSE_S2_Pin SENSE_S3_Pin PWR_S1_Pin
+                           PWR_S2_Pin PWR_S3_Pin PWR_EN4_L_Pin MCU_PA12_Pin */
+  GPIO_InitStruct.Pin = SENSE_S1_Pin|SENSE_S2_Pin|SENSE_S3_Pin|PWR_S1_Pin
+                          |PWR_S2_Pin|PWR_S3_Pin|PWR_EN4_L_Pin|MCU_PA12_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -407,6 +461,15 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+// Use GCC for printf
+// Avoid wasting a UART terminal just for writing
+int _write(int file, char *ptr, int len) {
+	int DataIdx;
+	for (DataIdx = 0; DataIdx < len; DataIdx++) {
+		ITM_SendChar(*ptr++);
+	}
+	return len;
+}
 
 /* USER CODE END 4 */
 

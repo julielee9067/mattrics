@@ -72,6 +72,11 @@ void HAL_MspInit(void)
 
   /* System interrupt init*/
 
+  /* Peripheral interrupt init */
+  /* RCC_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(RCC_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(RCC_IRQn);
+
   /* USER CODE BEGIN MspInit 1 */
 
   /* USER CODE END MspInit 1 */
@@ -99,7 +104,6 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
     __HAL_RCC_GPIOB_CLK_ENABLE();
     /**ADC GPIO Configuration
     PC2     ------> ADC_IN12
-    PA2     ------> ADC_IN2
     PA3     ------> ADC_IN3
     PB1     ------> ADC_IN9
     */
@@ -108,10 +112,10 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(AUDIO_OUT_GPIO_Port, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = SENSE_S3_Pin|VOLTAGE_SENSE_Pin;
+    GPIO_InitStruct.Pin = VOLTAGE_SENSE_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    HAL_GPIO_Init(VOLTAGE_SENSE_GPIO_Port, &GPIO_InitStruct);
 
     GPIO_InitStruct.Pin = SENSE_OUT_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
@@ -143,13 +147,12 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)
 
     /**ADC GPIO Configuration
     PC2     ------> ADC_IN12
-    PA2     ------> ADC_IN2
     PA3     ------> ADC_IN3
     PB1     ------> ADC_IN9
     */
     HAL_GPIO_DeInit(AUDIO_OUT_GPIO_Port, AUDIO_OUT_Pin);
 
-    HAL_GPIO_DeInit(GPIOA, SENSE_S3_Pin|VOLTAGE_SENSE_Pin);
+    HAL_GPIO_DeInit(VOLTAGE_SENSE_GPIO_Port, VOLTAGE_SENSE_Pin);
 
     HAL_GPIO_DeInit(SENSE_OUT_GPIO_Port, SENSE_OUT_Pin);
 

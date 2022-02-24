@@ -25,6 +25,7 @@
 #include "string.h"
 #include <stdbool.h>
 #include "UartRingbuffer.h"
+#include <stdlib.h>
 
 /* USER CODE END Includes */
 
@@ -71,51 +72,105 @@ static void MX_USART3_UART_Init(void);
 /* USER CODE BEGIN 0 */
 const char SSID[] = "DreamersCottage-5G";
 const char PASSWD[] = "good4everyone";
-const int senseMuxEnable[8] = {SENSE_EN1_L_Pin, SENSE_EN2_L_Pin, SENSE_EN3_L_Pin, SENSE_EN4_L_Pin, SENSE_EN5_L_Pin, SENSE_EN6_L_Pin, SENSE_EN7_L_Pin, SENSE_EN8_L_Pin};
+
+const float VOLTAGE_THRESH = 3.0;
+const int VOLTAGE_THRESH_CNT = 5;
+
 const int pwrMuxEnable[4] = {PWR_EN1_L_Pin, PWR_EN2_L_Pin, PWR_EN3_L_Pin, PWR_EN4_L_Pin};
-const int senseMuxSelect[3] = {SENSE_S1_Pin, SENSE_S2_Pin, SENSE_S3_Pin};
-const int pwrMuxSelect[3] = {PWR_S1_Pin, PWR_S1_Pin, PWR_S1_Pin};
+GPIO_TypeDef * pwrMuxType[4] = {GPIOB, GPIOC, GPIOC, GPIOA};
+
+int senseMuxSelect[3] = {SENSE_S1_Pin, SENSE_S2_Pin, SENSE_S3_Pin};
+int pwrMuxSelect[3] = {PWR_S1_Pin, PWR_S1_Pin, PWR_S1_Pin};
+
+const int senseMuxEnable[8] = {SENSE_EN1_L_Pin, SENSE_EN2_L_Pin, SENSE_EN3_L_Pin, SENSE_EN4_L_Pin, SENSE_EN5_L_Pin, SENSE_EN6_L_Pin, SENSE_EN7_L_Pin, SENSE_EN8_L_Pin};
+GPIO_TypeDef * senseMuxType[8] = {GPIOC, GPIOC, GPIOA, GPIOB, GPIOB, GPIOC, GPIOC, GPIOC};
 
 /**
-  * @brief  Sets to S0, S1, and S2 select pins on a sense mux for reading
+  * @brief  Sets to S0, S1, and S2 select pins
   */
-void senseMuxPinRead(int pin) {
+void selectMux(int pin, int array[], int array_size) {
 	for (int i = 0; i < 3; i++) {
-		if (pin & (i << i)) {
-			HAL_GPIO_WritePin(GPIOA, senseMuxSelect[i], GPIO_PIN_SET);
+		if (pin & (i << 1)) {
+			HAL_GPIO_WritePin(GPIOA, array[i], GPIO_PIN_SET);
 		} else {
-			HAL_GPIO_WritePin(GPIOA, senseMuxSelect[i], GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(GPIOA, array[i], GPIO_PIN_RESET);
 		}
 	}
 }
 
-/**
-  * @brief  Sets to S0, S1, and S2 select pins on a pwr mux for writing
-  */
-void pwrMuxPinWrite(int pin) {
-	for (int i = 0; i < 3; i++) {
-		if (pin & (i << i)) {
-			HAL_GPIO_WritePin(GPIOA, pwrMuxSelect[i], GPIO_PIN_SET);
-		} else {
-			HAL_GPIO_WritePin(GPIOA, pwrMuxSelect[i], GPIO_PIN_RESET);
-		}
+
+void enableMux(GPIO_TypeDef *type, int pin) {
+	HAL_GPIO_WritePin(type,  pin,  GPIO_PIN_SET);
+}
+
+void logSDCard(char* print_statement) {
+	// TODO
+}
+
+
+
+
+void ADC_Select_CH0 (void)
+{
+	ADC_ChannelConfTypeDef sConfig = {0};
+	sConfig.Channel = ADC_CHANNEL_9;
+	sConfig.Rank = ADC_REGULAR_RANK_1;
+	sConfig.SamplingTime = ADC_SAMPLETIME_4CYCLES;
+	if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
+	{
+		Error_Handler();
 	}
 }
 
-/**
-  * @brief  Select mux for writing
-  */
-void write_mux(int pin) {
-	pwrMuxPinWrite(pin);
-	HAL_ADC
+void ADC_Select_CH1 (void)
+{
+	ADC_ChannelConfTypeDef sConfig = {0};
+	sConfig.Channel = ADC_CHANNEL_3;
+	sConfig.Rank = ADC_REGULAR_RANK_2;
+	if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
+	{
+		Error_Handler();
+	}
 }
+
+float readPressure() {
+  ADC_Select_CH0();
+  HAL_ADC_Start(&hadc);
+  HAL_ADC_PollForConversion(&hadc, 1000);
+  float data = HAL_ADC_GetValue(&hadc);
+  HAL_ADC_Stop(&hadc);
+  return data;
+}
+
+float read3V3() {
+  ADC_Select_CH1();
+  HAL_ADC_Start(&hadc);
+  HAL_ADC_PollForConversion(&hadc, 1000);
+  float data = HAL_ADC_GetValue(&hadc);
+  HAL_ADC_Stop(&hadc);
+  return data;
+}
+
+bool belowVoltageThresh() {
+	float voltage_value = read3V3();
+	if (voltage_value < VOLTAGE_THRESH) {
+		// Turn on red LED
+	    HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_SET);
+
+		// Log error to SD card
+//	    logSDCard("ERROR Voltage too low");
+	    return true;
+	} else {
+		return false;
+	}
+}
+
 
 void wifi_init() {
 
 }
 
 /* USER CODE END 0 */
-
 
 /**
   * @brief  The application entry point.
@@ -151,31 +206,49 @@ int main(void)
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
 //  wifi_init();
+  HAL_GPIO_WritePin(GPIOC, PWR_MUX_IN_Pin, GPIO_PIN_SET);
 
-
+  int voltage_thresh_count = 0;
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-//  while (1)
-  // Assume pressing sets to 0
-//  while (HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin))
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
+	// Check 3.3V threshold
+	if (voltage_thresh_count > VOLTAGE_THRESH_CNT) {
+		  // TODO: Voltage too low, exiting
+		  exit(EXIT_SUCCESS);
+	  }
+
+	  for (int pwr_mux = 0; pwr_mux < 4; pwr_mux++) {
+		  enableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
+		  for (int pwr_sel = 0; pwr_sel < 8; pwr_sel++) {
+			  selectMux(pwr_sel, pwrMuxSelect, 4);
+
+			  if (belowVoltageThresh()) { // ADC channel for 3v3 sense
+				  voltage_thresh_count++;
+			  }
+
+			  for (int sense_mux = 0; sense_mux < 8; sense_mux++) {
+				  enableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
+				  for (int sense_sel = 0; sense_sel < 8; sense_sel++) {
+					  selectMux(sense_sel, senseMuxSelect, 8);
+
+					  // Read voltage sense
+					  float raw_pressure_voltage = readPressure(); // ADC channel for voltage
+
+				  }
+			  }
+		  }
+	  }
   }
-  // Test LEDs
-//  int cnt = 0;
-//  while (cnt < 4) {
-//	  HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_SET);
-//	  HAL_Delay(500);
-//	  HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_RESET);
-//	  HAL_Delay(500);
-//	  cnt++;
-//  }
+
   /* USER CODE END 3 */
 }
 
@@ -249,7 +322,7 @@ static void MX_ADC_Init(void)
   hadc.Init.LowPowerAutoPowerOff = ADC_AUTOPOWEROFF_DISABLE;
   hadc.Init.ChannelsBank = ADC_CHANNELS_BANK_A;
   hadc.Init.ContinuousConvMode = DISABLE;
-  hadc.Init.NbrOfConversion = 1;
+  hadc.Init.NbrOfConversion = 3;
   hadc.Init.DiscontinuousConvMode = DISABLE;
   hadc.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
@@ -263,6 +336,21 @@ static void MX_ADC_Init(void)
   sConfig.Channel = ADC_CHANNEL_9;
   sConfig.Rank = ADC_REGULAR_RANK_1;
   sConfig.SamplingTime = ADC_SAMPLETIME_4CYCLES;
+  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+  */
+  sConfig.Channel = ADC_CHANNEL_3;
+  sConfig.Rank = ADC_REGULAR_RANK_2;
+  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+  */
+  sConfig.Rank = ADC_REGULAR_RANK_3;
   if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
   {
     Error_Handler();

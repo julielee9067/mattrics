@@ -167,34 +167,8 @@ bool belowVoltageThresh() {
 
 
 void wifi_init() {
-	Ringbuf_init();
-	Uart_sendstring("AT\r\n");
-	while(!(Wait_for("AT\r\r\n\r\nOK\r\n")));
-	printf("AT---->OK\n\n");
 
-	//	/********* AT+CWMODE=1 (station mode) **********/
-	//	Uart_sendstring("AT+CWMODE=1\r\n");
-	//	while (!(Wait_for("AT+CWMODE=1\r\r\n\r\nOK\r\n")));
-	//	printf("CW MODE---->1\n\n");
-	//
-	//	/********* AT+CWJAP="SSID","PASSWD" - connect to AP **********/
-	//	printf("connecting... to the provided AP\n");
-	//	sprintf (data, "AT+CWJAP=\"%s\",\"%s\"\r\n", SSID, PASSWD);
-	//	Uart_sendstring(data);
-	//	while (!(Wait_for("WIFI GOT IP\r\n\r\nOK\r\n")));
-	//	printf ("Connected to,\"%s\"\n\n", SSID);
-	//
-	//	/********* AT+CIFSR - obtain ip of esp8266 **********/
-	//	Uart_sendstring("AT+CIFSR\r\n");
-	//	while (!(Wait_for("CIFSR:STAIP,\"")));
-	//	while (!(Copy_upto("\"",buffer)));
-	//	while (!(Wait_for("OK\r\n")));
-	//	int len = strlen (buffer);
-	//	buffer[len-1] = '\0';
-	//	printf ("ESP8266 IP ADDR: %s\n\n", buffer);
 }
-
-void sendToDatabase(){}
 
 /* USER CODE END 0 */
 
@@ -205,7 +179,7 @@ void sendToDatabase(){}
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	printf("Starting program... \r\n");
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -233,7 +207,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
 //  wifi_init();
   HAL_GPIO_WritePin(GPIOC, PWR_MUX_IN_Pin, GPIO_PIN_SET);
-  printf("Initialization complete \r\n");
 
   int voltage_thresh_count = 0;
 
@@ -269,7 +242,6 @@ int main(void)
 
 					  // Read voltage sense
 					  float raw_pressure_voltage = readPressure(); // ADC channel for voltage
-					  printf("raw pressure voltage: %f", raw_pressure_voltage);
 
 				  }
 			  }

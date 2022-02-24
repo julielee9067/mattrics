@@ -194,8 +194,6 @@ void wifi_init() {
 	//	printf ("ESP8266 IP ADDR: %s\n\n", buffer);
 }
 
-void sendToDatabase(){}
-
 /* USER CODE END 0 */
 
 /**

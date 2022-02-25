@@ -73,7 +73,10 @@ static void MX_USART3_UART_Init(void);
 const char SSID[] = "DreamersCottage-5G";
 const char PASSWD[] = "good4everyone";
 
-const float VOLTAGE_THRESH = 3.0;
+// At 3.3V, expect ADC reading of 4095
+const float ADC_VOLTAGE_CONVERSION = 0.0008056641;
+
+const float VOLTAGE_THRESH = 2.0; // Calculated using voltage divider equation with 3V3 sense measuring 2.2V
 const int VOLTAGE_THRESH_CNT = 5;
 
 const int pwrMuxEnable[4] = {PWR_EN1_L_Pin, PWR_EN2_L_Pin, PWR_EN3_L_Pin, PWR_EN4_L_Pin};
@@ -133,22 +136,20 @@ void ADC_Select_CH1 (void)
 	}
 }
 
-float readPressure() {
-  ADC_Select_CH0();
+int readPressure() {
+//  ADC_Select_CH0();
   HAL_ADC_Start(&hadc);
-  HAL_ADC_PollForConversion(&hadc, 1000);
-  float data = HAL_ADC_GetValue(&hadc);
-  HAL_ADC_Stop(&hadc);
+  HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY);
+  int data = HAL_ADC_GetValue(&hadc);
   return data;
 }
 
 float read3V3() {
-  ADC_Select_CH1();
-  HAL_ADC_Start(&hadc);
-  HAL_ADC_PollForConversion(&hadc, 1000);
-  float data = HAL_ADC_GetValue(&hadc);
-  HAL_ADC_Stop(&hadc);
-  return data;
+//  ADC_Select_CH1();
+	HAL_ADC_Start(&hadc);
+	HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY);
+	float data = HAL_ADC_GetValue(&hadc) * ADC_VOLTAGE_CONVERSION;
+	return data;
 }
 
 bool belowVoltageThresh() {
@@ -158,13 +159,13 @@ bool belowVoltageThresh() {
 	    HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_SET);
 
 		// Log error to SD card
+	    // TODO
 //	    logSDCard("ERROR Voltage too low");
 	    return true;
 	} else {
 		return false;
 	}
 }
-
 
 void wifi_init() {
 	Ringbuf_init();
@@ -205,7 +206,6 @@ void sendToDatabase(){}
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	printf("Starting program... \r\n");
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -231,11 +231,13 @@ int main(void)
   MX_SPI2_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
+  // TODO: Initialize Wifi + database
 //  wifi_init();
   HAL_GPIO_WritePin(GPIOC, PWR_MUX_IN_Pin, GPIO_PIN_SET);
   printf("Initialization complete \r\n");
+  ITM_Port32(31) = 2;
 
-  int voltage_thresh_count = 0;
+//  int voltage_thresh_count = 0;
 
   /* USER CODE END 2 */
 
@@ -247,34 +249,39 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
+	read3V3();
 	// Check 3.3V threshold
-	if (voltage_thresh_count > VOLTAGE_THRESH_CNT) {
-		  // TODO: Voltage too low, exiting
-		  exit(EXIT_SUCCESS);
-	  }
+//	if (voltage_thresh_count > VOLTAGE_THRESH_CNT) {
+//		  // TODO: Voltage too low, exiting
+//		  exit(EXIT_SUCCESS);
+//	}
 
-	  for (int pwr_mux = 0; pwr_mux < 4; pwr_mux++) {
-		  enableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
-		  for (int pwr_sel = 0; pwr_sel < 8; pwr_sel++) {
-			  selectMux(pwr_sel, pwrMuxSelect, 4);
+	// TODO: setup timer to read from SD card and send to database
 
-			  if (belowVoltageThresh()) { // ADC channel for 3v3 sense
-				  voltage_thresh_count++;
-			  }
+	for (int pwr_mux = 0; pwr_mux < 4; pwr_mux++) {
+		enableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
+		for (int pwr_sel = 0; pwr_sel < 8; pwr_sel++) {
+			selectMux(pwr_sel, pwrMuxSelect, 4);
 
-			  for (int sense_mux = 0; sense_mux < 8; sense_mux++) {
-				  enableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
-				  for (int sense_sel = 0; sense_sel < 8; sense_sel++) {
-					  selectMux(sense_sel, senseMuxSelect, 8);
+			// TODO: Timer for 3v3 checking
+//			if (belowVoltageThresh()) { // ADC channel for 3v3 sense
+//				voltage_thresh_count++;
+//			}
 
-					  // Read voltage sense
-					  float raw_pressure_voltage = readPressure(); // ADC channel for voltage
-					  printf("raw pressure voltage: %f", raw_pressure_voltage);
+			for (int sense_mux = 0; sense_mux < 8; sense_mux++) {
+				enableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
+				for (int sense_sel = 0; sense_sel < 8; sense_sel++) {
+					selectMux(sense_sel, senseMuxSelect, 8);
 
-				  }
-			  }
-		  }
-	  }
+					// Read voltage sense
+//					int raw_pressure_voltage = readPressure(); // ADC channel for voltage
+//					printf("raw pressure voltage: %d", raw_pressure_voltage);
+
+					// TODO: write to SD card
+				}
+			}
+		}
+	 }
   }
 
   /* USER CODE END 3 */
@@ -350,7 +357,7 @@ static void MX_ADC_Init(void)
   hadc.Init.LowPowerAutoPowerOff = ADC_AUTOPOWEROFF_DISABLE;
   hadc.Init.ChannelsBank = ADC_CHANNELS_BANK_A;
   hadc.Init.ContinuousConvMode = DISABLE;
-  hadc.Init.NbrOfConversion = 3;
+  hadc.Init.NbrOfConversion = 1;
   hadc.Init.DiscontinuousConvMode = DISABLE;
   hadc.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
@@ -361,24 +368,9 @@ static void MX_ADC_Init(void)
   }
   /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
   */
-  sConfig.Channel = ADC_CHANNEL_9;
+  sConfig.Channel = ADC_CHANNEL_3;
   sConfig.Rank = ADC_REGULAR_RANK_1;
   sConfig.SamplingTime = ADC_SAMPLETIME_4CYCLES;
-  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-  */
-  sConfig.Channel = ADC_CHANNEL_3;
-  sConfig.Rank = ADC_REGULAR_RANK_2;
-  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-  */
-  sConfig.Rank = ADC_REGULAR_RANK_3;
   if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -521,7 +513,7 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, PWR_EN1_L_Pin|MCU_BOOT1_Pin|SENSE_EN3_L_Pin|SENSE_EN4_L_Pin
-                          |SENSE_EN5_L_Pin|MCU_PB3_Pin|SPI_CS2_L_Pin|SD_CS_L_Pin, GPIO_PIN_RESET);
+                          |SENSE_EN5_L_Pin|SPI_CS2_L_Pin|SD_CS_L_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(WIFI_RST_GPIO_Port, WIFI_RST_Pin, GPIO_PIN_RESET);
@@ -547,9 +539,9 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PWR_EN1_L_Pin MCU_BOOT1_Pin SENSE_EN3_L_Pin SENSE_EN4_L_Pin
-                           SENSE_EN5_L_Pin MCU_PB3_Pin SPI_CS2_L_Pin SD_CS_L_Pin */
+                           SENSE_EN5_L_Pin SPI_CS2_L_Pin SD_CS_L_Pin */
   GPIO_InitStruct.Pin = PWR_EN1_L_Pin|MCU_BOOT1_Pin|SENSE_EN3_L_Pin|SENSE_EN4_L_Pin
-                          |SENSE_EN5_L_Pin|MCU_PB3_Pin|SPI_CS2_L_Pin|SD_CS_L_Pin;
+                          |SENSE_EN5_L_Pin|SPI_CS2_L_Pin|SD_CS_L_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

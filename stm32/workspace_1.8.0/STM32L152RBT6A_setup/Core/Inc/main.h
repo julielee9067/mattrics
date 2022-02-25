@@ -67,8 +67,6 @@ void Error_Handler(void);
 #define PWR_MUX_IN_GPIO_Port GPIOC
 #define SENSE_EN2_L_Pin GPIO_PIN_1
 #define SENSE_EN2_L_GPIO_Port GPIOC
-#define AUDIO_OUT_Pin GPIO_PIN_2
-#define AUDIO_OUT_GPIO_Port GPIOC
 #define SENSE_EN1_L_Pin GPIO_PIN_3
 #define SENSE_EN1_L_GPIO_Port GPIOC
 #define SENSE_S1_Pin GPIO_PIN_0
@@ -77,8 +75,6 @@ void Error_Handler(void);
 #define SENSE_S2_GPIO_Port GPIOA
 #define SENSE_S3_Pin GPIO_PIN_2
 #define SENSE_S3_GPIO_Port GPIOA
-#define VOLTAGE_SENSE_Pin GPIO_PIN_3
-#define VOLTAGE_SENSE_GPIO_Port GPIOA
 #define PWR_S1_Pin GPIO_PIN_4
 #define PWR_S1_GPIO_Port GPIOA
 #define PWR_S2_Pin GPIO_PIN_5
@@ -93,8 +89,6 @@ void Error_Handler(void);
 #define PWR_EN2_L_GPIO_Port GPIOC
 #define PWR_EN1_L_Pin GPIO_PIN_0
 #define PWR_EN1_L_GPIO_Port GPIOB
-#define SENSE_OUT_Pin GPIO_PIN_1
-#define SENSE_OUT_GPIO_Port GPIOB
 #define MCU_BOOT1_Pin GPIO_PIN_2
 #define MCU_BOOT1_GPIO_Port GPIOB
 #define SENSE_EN3_L_Pin GPIO_PIN_10
@@ -123,8 +117,6 @@ void Error_Handler(void);
 #define WIFI_EN_GPIO_Port GPIOC
 #define WIFI_RST_Pin GPIO_PIN_2
 #define WIFI_RST_GPIO_Port GPIOD
-#define MCU_PB3_Pin GPIO_PIN_3
-#define MCU_PB3_GPIO_Port GPIOB
 #define SPI_CS2_L_Pin GPIO_PIN_5
 #define SPI_CS2_L_GPIO_Port GPIOB
 #define SD_CS_L_Pin GPIO_PIN_6

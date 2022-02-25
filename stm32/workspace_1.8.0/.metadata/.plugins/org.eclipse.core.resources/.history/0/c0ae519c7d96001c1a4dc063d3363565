@@ -113,15 +113,7 @@ void logSDCard(char* print_statement) {
 
 
 int readPressure() {
-  ADC_ChannelConfTypeDef sConfig = {0};
   sConfig.Channel = ADC_CHANNEL_3;
-  sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_4CYCLES;
-  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
-  {
-	Error_Handler();
-  }
-
   HAL_ADC_Start(&hadc);
   HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY);
   int data = HAL_ADC_GetValue(&hadc);
@@ -129,15 +121,7 @@ int readPressure() {
 }
 
 float read3V3() {
-  ADC_ChannelConfTypeDef sConfig = {0};
   sConfig.Channel = ADC_CHANNEL_9;
-  sConfig.Rank = ADC_REGULAR_RANK_2;
-  sConfig.SamplingTime = ADC_SAMPLETIME_4CYCLES;
-  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
   HAL_ADC_Start(&hadc);
   HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY);
   float data = HAL_ADC_GetValue(&hadc) * ADC_VOLTAGE_CONVERSION;

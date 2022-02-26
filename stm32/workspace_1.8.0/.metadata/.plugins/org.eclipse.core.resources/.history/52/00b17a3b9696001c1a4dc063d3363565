@@ -103,11 +103,11 @@ void selectMux(int pin, int array[], int array_size) {
 
 
 void enableMux(GPIO_TypeDef *type, int pin) {
-	HAL_GPIO_WritePin(type,  pin,  GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(type,  pin,  GPIO_PIN_SET);
 }
 
 void disableMux(GPIO_TypeDef *type, int pin) {
-	HAL_GPIO_WritePin(type,  pin,  GPIO_PIN_SET);
+	HAL_GPIO_WritePin(type,  pin,  GPIO_PIN_RESET);
 }
 
 void logSDCard(char* print_statement) {

@@ -103,11 +103,11 @@ void selectMux(int pin, int array[], int array_size) {
 
 
 void enableMux(GPIO_TypeDef *type, int pin) {
-	HAL_GPIO_WritePin(type,  pin,  GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(type,  pin,  GPIO_PIN_SET);
 }
 
 void disableMux(GPIO_TypeDef *type, int pin) {
-	HAL_GPIO_WritePin(type,  pin,  GPIO_PIN_SET);
+	HAL_GPIO_WritePin(type,  pin,  GPIO_PIN_RESET);
 }
 
 void logSDCard(char* print_statement) {
@@ -179,16 +179,16 @@ void wifi_init() {
 	Uart_sendstring("AT\r\n");
 	while(!(Wait_for("OK\r\n")));
 
-//	/********* AT+CWMODE=1 **********/
-//	Uart_flush();
-//	Uart_sendstring("AT+CWMODE=1\r\n");
-//	while (!(Wait_for("OK\r\n")));
-//	//
-//	/********* AT+CWJAP="SSID","PASSWD" **********/
-//	Uart_flush();
-//	sprintf (data, "AT+CWJAP=\"%s\",\"%s\"\r\n", SSID, PASSWD);
-//	Uart_sendstring(data);
-//	while (!(Wait_for("OK\r\n")));
+	/********* AT+CWMODE=1 **********/
+	Uart_flush();
+	Uart_sendstring("AT+CWMODE=1\r\n");
+	while (!(Wait_for("OK\r\n")));
+	//
+	/********* AT+CWJAP="SSID","PASSWD" **********/
+	Uart_flush();
+	sprintf (data, "AT+CWJAP=\"%s\",\"%s\"\r\n", SSID, PASSWD);
+	Uart_sendstring(data);
+	while (!(Wait_for("OK\r\n")));
 
 }
 
@@ -229,7 +229,7 @@ int main(void)
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
   // TODO: Initialize Wifi + database
-//  wifi_init();
+  wifi_init();
   HAL_GPIO_WritePin(GPIOC, PWR_MUX_IN_Pin, GPIO_PIN_SET);
 //  printf("Initialization complete \r\n");
 
@@ -282,8 +282,8 @@ int main(void)
 					// Read voltage sense
 					int raw_pressure_voltage = readPressure(); // ADC channel for voltage
 //					printf("raw pressure voltage: %d", raw_pressure_voltage);
-					pressure_data[array_cnt] = raw_pressure_voltage;
 					array_cnt++;
+					pressure_data[array_cnt] = raw_pressure_voltage;
 					// TODO: write to SD card
 				}
 				disableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);

@@ -103,11 +103,11 @@ void selectMux(int pin, int array[], int array_size) {
 
 
 void enableMux(GPIO_TypeDef *type, int pin) {
-	HAL_GPIO_WritePin(type,  pin,  GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(type,  pin,  GPIO_PIN_SET);
 }
 
 void disableMux(GPIO_TypeDef *type, int pin) {
-	HAL_GPIO_WritePin(type,  pin,  GPIO_PIN_SET);
+	HAL_GPIO_WritePin(type,  pin,  GPIO_PIN_RESET);
 }
 
 void logSDCard(char* print_statement) {
@@ -164,32 +164,31 @@ bool belowVoltageThresh() {
 }
 
 void wifi_init() {
-	// Initialize circular buffer API for tx and rx of AT commands
 	Ringbuf_init();
-	char data[80];
-
-	// Set WIFI Enable pin high
-	HAL_GPIO_WritePin(GPIOC, WIFI_EN_Pin, GPIO_PIN_SET);
-
-	Uart_sendstring("AT+RST\r\n");
-	HAL_Delay(2000);
-
-	/********* AT **********/
-	Uart_flush();
 	Uart_sendstring("AT\r\n");
-	while(!(Wait_for("OK\r\n")));
+	while(!(Wait_for("AT\r\r\n\r\nOK\r\n")));
+	printf("AT---->OK\n\n");
 
-//	/********* AT+CWMODE=1 **********/
-//	Uart_flush();
-//	Uart_sendstring("AT+CWMODE=1\r\n");
-//	while (!(Wait_for("OK\r\n")));
-//	//
-//	/********* AT+CWJAP="SSID","PASSWD" **********/
-//	Uart_flush();
-//	sprintf (data, "AT+CWJAP=\"%s\",\"%s\"\r\n", SSID, PASSWD);
-//	Uart_sendstring(data);
-//	while (!(Wait_for("OK\r\n")));
-
+	//	/********* AT+CWMODE=1 (station mode) **********/
+	//	Uart_sendstring("AT+CWMODE=1\r\n");
+	//	while (!(Wait_for("AT+CWMODE=1\r\r\n\r\nOK\r\n")));
+	//	printf("CW MODE---->1\n\n");
+	//
+	//	/********* AT+CWJAP="SSID","PASSWD" - connect to AP **********/
+	//	printf("connecting... to the provided AP\n");
+	//	sprintf (data, "AT+CWJAP=\"%s\",\"%s\"\r\n", SSID, PASSWD);
+	//	Uart_sendstring(data);
+	//	while (!(Wait_for("WIFI GOT IP\r\n\r\nOK\r\n")));
+	//	printf ("Connected to,\"%s\"\n\n", SSID);
+	//
+	//	/********* AT+CIFSR - obtain ip of esp8266 **********/
+	//	Uart_sendstring("AT+CIFSR\r\n");
+	//	while (!(Wait_for("CIFSR:STAIP,\"")));
+	//	while (!(Copy_upto("\"",buffer)));
+	//	while (!(Wait_for("OK\r\n")));
+	//	int len = strlen (buffer);
+	//	buffer[len-1] = '\0';
+	//	printf ("ESP8266 IP ADDR: %s\n\n", buffer);
 }
 
 void sendToDatabase(){}
@@ -231,15 +230,7 @@ int main(void)
   // TODO: Initialize Wifi + database
 //  wifi_init();
   HAL_GPIO_WritePin(GPIOC, PWR_MUX_IN_Pin, GPIO_PIN_SET);
-//  printf("Initialization complete \r\n");
-
-  int init_cnt = 0;
-  while (init_cnt < 4) {
-	  init_cnt++;
-	  HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_SET);
-	  HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_RESET);
-  }
-
+  printf("Initialization complete \r\n");
   ITM_Port32(31) = 2;
 
 //  int voltage_thresh_count = 0;
@@ -282,14 +273,12 @@ int main(void)
 					// Read voltage sense
 					int raw_pressure_voltage = readPressure(); // ADC channel for voltage
 //					printf("raw pressure voltage: %d", raw_pressure_voltage);
-					pressure_data[array_cnt] = raw_pressure_voltage;
 					array_cnt++;
+					pressure_data[array_cnt] = raw_pressure_voltage;
 					// TODO: write to SD card
 				}
-				disableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
 			}
 		}
-		disableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
 	 }
 //	printf("array cnt: %d", array_cnt);
 	array_cnt = 0;

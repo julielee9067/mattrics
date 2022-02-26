@@ -12,9 +12,9 @@
 
 /**** define the UART you are using  ****/
 
-UART_HandleTypeDef huart2;
+UART_HandleTypeDef huart3;
 
-#define uart &huart2
+#define uart &huart3
 
 /* put the following in the ISR 
 

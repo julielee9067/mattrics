@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "fatfs.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -26,7 +27,7 @@
 #include <stdbool.h>
 #include "UartRingbuffer.h"
 #include <stdlib.h>
-
+#include "fatfs_sd.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -208,6 +209,17 @@ void wifi_init() {
 
 void sendToDatabase(){}
 
+FATFS fs;
+FIL fil;
+FRESULT fresult;
+char fbuffer[1024];
+
+UINT br, bw;
+
+FATFS *pfs;
+DWORD fre_clust;
+uint32_t total, free_space;
+
 /* USER CODE END 0 */
 
 /**
@@ -241,6 +253,7 @@ int main(void)
   MX_I2C1_Init();
   MX_SPI2_Init();
   MX_USART3_UART_Init();
+  MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
   // TODO: Initialize Wifi + database
 //  wifi_init();
@@ -259,6 +272,47 @@ int main(void)
 //  int voltage_thresh_count = 0;
   int pressure_data[NUM_NODES] = {0};
   int array_cnt = 0;
+
+  /* Mount the SD card */
+  fresult = f_mount(&fs, "", 0);
+
+  /* Card capacity details */
+  f_getfree("", &fre_clust, &pfs);
+
+  total = (uint32_t)((pfs -> n_fatent - 2) * pfs -> csize * 0.5);
+
+    /************* The following operation is using PUTS and GETS *********************/
+
+	/* Open file to write/ create a file if it doesn't exist */
+	fresult = f_open(&fil, "file1.txt", FA_OPEN_ALWAYS | FA_READ | FA_WRITE);
+
+	/* Writing text */
+	f_puts("This data is from the FILE1.txt. And it was written using ...f_puts... ", &fil);
+
+	/* Close file */
+	fresult = f_close(&fil);
+
+	if (fresult == FR_OK)
+	{
+
+	}
+	// send_uart ("File1.txt created and the data is written \n");
+
+	/* Open file to read */
+	fresult = f_open(&fil, "file1.txt", FA_READ);
+
+	/* Read string from the file */
+	f_gets(fbuffer, f_size(&fil), &fil);
+
+	// send_uart("File1.txt is opened and it contains the data as shown below\n");
+	// send_uart(buffer);
+	// send_uart("\n\n");
+
+	/* Close file */
+	f_close(&fil);
+
+	// clear_buffer();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -368,7 +422,7 @@ static void MX_ADC_Init(void)
 
   /* USER CODE END ADC_Init 0 */
 
-//  ADC_ChannelConfTypeDef sConfig = {0};
+  ADC_ChannelConfTypeDef sConfig = {0};
 
   /* USER CODE BEGIN ADC_Init 1 */
 
@@ -385,7 +439,7 @@ static void MX_ADC_Init(void)
   hadc.Init.LowPowerAutoPowerOff = ADC_AUTOPOWEROFF_DISABLE;
   hadc.Init.ChannelsBank = ADC_CHANNELS_BANK_A;
   hadc.Init.ContinuousConvMode = ENABLE;
-  hadc.Init.NbrOfConversion = 1;
+  hadc.Init.NbrOfConversion = 2;
   hadc.Init.DiscontinuousConvMode = DISABLE;
   hadc.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
@@ -394,23 +448,23 @@ static void MX_ADC_Init(void)
   {
     Error_Handler();
   }
-//  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-//  */
-//  sConfig.Channel = ADC_CHANNEL_3;
-//  sConfig.Rank = ADC_REGULAR_RANK_1;
-//  sConfig.SamplingTime = ADC_SAMPLETIME_4CYCLES;
-//  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
-//  {
-//    Error_Handler();
-//  }
-//  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-//  */
-//  sConfig.Channel = ADC_CHANNEL_9;
-//  sConfig.Rank = ADC_REGULAR_RANK_2;
-//  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
-//  {
-//    Error_Handler();
-//  }
+  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+  */
+  sConfig.Channel = ADC_CHANNEL_3;
+  sConfig.Rank = ADC_REGULAR_RANK_1;
+  sConfig.SamplingTime = ADC_SAMPLETIME_4CYCLES;
+  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+  */
+  sConfig.Channel = ADC_CHANNEL_9;
+  sConfig.Rank = ADC_REGULAR_RANK_2;
+  if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
   /* USER CODE BEGIN ADC_Init 2 */
 
   /* USER CODE END ADC_Init 2 */
@@ -474,7 +528,7 @@ static void MX_SPI2_Init(void)
   hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi2.Init.NSS = SPI_NSS_SOFT;
-  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
   hspi2.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi2.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;

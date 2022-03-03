@@ -83,7 +83,7 @@ const int pwrMuxEnable[4] = {PWR_EN1_L_Pin, PWR_EN2_L_Pin, PWR_EN3_L_Pin, PWR_EN
 GPIO_TypeDef * pwrMuxType[4] = {GPIOB, GPIOC, GPIOC, GPIOA};
 
 int senseMuxSelect[3] = {SENSE_S1_Pin, SENSE_S2_Pin, SENSE_S3_Pin};
-int pwrMuxSelect[3] = {PWR_S1_Pin, PWR_S2_Pin, PWR_S3_Pin};
+int pwrMuxSelect[3] = {PWR_S1_Pin, PWR_S1_Pin, PWR_S1_Pin};
 
 const int senseMuxEnable[8] = {SENSE_EN1_L_Pin, SENSE_EN2_L_Pin, SENSE_EN3_L_Pin, SENSE_EN4_L_Pin, SENSE_EN5_L_Pin, SENSE_EN6_L_Pin, SENSE_EN7_L_Pin, SENSE_EN8_L_Pin};
 GPIO_TypeDef * senseMuxType[8] = {GPIOC, GPIOC, GPIOA, GPIOB, GPIOB, GPIOC, GPIOC, GPIOC};
@@ -92,47 +92,39 @@ GPIO_TypeDef * senseMuxType[8] = {GPIOC, GPIOC, GPIOA, GPIOB, GPIOB, GPIOC, GPIO
   * @brief  Sets to S0, S1, and S2 select pins
   */
 void selectMux(int pin, int array[], int array_size) {
-	switch (pin) {
-		case 0:
-			HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_RESET);
-			break;
-		case 1:
-			HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_SET);
-			HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_RESET);
-			break;
-		case 2:
-			HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_SET);
-			HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_RESET);
-			break;
-		case 3:
-			HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_SET);
-			HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_SET);
-			HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_RESET);
-			break;
-		case 4:
-			HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_SET);
-			break;
-		case 5:
-			HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_SET);
-			HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_SET);
-			break;
-		case 6:
-			HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_SET);
-			HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_SET);
-			break;
-		case 7:
-			HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_SET);
-			HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_SET);
-			HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_SET);
-			break;
+
+	if (pin == 0) {
+		HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_RESET);
+	} else if (pin == 1) {
+		HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_SET);
+		HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_RESET);
+	} else if (pin == 2) {
+		HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_SET);
+		HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_RESET);
+	} else if (pin == 3) {
+		HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_SET);
+		HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_SET);
+		HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_RESET);
+	} else if (pin == 4) {
+		HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_SET);
+	} else if (pin == 5) {
+		HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_SET);
+		HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_SET);
+	} else if (pin == 6) {
+		HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_SET);
+		HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_SET);
+	} else { // pin = 7
+		HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_SET);
+		HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_SET);
+		HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_SET);
 	}
 }
 

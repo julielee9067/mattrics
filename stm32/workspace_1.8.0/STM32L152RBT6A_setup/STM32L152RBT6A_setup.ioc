@@ -1,12 +1,9 @@
 #MicroXplorer Configuration settings - do not modify
-ADC.Channel-0\#ChannelRegularConversion=ADC_CHANNEL_3
-ADC.Channel-6\#ChannelRegularConversion=ADC_CHANNEL_9
+ADC.Channel-0\#ChannelRegularConversion=ADC_CHANNEL_9
 ADC.ContinuousConvMode=ENABLE
-ADC.IPParameters=NbrOfConversionFlag,Channel-0\#ChannelRegularConversion,NbrOfConversion,Rank-6\#ChannelRegularConversion,Channel-6\#ChannelRegularConversion,SamplingTime-6\#ChannelRegularConversion,ScanConvMode,ContinuousConvMode
-ADC.NbrOfConversion=2
+ADC.IPParameters=NbrOfConversionFlag,Channel-0\#ChannelRegularConversion,NbrOfConversion,ScanConvMode,ContinuousConvMode
+ADC.NbrOfConversion=1
 ADC.NbrOfConversionFlag=1
-ADC.Rank-6\#ChannelRegularConversion=2
-ADC.SamplingTime-6\#ChannelRegularConversion=ADC_SAMPLETIME_4CYCLES
 ADC.ScanConvMode=ADC_SCAN_ENABLE
 File.Version=6
 GPIO.groupedBy=Group By Peripherals

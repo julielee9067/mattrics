@@ -206,6 +206,19 @@ void wifi_init() {
 
 }
 
+void mux_init() {
+	// Set load switch
+	HAL_GPIO_WritePin(GPIOC, PWR_MUX_IN_Pin, GPIO_PIN_SET);
+
+	// All muxes are active low. We want to set them high (disabled) at startup
+	for (int pwr_mux = 0; pwr_mux < 4; pwr_mux++) {
+		disableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
+	}
+	for (int sense_mux = 0; sense_mux < 8; sense_mux++) {
+		disableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
+	}
+}
+
 void sendToDatabase(){}
 
 /* USER CODE END 0 */
@@ -244,7 +257,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   // TODO: Initialize Wifi + database
 //  wifi_init();
-  HAL_GPIO_WritePin(GPIOC, PWR_MUX_IN_Pin, GPIO_PIN_SET);
+  mux_init();
 //  printf("Initialization complete \r\n");
 
   int init_cnt = 0;

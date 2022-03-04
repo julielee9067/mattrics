@@ -70,8 +70,8 @@ static void MX_USART3_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-const char* SSID = "Cloudwifi-167-504-P";
-const char* PASSWD = "CWAE1923";
+const char* SSID = "DreamersCottage-5G";
+const char* PASSWD = "good4everyone";
 
 // At 3.3V, expect ADC reading of 4095
 const float ADC_VOLTAGE_CONVERSION = 0.0008056641;
@@ -86,12 +86,12 @@ int senseMuxSelect[3] = {SENSE_S1_Pin, SENSE_S2_Pin, SENSE_S3_Pin};
 int pwrMuxSelect[3] = {PWR_S1_Pin, PWR_S2_Pin, PWR_S3_Pin};
 
 const int senseMuxEnable[8] = {SENSE_EN1_L_Pin, SENSE_EN2_L_Pin, SENSE_EN3_L_Pin, SENSE_EN4_L_Pin, SENSE_EN5_L_Pin, SENSE_EN6_L_Pin, SENSE_EN7_L_Pin, SENSE_EN8_L_Pin};
-GPIO_TypeDef * senseMuxType[8] = {GPIOC, GPIOC, GPIOB, GPIOB, GPIOB, GPIOC, GPIOC, GPIOC};
+GPIO_TypeDef * senseMuxType[8] = {GPIOC, GPIOC, GPIOA, GPIOB, GPIOB, GPIOC, GPIOC, GPIOC};
 
 /**
   * @brief  Sets to S0, S1, and S2 select pins
   */
-void selectChannel(int pin, int array[]) {
+void selectMux(int pin, int array[]) {
 	switch (pin) {
 		case 0:
 			HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_RESET);
@@ -321,7 +321,7 @@ int main(void)
 	for (int pwr_mux = 0; pwr_mux < 4; pwr_mux++) {
 		enableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
 		for (int pwr_sel = 0; pwr_sel < 8; pwr_sel++) {
-			selectChannel(pwr_sel, pwrMuxSelect);
+			selectMux(pwr_sel, pwrMuxSelect);
 
 			// TODO: Timer for 3v3 checking
 //			if (belowVoltageThresh()) { // ADC channel for 3v3 sense
@@ -331,7 +331,7 @@ int main(void)
 			for (int sense_mux = 0; sense_mux < 8; sense_mux++) {
 				enableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
 				for (int sense_sel = 0; sense_sel < 8; sense_sel++) {
-					selectChannel(sense_sel, senseMuxSelect);
+					selectMux(sense_sel, senseMuxSelect);
 
 					// Read voltage sense
 					int raw_ADC_pressure = readPressure(); // ADC channel for voltage
@@ -419,12 +419,12 @@ static void MX_ADC_Init(void)
   hadc.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
   hadc.Init.Resolution = ADC_RESOLUTION_12B;
   hadc.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc.Init.ScanConvMode = ADC_SCAN_DISABLE;
+  hadc.Init.ScanConvMode = ADC_SCAN_ENABLE;
   hadc.Init.EOCSelection = ADC_EOC_SEQ_CONV;
   hadc.Init.LowPowerAutoWait = ADC_AUTOWAIT_DISABLE;
   hadc.Init.LowPowerAutoPowerOff = ADC_AUTOPOWEROFF_DISABLE;
   hadc.Init.ChannelsBank = ADC_CHANNELS_BANK_A;
-  hadc.Init.ContinuousConvMode = DISABLE;
+  hadc.Init.ContinuousConvMode = ENABLE;
   hadc.Init.NbrOfConversion = 1;
   hadc.Init.DiscontinuousConvMode = DISABLE;
   hadc.Init.ExternalTrigConv = ADC_SOFTWARE_START;
@@ -438,7 +438,7 @@ static void MX_ADC_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_9;
   sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_48CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_4CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
   {
     Error_Handler();

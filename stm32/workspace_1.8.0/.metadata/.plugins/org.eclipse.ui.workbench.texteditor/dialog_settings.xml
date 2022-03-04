@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
-		<item key="selection" value="ITM_Port32"/>
+		<item key="selection" value="readPressure"/>
 		<item key="wrap" value="true"/>
 		<item key="casesensitive" value="false"/>
 		<item key="wholeword" value="false"/>
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="readPressure"/>
+			<item value="read3V3"/>
+			<item value="selectMux"/>
+			<item value="SENSE_S1_Pin"/>
+			<item value="array_size"/>
+			<item value="senseMuxSelect"/>
+			<item value="PWR_S3_Pin"/>
+			<item value="PWR_S1_Pin"/>
+			<item value="enableMux"/>
+			<item value="disableMux"/>
 			<item value="ITM_Port32"/>
 			<item value="\"/>
 			<item value="wifi_init"/>
 			<item value="Ring"/>
 			<item value="raw_pressure_voltage"/>
-			<item value="hadc1"/>
-			<item value="belowVoltageThresh"/>
-			<item value="readADC"/>
-			<item value="ADC_Select"/>
-			<item value="belowVoltageThres"/>
-			<item value="rank"/>
-			<item value="checkVoltageThresh`"/>
-			<item value="checkVoltageThresh"/>
-			<item value="selectMux"/>
-			<item value="enableMux"/>
 		</list>
 		<list key="replacehistory">
 		</list>
 	</section>
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
-		<item key="DIALOG_X_ORIGIN" value="914"/>
-		<item key="DIALOG_Y_ORIGIN" value="327"/>
+		<item key="DIALOG_X_ORIGIN" value="1080"/>
+		<item key="DIALOG_Y_ORIGIN" value="342"/>
 		<item key="DIALOG_WIDTH" value="336"/>
 		<item key="DIALOG_HEIGHT" value="454"/>
 		<item key="DIALOG_FONT_NAME" value="1|Segoe UI|9.0|0|WINDOWS|1|-15|0|0|0|400|0|0|0|1|0|0|0|0|Segoe UI"/>

@@ -37,14 +37,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-FATFS fs;
-FIL fil;
-
-FATFS *pfs;
-DWORD fre_clust;
-uint32_t total, free_space;
-
-char buffer[100];
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -217,6 +209,17 @@ void wifi_init() {
 
 void sendToDatabase(){}
 
+FATFS fs;
+FIL fil;
+FRESULT fresult;
+char fbuffer[1024];
+
+UINT br, bw;
+
+FATFS *pfs;
+DWORD fre_clust;
+uint32_t total, free_space;
+
 /* USER CODE END 0 */
 
 /**
@@ -270,25 +273,46 @@ int main(void)
   int pressure_data[NUM_NODES] = {0};
   int array_cnt = 0;
 
-  HAL_Delay(500);
-  f_mount(&fs, "", 0);
-  f_open(&fil, "write.txt", FA_OPEN_ALWAYS | FA_WRITE | FA_READ);
-  f_lseek(&fil, f_size(&fil));
-  f_puts("Hello from Mattrics\n", &fil);
-  f_close(&fil);
+  /* Mount the SD card */
+  fresult = f_mount(&fs, "", 0);
 
-  /* f_getfree("", &fre_clust, &pfs);
-  totalSpace = (uint32_t)((pfs->n_fatent - 2) * pfs->csize * 0.5);
-  freeSpace = (uint32_t)(fre_clust * pfs->csize * 0.5);
+  /* Card capacity details */
+  f_getfree("", &fre_clust, &pfs);
 
-  f_open(&fil, "read.txt", FA_READ);
-  // Reads line by line until the end
-  while(f_gets(buffer, sizeof(buffer), &fil))
-  {
-    // Can use the buffer for something useful
-    memset(buffer,0,sizeof(buffer));
-  }
-  f_close(&fil);*/
+  total = (uint32_t)((pfs -> n_fatent - 2) * pfs -> csize * 0.5);
+
+    /************* The following operation is using PUTS and GETS *********************/
+
+	/* Open file to write/ create a file if it doesn't exist */
+	fresult = f_open(&fil, "file1.txt", FA_OPEN_ALWAYS | FA_READ | FA_WRITE);
+
+	/* Writing text */
+	f_puts("This data is from the FILE1.txt. And it was written using ...f_puts... ", &fil);
+
+	/* Close file */
+	fresult = f_close(&fil);
+
+	if (fresult == FR_OK)
+	{
+
+	}
+	// send_uart ("File1.txt created and the data is written \n");
+
+	/* Open file to read */
+	fresult = f_open(&fil, "file1.txt", FA_READ);
+
+	/* Read string from the file */
+	f_gets(fbuffer, f_size(&fil), &fil);
+
+	// send_uart("File1.txt is opened and it contains the data as shown below\n");
+	// send_uart(buffer);
+	// send_uart("\n\n");
+
+	/* Close file */
+	f_close(&fil);
+
+	// clear_buffer();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */

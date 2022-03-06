@@ -216,6 +216,7 @@ void wifi_init() {
 }
 
 void sendToDatabase(){}
+.
 
 /* USER CODE END 0 */
 

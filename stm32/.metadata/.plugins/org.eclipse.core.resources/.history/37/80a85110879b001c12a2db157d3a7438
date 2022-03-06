@@ -217,6 +217,15 @@ void wifi_init() {
 
 void sendToDatabase(){}
 
+
+
+FRESULT fresult;
+char fbuffer[1024];
+
+UINT br, bw;
+
+
+
 /* USER CODE END 0 */
 
 /**
@@ -273,11 +282,11 @@ int main(void)
   HAL_Delay(500);
   f_mount(&fs, "", 0);
   f_open(&fil, "write.txt", FA_OPEN_ALWAYS | FA_WRITE | FA_READ);
-  f_lseek(&fil, f_size(&fil));
+  f_lseek(&fil, fil.fsize);
   f_puts("Hello from Mattrics\n", &fil);
   f_close(&fil);
 
-  /* f_getfree("", &fre_clust, &pfs);
+  f_getfree("", &fre_clust, &pfs);
   totalSpace = (uint32_t)((pfs->n_fatent - 2) * pfs->csize * 0.5);
   freeSpace = (uint32_t)(fre_clust * pfs->csize * 0.5);
 
@@ -288,7 +297,7 @@ int main(void)
     // Can use the buffer for something useful
     memset(buffer,0,sizeof(buffer));
   }
-  f_close(&fil);*/
+  f_close(&fil);
   /* USER CODE END 2 */
 
   /* Infinite loop */

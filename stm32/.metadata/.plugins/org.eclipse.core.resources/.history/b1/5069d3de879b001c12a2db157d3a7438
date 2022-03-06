@@ -217,6 +217,15 @@ void wifi_init() {
 
 void sendToDatabase(){}
 
+
+
+FRESULT fresult;
+char fbuffer[1024];
+
+UINT br, bw;
+
+
+
 /* USER CODE END 0 */
 
 /**
@@ -273,7 +282,7 @@ int main(void)
   HAL_Delay(500);
   f_mount(&fs, "", 0);
   f_open(&fil, "write.txt", FA_OPEN_ALWAYS | FA_WRITE | FA_READ);
-  f_lseek(&fil, f_size(&fil));
+  f_lseek(&fil, fil.fsize);
   f_puts("Hello from Mattrics\n", &fil);
   f_close(&fil);
 

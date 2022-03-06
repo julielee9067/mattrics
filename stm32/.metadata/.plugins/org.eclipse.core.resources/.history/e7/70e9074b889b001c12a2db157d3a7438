@@ -217,6 +217,15 @@ void wifi_init() {
 
 void sendToDatabase(){}
 
+
+
+FRESULT fresult;
+char fbuffer[1024];
+
+UINT br, bw;
+
+
+
 /* USER CODE END 0 */
 
 /**

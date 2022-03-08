@@ -8,6 +8,7 @@ class DatabaseConnector:
         self.connection = mysql.connector.connect(**MYSQL_SECRET)
         self.cursor = self.connection.cursor()
 
+    # TODO: FIGURE OUT _ID TO BE SAME AS THE AUTOMATICALLY GENERATED PKEY
     def insert_therapist(self, first_name: str, last_name: str, email: str):
         query = (
             "INSERT INTO Therapist (_id, firstname, lastname, email) "

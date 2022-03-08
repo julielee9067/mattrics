@@ -10,7 +10,8 @@ class DatabaseConnector:
 
     def insert_therapist(self, first_name: str, last_name: str, email: str):
         query = (
-            "INSERT INTO Therapist (firstname, lastname, email) " "VALUES (%s, %s, %s)"
+            "INSERT INTO Therapist (_id, firstname, lastname, email) "
+            "VALUES (%s, %s, %s, %s)"
         )
         self.cursor.execute(query, (first_name, last_name, email))
         self.connection.commit()

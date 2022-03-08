@@ -1,5 +1,6 @@
 import csv
 import re
+from datetime import datetime
 from pathlib import Path
 from statistics import mean
 from typing import List, Tuple
@@ -100,10 +101,20 @@ def plot_respiratory_pattern(pressure_list: List[int], save_path: Path) -> None:
     ax.plot(t, clean_data)
     ax.plot(minima_index / 2, minima, "x")
     ax.plot(maxima_index / 2, maxima, "x")
-    plt.show()
 
     fig.savefig(save_path)
     logger.info(f"Successfully created respiratory graph: {save_path}")
+
+
+def create_breathing_pattern(patient_name: str) -> str:
+    now = datetime.now().strftime("%Y/%m/%d/%H:%M:%S")
+    file_name = f"breathing_data/{patient_name}/{patient_name}_{now}.png"
+    result = []
+    pressure_list = get_total_pressure_list(data=result)
+    plot_respiratory_pattern(
+        pressure_list=pressure_list, save_path=Path(file_path).with_suffix(".png")
+    )
+    return file_name
 
 
 if __name__ == "__main__":

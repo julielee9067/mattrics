@@ -4,6 +4,13 @@ import schedule
 
 
 def job():
+    # TODO:
+    #  1. Parse raw data
+    #  2. Save raw data into the database
+    #  3. Create image from the data from the database
+    #  4. Upload image into GCP bucket
+    #  5. Save URL from the bucket into the database
+
     print("I'm working...")
 
 

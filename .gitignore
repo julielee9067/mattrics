@@ -132,3 +132,7 @@ dmypy.json
 
 my.cnf
 core/secrets/*
+
+# stm32
+
+stm32/.metadata

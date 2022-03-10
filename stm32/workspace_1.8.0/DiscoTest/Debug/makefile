@@ -60,8 +60,8 @@ all: main-build
 main-build: DiscoTest.elf secondary-outputs
 
 # Tool invocations
-DiscoTest.elf: $(OBJS) $(USER_OBJS) C:\Users\sophy\STM32CubeIDE\workspace_1.8.0\DiscoTest\STM32L152RCTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "DiscoTest.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\sophy\STM32CubeIDE\workspace_1.8.0\DiscoTest\STM32L152RCTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="DiscoTest.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+DiscoTest.elf: $(OBJS) $(USER_OBJS) C:\Users\Dani\Documents\Documents\FYDP_repo\mattrics\stm32\workspace_1.8.0\DiscoTest\STM32L152RCTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "DiscoTest.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\Dani\Documents\Documents\FYDP_repo\mattrics\stm32\workspace_1.8.0\DiscoTest\STM32L152RCTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="DiscoTest.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

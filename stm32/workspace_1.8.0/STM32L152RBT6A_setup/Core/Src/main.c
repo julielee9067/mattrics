@@ -49,7 +49,7 @@ char buffer[100];
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-#define ITM_Port32(n)   (*((volatile unsigned long *)(0xE0000000+4*n)))
+//#define ITM_Port32(n)   (*((volatile unsigned long *)(0xE0000000+4*n)))
 #define NUM_NODES 2048
 /* USER CODE END PM */
 
@@ -81,6 +81,17 @@ static void MX_USART3_UART_Init(void);
 /* USER CODE BEGIN 0 */
 const char* SSID = "Cloudwifi-167-504-P";
 const char* PASSWD = "CWAE1923";
+
+// Rewriting printf to debugging console
+int _write(int file, char* ptr, int len)
+{
+	int data_index;
+	for(data_index = 0; data_index < len; data_index++)
+	{
+		ITM_SendChar(*ptr++);
+	}
+	return len;
+}
 
 // At 3.3V, expect ADC reading of 4095
 const float ADC_VOLTAGE_CONVERSION = 0.0008056641;
@@ -289,7 +300,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  ITM_Port32(31) = 1;
+  // ITM_Port32(31) = 1;
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -304,7 +315,7 @@ int main(void)
 //  wifi_init();
   mux_init();
 
-  ITM_Port32(31) = 2;
+  //ITM_Port32(31) = 2;
 
 //  int voltage_thresh_count = 0;
   int pressure_data[NUM_NODES] = {0};
@@ -338,6 +349,13 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	int counter = 0;
+	while(1)
+	{
+		printf("%d\n", counter);
+		HAL_Delay(1000);
+		counter++;
+	}
 
 //	read3V3();
 	// Check 3.3V threshold
@@ -669,14 +687,6 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 // Use GCC for printf
 // Avoid wasting a UART terminal just for writing
-int _write(int file, char *ptr, int len) {
-	int DataIdx;
-	for (DataIdx = 0; DataIdx < len; DataIdx++) {
-		ITM_SendChar(*ptr++);
-	}
-	return len;
-}
-
 /* USER CODE END 4 */
 
 /**

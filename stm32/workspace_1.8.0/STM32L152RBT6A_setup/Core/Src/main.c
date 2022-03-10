@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "fatfs.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -26,7 +27,7 @@
 #include <stdbool.h>
 #include "UartRingbuffer.h"
 #include <stdlib.h>
-
+#include "fatfs_sd.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -36,6 +37,14 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+FATFS fs;
+FIL fil;
+
+FATFS *pfs;
+DWORD fre_clust;
+uint32_t total, free_space;
+
+char buffer[100];
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -289,6 +298,7 @@ int main(void)
   MX_I2C1_Init();
   MX_SPI2_Init();
   MX_USART3_UART_Init();
+  MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
   // TODO: Initialize Wifi + database
 //  wifi_init();
@@ -299,6 +309,26 @@ int main(void)
 //  int voltage_thresh_count = 0;
   int pressure_data[NUM_NODES] = {0};
   int array_cnt = 0;
+
+  HAL_Delay(500);
+  f_mount(&fs, "", 0);
+  f_open(&fil, "write.txt", FA_OPEN_ALWAYS | FA_WRITE | FA_READ);
+  f_lseek(&fil, f_size(&fil));
+  f_puts("Hello from Mattrics\n", &fil);
+  f_close(&fil);
+
+  /* f_getfree("", &fre_clust, &pfs);
+  totalSpace = (uint32_t)((pfs->n_fatent - 2) * pfs->csize * 0.5);
+  freeSpace = (uint32_t)(fre_clust * pfs->csize * 0.5);
+
+  f_open(&fil, "read.txt", FA_READ);
+  // Reads line by line until the end
+  while(f_gets(buffer, sizeof(buffer), &fil))
+  {
+    // Can use the buffer for something useful
+    memset(buffer,0,sizeof(buffer));
+  }
+  f_close(&fil);*/
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -506,7 +536,7 @@ static void MX_SPI2_Init(void)
   hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi2.Init.NSS = SPI_NSS_SOFT;
-  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
   hspi2.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi2.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;

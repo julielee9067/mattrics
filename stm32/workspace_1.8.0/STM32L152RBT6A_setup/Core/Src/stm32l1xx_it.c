@@ -53,6 +53,9 @@
 /* USER CODE BEGIN 0 */
 extern void Uart_isr (UART_HandleTypeDef *huart);
 
+// Timers for SD card
+extern uint16_t Timer1, Timer2;
+
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -186,7 +189,11 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
+	if(Timer1 > 0)
+		Timer1--;
 
+	if(Timer2 > 0)
+		Timer2--;
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
@@ -264,7 +271,7 @@ void USART3_IRQHandler(void)
   /* USER CODE BEGIN USART3_IRQn 0 */
 	Uart_isr(&huart3);
   /* USER CODE END USART3_IRQn 0 */
-  HAL_UART_IRQHandler(&huart3);
+  // HAL_UART_IRQHandler(&huart3);
   /* USER CODE BEGIN USART3_IRQn 1 */
 
   /* USER CODE END USART3_IRQn 1 */

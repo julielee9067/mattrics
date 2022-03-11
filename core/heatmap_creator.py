@@ -37,13 +37,22 @@ def plot_heatmap(data: np.array, num_col: int, num_row: int, save_path: str):
 
 
 def create_pressure_heatmap(patient_name: str) -> str:
-    row = []  # TODO: GET IT FROM DB LATER ON
-    row = get_first_row_data("pressure_data/03-11-22.csv")
-    data = convert_list_to_np_array(original_list=row, num_col=32)  # TODO: FIX NUM_COL?
+    row = get_first_row_data("pressure_data/zeros.csv")
+    data = convert_list_to_np_array(original_list=row, num_col=32)
     now = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
     file_name = f"pressure_data/{patient_name}/{patient_name}_{now}.png"
     plot_heatmap(data=data, num_col=32, num_row=64, save_path=file_name)
     return file_name
+
+
+def create_str():
+    a = ""
+    for i in range(2048):
+        if i == 2047:
+            a += "0"
+        else:
+            a += "0,"
+    print(a)
 
 
 if __name__ == "__main__":

@@ -45,7 +45,7 @@
 /* USER CODE BEGIN PM */
 // #define ITM_Port32(n)   (*((volatile unsigned long *)(0xE0000000+4*n)))
 #define NUM_NODES 	      1824
-#define FILE_LINE_SIZE        (9 + (4 * FILE_LINE_SIZE) + FILE_LINE_SIZE)
+#define FILE_LINE_SIZE        (9 + (4 * NUM_NODES) + NUM_NODES)
 #define SSID                  "Cloudwifi-167-504-P"
 #define PASSWD                "CWAE1923"
 #define VOLTAGE_THRESH        2.0

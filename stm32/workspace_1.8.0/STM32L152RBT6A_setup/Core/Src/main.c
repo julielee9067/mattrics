@@ -44,8 +44,8 @@
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 // #define ITM_Port32(n)   (*((volatile unsigned long *)(0xE0000000+4*n)))
-#define NUM_NODES 2048
-#define FILE_LINE_SIZE        10249
+#define NUM_NODES 	      1824
+#define FILE_LINE_SIZE        (9 + (4 * FILE_LINE_SIZE) + FILE_LINE_SIZE)
 #define SSID                  "Cloudwifi-167-504-P"
 #define PASSWD                "CWAE1923"
 #define VOLTAGE_THRESH        2.0
@@ -207,8 +207,8 @@ int main(void)
       /* Sample all nodes on mat */
       sampleMat(pressure_data, sizeof(pressure_data)/sizeof(*pressure_data));
 
-	  /* Write to SD card */
-	  logData2SDCard(pressure_data, sizeof(pressure_data)/sizeof(*pressure_data));
+      /* Write to SD card */
+      logData2SDCard(pressure_data, sizeof(pressure_data)/sizeof(*pressure_data));
     }
   /* USER CODE END 3 */
 }
@@ -885,6 +885,16 @@ void sampleMat(int* data, int len)
 				enableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
 				for (int sense_sel = 0; sense_sel < 8; sense_sel++) 
                 {
+				    if ((sense_mux == 0) && ((sense_sel == 0 ) || (sense_sel == 1)))
+				    {
+				       break;
+				    }
+
+				    if ((sense_mux == 7) && (sense_sel > 2))
+				    {
+				       break;
+				    }
+
 					selectChannel(sense_sel, senseMuxSelect);
 
 					/* Read voltage */

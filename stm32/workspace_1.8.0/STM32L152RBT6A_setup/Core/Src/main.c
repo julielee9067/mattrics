@@ -45,7 +45,7 @@
 /* USER CODE BEGIN PM */
 // #define ITM_Port32(n)   (*((volatile unsigned long *)(0xE0000000+4*n)))
 #define NUM_NODES 	      1824
-#define FILE_LINE_SIZE        (9 + (4 * FILE_LINE_SIZE) + FILE_LINE_SIZE)
+#define FILE_LINE_SIZE        (9 + (4 * NUM_NODES) + NUM_NODES)
 #define SSID                  "Cloudwifi-167-504-P"
 #define PASSWD                "CWAE1923"
 #define VOLTAGE_THRESH        2.0
@@ -192,24 +192,24 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
     /* Calibrate the nodes */
-    calibrate(pressure_data_offsets, sizeof(pressure_data_offsets)/sizeof(*pressure_data_offsets));
+    // calibrate(pressure_data_offsets, sizeof(pressure_data_offsets)/sizeof(*pressure_data_offsets));
 
-    HAL_Delay(1000);
+    HAL_Delay(30000);
 
-    while (1)
-    {
+//    while (1)
+//    {
       /* USER CODE END WHILE */
 
       /* USER CODE BEGIN 3 */
       /* Reset the pressure data array */
-      memcpy(pressure_data, pressure_data_offsets, sizeof(pressure_data));
+//      memcpy(pressure_data, pressure_data_offsets, sizeof(pressure_data));
 
       /* Sample all nodes on mat */
       sampleMat(pressure_data, sizeof(pressure_data)/sizeof(*pressure_data));
 
       /* Write to SD card */
       logData2SDCard(pressure_data, sizeof(pressure_data)/sizeof(*pressure_data));
-    }
+//    }
   /* USER CODE END 3 */
 }
 
@@ -610,13 +610,13 @@ int _write(int file, char* ptr, int len)
     */
 void logData2SDCard(int data[], int len)
 {
-    f_open(&fil, date, FA_OPEN_ALWAYS | FA_WRITE | FA_READ);
+    f_open(&fil, "first_quad", FA_OPEN_ALWAYS | FA_WRITE | FA_READ);
 
     /* Make space for line of data */
     f_lseek(&fil, FILE_LINE_SIZE);
     f_lseek(&fil, f_size(&fil));
 
-    writeCurrentTime();
+    //writeCurrentTime();
 
 	/* Construct string to put into file */
     for(int node = 0; node < len - 1; ++node)
@@ -916,7 +916,7 @@ void sampleMat(int* data, int len)
     */
 void calibrate(int* data, int len)
 {
-	/* Calibrate over 100 mat readings */
+    /* Calibrate over 100 mat readings */
     /* Don't use time based calibration in case of overflow */
     HAL_GPIO_WritePin(GPIOA, MCU_PA12_Pin, GPIO_PIN_SET);
     int rounds = 100;

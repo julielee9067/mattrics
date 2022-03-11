@@ -73,7 +73,7 @@ def get_time_intervals(minima_index: np.ndarray, maxima_index: np.ndarray):
     return minima_interval, maxima_interval
 
 
-def plot_respiratory_pattern(pressure_list: List[int], save_path: Path) -> None:
+def get_breathing_data(pressure_list: List[int]) -> dict:
     peak_threshold = 0
     clean_data = apply_fft(data=pressure_list, fft_threshold=peak_threshold)
     t = np.arange(start=0, stop=int(len(pressure_list) / 2), step=0.5)
@@ -92,34 +92,57 @@ def plot_respiratory_pattern(pressure_list: List[int], save_path: Path) -> None:
     logger.info(
         f"Maxima interval: {maxima_interval}, average: {round(mean(maxima_interval), 2)}"
     )
+    return {
+        "t": t,
+        "clean_data": clean_data,
+        "minima": minima,
+        "minima_index": minima_index,
+        "maxima": maxima,
+        "maxima_index": maxima_index,
+        "num_peaks": len(maxima),
+    }
 
+
+def save_respiratory_pattern(breathing_data: dict, save_path: Path) -> None:
     # plot graph
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Total Pressure")
-    ax.plot(t, clean_data)
-    ax.plot(minima_index / 2, minima, "x")
-    ax.plot(maxima_index / 2, maxima, "x")
+    ax.plot(breathing_data["t"], breathing_data["clean_data"])
+    ax.plot(breathing_data["minima_index"] / 2, breathing_data["minima"], "x")
+    ax.plot(breathing_data["maxima_index"] / 2, breathing_data["maxima"], "x")
 
     fig.savefig(save_path)
     logger.info(f"Successfully created respiratory graph: {save_path}")
 
 
-def create_breathing_pattern(patient_name: str) -> str:
-    now = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-    file_name = f"breathing_data/{patient_name}/{patient_name}_{now}.png"
-    result = []
-
-    file_path = "pressure_data/03-11-22.csv"
-    result = read_csv_file(file_path=file_path)
+def get_avg_breathing_rate(csv_file_name: str) -> int:
+    result = read_csv_file(file_path=csv_file_name)
 
     pressure_list = get_total_pressure_list(data=result)
-    plot_respiratory_pattern(
-        pressure_list=pressure_list, save_path=Path(file_name).with_suffix(".png")
+    breathing_data = get_breathing_data(pressure_list=pressure_list)
+    return breathing_data["num_peaks"]
+
+
+def get_breathing_tracker_data(csv_file_name: str) -> List[int]:
+    result = read_csv_file(file_path=csv_file_name)
+    return get_total_pressure_list(data=result)
+
+
+def create_breathing_pattern(csv_file_name: str) -> str:
+    now = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+    file_name = f"breathing_data/adam_johnson/adam_johnson_{now}.png"
+    result = read_csv_file(file_path=csv_file_name)
+
+    pressure_list = get_total_pressure_list(data=result)
+    breathing_data = get_breathing_data(pressure_list=pressure_list)
+    save_respiratory_pattern(
+        breathing_data=breathing_data, save_path=Path(file_name).with_suffix(".png")
     )
     return file_name
 
 
 if __name__ == "__main__":
-    create_breathing_pattern(patient_name="adam_johnson")
+    # create_breathing_pattern(csv_file_name="pressure_data/03-11-22.csv")
+    get_avg_breathing_rate(csv_file_name="pressure_data/03-11-22.csv")

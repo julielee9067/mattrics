@@ -44,9 +44,11 @@ def plot_heatmap(data: np.array, num_col: int, num_row: int, save_path: str):
     plt.style.use("seaborn")
     plt.figure(figsize=(num_col, num_row))
     plt.title("Pressure Heat Map")
-
     seaborn.heatmap(data, linewidth=0.30, annot=False, cmap="Blues")
     plt.savefig(save_path)
+    plt.clf()
+    plt.cla()
+    plt.close()
     logger.info(f"Successfully created heatmap: {save_path}")
 
 

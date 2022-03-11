@@ -48,6 +48,9 @@ def create_breathing_trend(csv_file_name: str) -> str:
     averaged_result = average_per_hour(minute_list=breathing_data)
     plt.plot(averaged_result)
     plt.savefig(save_path)
+    plt.clf()
+    plt.cla()
+    plt.close()
     logger.info(f"Successfully created heatmap: {save_path}")
     return save_path
 

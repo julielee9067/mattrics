@@ -114,6 +114,9 @@ def save_respiratory_pattern(breathing_data: dict, save_path: Path) -> None:
     ax.plot(breathing_data["maxima_index"] / 2, breathing_data["maxima"], "x")
 
     fig.savefig(save_path)
+    plt.clf()
+    plt.cla()
+    plt.close()
     logger.info(f"Successfully created respiratory graph: {save_path}")
 
 

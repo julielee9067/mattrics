@@ -53,13 +53,14 @@
 /* USER CODE BEGIN 0 */
 extern void Uart_isr (UART_HandleTypeDef *huart);
 
-// Timers for SD card
+/* Timers for SD card */
 extern uint16_t Timer1, Timer2;
 
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
 extern I2C_HandleTypeDef hi2c1;
+extern RTC_HandleTypeDef hrtc;
 extern SPI_HandleTypeDef hspi2;
 extern UART_HandleTypeDef huart3;
 /* USER CODE BEGIN EV */
@@ -269,12 +270,26 @@ void SPI2_IRQHandler(void)
 void USART3_IRQHandler(void)
 {
   /* USER CODE BEGIN USART3_IRQn 0 */
-	Uart_isr(&huart3);
+  Uart_isr(&huart3);
   /* USER CODE END USART3_IRQn 0 */
-  //HAL_UART_IRQHandler(&huart3);
+  // HAL_UART_IRQHandler(&huart3);
   /* USER CODE BEGIN USART3_IRQn 1 */
 
   /* USER CODE END USART3_IRQn 1 */
+}
+
+/**
+  * @brief This function handles RTC alarms A and B interrupts through EXTI line17.
+  */
+void RTC_Alarm_IRQHandler(void)
+{
+  /* USER CODE BEGIN RTC_Alarm_IRQn 0 */
+
+  /* USER CODE END RTC_Alarm_IRQn 0 */
+  HAL_RTC_AlarmIRQHandler(&hrtc);
+  /* USER CODE BEGIN RTC_Alarm_IRQn 1 */
+
+  /* USER CODE END RTC_Alarm_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

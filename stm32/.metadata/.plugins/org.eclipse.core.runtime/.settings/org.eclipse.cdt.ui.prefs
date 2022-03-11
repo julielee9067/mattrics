@@ -1,4 +1,9 @@
 eclipse.preferences.version=1
+formatter_profile=org.eclipse.cdt.ui.default.gnu_profile
+formatter_settings_version=1
+org.eclipse.cdt.ui.formatterprofiles=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?>\r\n<profiles version\="1"/>\r\n
+org.eclipse.cdt.ui.formatterprofiles.version=1
+org.eclipse.cdt.ui.text.custom_code_templates=<?xml version\="1.0" encoding\="UTF-8" standalone\="no"?><templates/>
 spelling_locale_initialized=true
 useAnnotationsPrefPage=true
 useQuickDiffPrefPage=true

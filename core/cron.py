@@ -10,12 +10,15 @@ from core.image_uploader import upload_breathing_image, upload_pressure_image
 def job():
     # TODO:
     #  0. GET PATIENT NAME
+    #  If we have multiple patients, we have to update all -> lower priority
     #  1. Create image from the raw data from the database
+    #  Check if there is any update from raw data before
+    #  4. If updated, then wipe out < today - 3 worth of data
     #  2. Upload image into GCP bucket
     #  3. Save URL from the bucket into the database
 
     # Get patient name
-    patient_name = "".replace(" ", "_").lower()
+    patient_name = "Adam Johnson".replace(" ", "_").lower()
 
     # Create image for pressure
     pressure_path = create_pressure_heatmap(patient_name=patient_name)
@@ -25,7 +28,9 @@ def job():
 
     # Upload image into GCP bucket
     upload_pressure_image(image_path=pressure_path)
+    time.sleep(1)
     upload_breathing_image(image_path=breathing_path)
+    time.sleep(1)
 
     # Get URL from the bucket
 

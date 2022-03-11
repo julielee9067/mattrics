@@ -9,26 +9,32 @@ from core.secrets.secret_config import (
 )
 
 
-def upload_pressure_image(image_path: str) -> None:
+def upload_pressure_image(image_path: str) -> str:
     client = storage.Client.from_service_account_json(
         json_credentials_path=SECRET_KEY_FILE_PATH
     )
     bucket = client.get_bucket(PRESSURE_BUCKET_NAME)
+
     blob = bucket.blob(Path(image_path).name)
     blob.upload_from_filename(image_path)
+    gcs_url = f"https://storage.googleapis.com/{bucket.name}/{blob.name}"
+    return gcs_url
 
 
-# TODO: MIGHT NEED TO FIX SECRET KEY?
-def upload_breathing_image(image_path: str) -> None:
+def upload_breathing_image(image_path: str) -> str:
     client = storage.Client.from_service_account_json(
         json_credentials_path=SECRET_KEY_FILE_PATH
     )
-    bucket = client.get_bucket(
-        BREATHING_BUCKET_NAME
-    )  # TODO: ACTUALLY CREATE BUCKET FOR BREATHING
+    bucket = client.get_bucket(BREATHING_BUCKET_NAME)
     blob = bucket.blob(Path(image_path).name)
     blob.upload_from_filename(image_path)
+    gcs_url = f"https://storage.googleapis.com/{bucket.name}/{blob.name}"
+    return gcs_url
 
 
 if __name__ == "__main__":
-    upload_pressure_image(image_path="pressure_data/test.jpeg")
+    print(
+        upload_pressure_image(
+            image_path="pressure_data/adam_johnson/adam_johnson_2022_03_10_19_09_50.png"
+        )
+    )

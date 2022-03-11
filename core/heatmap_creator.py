@@ -30,6 +30,7 @@ def plot_heatmap(data: np.array, num_col: int, num_row: int, save_path: str):
     plt.style.use("seaborn")
     plt.figure(figsize=(num_col, num_row))
     plt.title("Pressure Heat Map")
+    print(data)
     seaborn.heatmap(data, linewidth=0.30, annot=False, cmap="Blues")
     plt.savefig(save_path)
     logger.info(f"Successfully created heatmap: {save_path}")
@@ -37,14 +38,13 @@ def plot_heatmap(data: np.array, num_col: int, num_row: int, save_path: str):
 
 def create_pressure_heatmap(patient_name: str) -> str:
     row = []  # TODO: GET IT FROM DB LATER ON
+    row = get_first_row_data("pressure_data/03-11-22.csv")
     data = convert_list_to_np_array(original_list=row, num_col=32)  # TODO: FIX NUM_COL?
-    now = datetime.datetime.now().strftime("%Y/%m/%d/%H:%M:%S")
+    now = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
     file_name = f"pressure_data/{patient_name}/{patient_name}_{now}.png"
-    plot_heatmap(data=data, num_col=6, num_row=6, save_path=file_name)
+    plot_heatmap(data=data, num_col=32, num_row=64, save_path=file_name)
     return file_name
 
 
 if __name__ == "__main__":
-    row = get_first_row_data("pressure_data/Jan13_drift_test.csv")
-    data = convert_list_to_np_array(original_list=row, num_col=6)
-    plot_heatmap(data=data, num_col=6, num_row=6, save_path="pressure_data/1.png")
+    create_pressure_heatmap(patient_name="adam_johnson")

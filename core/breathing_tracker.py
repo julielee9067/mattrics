@@ -50,7 +50,7 @@ def get_local_minima_and_maxima_indexes(
     # indexes = find_peaks(data, threshold=threshold, distance=3)[0]
     maxima_index = argrelextrema(data, np.greater)[0]
     minima_index = argrelextrema(data, np.less)[0]
-
+    logger.info(f"Maxima index: {maxima_index}, minima index: {minima_index}")
     return minima_index, maxima_index
 
 
@@ -66,7 +66,7 @@ def apply_fft(data: List[int], fft_threshold=350) -> np.ndarray:
 def get_time_intervals(minima_index: np.ndarray, maxima_index: np.ndarray):
     minima_interval = []
     maxima_interval = []
-    for i in range(1, len(minima_index)):
+    for i in range(0, len(minima_index)):
         minima_interval.append((minima_index[i] - minima_index[i - 1]) / 2)
         maxima_interval.append((maxima_index[i] - maxima_index[i - 1]) / 2)
 
@@ -74,11 +74,11 @@ def get_time_intervals(minima_index: np.ndarray, maxima_index: np.ndarray):
 
 
 def plot_respiratory_pattern(pressure_list: List[int], save_path: Path) -> None:
-    clean_data = apply_fft(data=pressure_list, fft_threshold=2000)
+    peak_threshold = 0
+    clean_data = apply_fft(data=pressure_list, fft_threshold=peak_threshold)
     t = np.arange(start=0, stop=int(len(pressure_list) / 2), step=0.5)
 
     # get local minima and maxima
-    peak_threshold = 30
     minima_index, maxima_index = get_local_minima_and_maxima_indexes(data=clean_data)
     minima = clean_data[minima_index]
     maxima = clean_data[maxima_index]
@@ -107,21 +107,19 @@ def plot_respiratory_pattern(pressure_list: List[int], save_path: Path) -> None:
 
 
 def create_breathing_pattern(patient_name: str) -> str:
-    now = datetime.now().strftime("%Y/%m/%d/%H:%M:%S")
+    now = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
     file_name = f"breathing_data/{patient_name}/{patient_name}_{now}.png"
     result = []
+
+    file_path = "pressure_data/03-11-22.csv"
+    result = read_csv_file(file_path=file_path)
+
     pressure_list = get_total_pressure_list(data=result)
     plot_respiratory_pattern(
-        pressure_list=pressure_list, save_path=Path(file_path).with_suffix(".png")
+        pressure_list=pressure_list, save_path=Path(file_name).with_suffix(".png")
     )
     return file_name
 
 
 if __name__ == "__main__":
-    file_path = "pressure_data/Feb1_breathing.csv"
-    # result = read_txt_file("pressure_data/Matrix_Air_B2.txt")
-    result = read_csv_file(file_path=file_path)
-    pressure_list = get_total_pressure_list(data=result)
-    plot_respiratory_pattern(
-        pressure_list=pressure_list, save_path=Path(file_path).with_suffix(".png")
-    )
+    create_breathing_pattern(patient_name="adam_johnson")

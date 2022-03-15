@@ -1,4 +1,5 @@
 import csv
+import datetime
 from typing import List
 
 import matplotlib.pyplot as plt
@@ -17,6 +18,24 @@ def get_first_row_data(csv_path: str) -> List:
     return result
 
 
+def get_total_pressure_data(csv_path: str) -> List[int]:
+    res = list()
+    with open(csv_path, newline="") as f:
+        reader = csv.reader(f)
+        for row in reader:
+            try:
+                new_r = [int(point) for point in row[1:]]
+            except ValueError as e:
+                logger.warning(f"Removed row: {e}")
+                continue
+            if len(new_r) == 1824:
+                res.append(new_r)
+    res = np.array(res)
+    result = res.sum(axis=0)
+
+    return result
+
+
 def convert_list_to_np_array(original_list: List, num_col: int) -> np.array:
     matrix = [
         original_list[i : i + num_col] for i in range(0, len(original_list), num_col)
@@ -28,13 +47,35 @@ def convert_list_to_np_array(original_list: List, num_col: int) -> np.array:
 def plot_heatmap(data: np.array, num_col: int, num_row: int, save_path: str):
     plt.style.use("seaborn")
     plt.figure(figsize=(num_col, num_row))
-    plt.title("Pressure Heat Map")
+    plt.title("Pressure Heat Map", fontsize=50)
     seaborn.heatmap(data, linewidth=0.30, annot=False, cmap="Blues")
+    plt.tick_params(axis="y", labelsize=30)
+    plt.tick_params(axis="x", labelsize=30)
     plt.savefig(save_path)
+    plt.clf()
+    plt.cla()
+    plt.close()
     logger.info(f"Successfully created heatmap: {save_path}")
 
 
+def create_pressure_heatmap(csv_file_name: str) -> str:
+    # row = get_first_row_data(csv_file_name)
+    rows = get_total_pressure_data(csv_path=csv_file_name)
+    data = convert_list_to_np_array(original_list=rows, num_col=32)
+    now = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+    file_name = f"pressure_data/nothing.png"
+    plot_heatmap(data=data, num_col=32, num_row=57, save_path=file_name)
+    return file_name
+
+
+def create_str():
+    a = ""
+    for i in range(2048):
+        if i == 2047:
+            a += "0"
+        else:
+            a += "0,"
+
+
 if __name__ == "__main__":
-    row = get_first_row_data("pressure_data/Jan13_drift_test.csv")
-    data = convert_list_to_np_array(original_list=row, num_col=6)
-    plot_heatmap(data=data, num_col=6, num_row=6, save_path="pressure_data/1.png")
+    create_pressure_heatmap(csv_file_name="pressure_data/nothing.csv")

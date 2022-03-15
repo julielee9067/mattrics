@@ -27,7 +27,6 @@
 #include <string.h>
 #include <stdbool.h>
 #include "fatfs_sd.h"
-#include "UartRingbuffer.h"
 
 /* USER CODE END Includes */
 
@@ -44,11 +43,10 @@
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 // #define ITM_Port32(n)   (*((volatile unsigned long *)(0xE0000000+4*n)))
-#define NUM_NODES 	      1824
+#define NUM_NODES 	      1824 // missing 7 rows on the mat
+#define RUNTIME 	      10000 // time in seconds to sample mat before ending program
 #define UART_BUF_SIZE 	  NUM_NODES*5 // 4 byte for each node + comma
 #define FILE_LINE_SIZE        (9 + (4 * NUM_NODES) + NUM_NODES)
-#define SSID                  "Cloudwifi-167-504-P"
-#define PASSWD                "CWAE1923"
 #define VOLTAGE_THRESH        2.0
 #define VOLTAGE_THRESH_CNT    5
 
@@ -68,6 +66,7 @@ UART_HandleTypeDef huart3;
 /* USER CODE BEGIN PV */
 /* SD card-related variables */
 FATFS fs;
+
 
 FIL fil;
 FATFS *pfs;
@@ -109,11 +108,9 @@ static void MX_RTC_Init(void);
 int _write(int file, char* ptr, int len);
 void writeCurrentTime(void);
 void logData2SDCard(int data[], int len);
+void readSDCardSendUART();
 uint32_t getSpaceFree(void);
 
-/* Wifi */
-void wifiInit(void);
-void sendUART(char sdcard_line_entry[]);
 
 /* Muxes */
 void muxInit(void);
@@ -168,8 +165,6 @@ int main(void)
   MX_FATFS_Init();
   MX_RTC_Init();
   /* USER CODE BEGIN 2 */
-    // TODO: Initialize Wifi + database
-    //  wifi_init();
 
     muxInit();
 
@@ -187,7 +182,9 @@ int main(void)
     /* Mount the SD card */
     f_mount(&fs, "", 0);
 
-    sprintf(date, "%02u-%02u-%02u.csv", nDate.Month, nDate.Date, nDate.Year);
+//    sprintf(date, "%02u-%02u-%02u.csv", nDate.Month, nDate.Date, nDate.Year);
+    sprintf(date, "nothing.csv");
+
 
   /* USER CODE END 2 */
 
@@ -217,9 +214,11 @@ int main(void)
 
       // TODO: Check timer. If pass 2 minutes, open SD card file, read data and write to UART
       if (checkTime(start_time)) {
-		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_SET);
-//		//    	  sendUART(sd_card_entry);
-		exit(0);
+		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_SET);
+		// Read SD card and send data to ESP8266 via UART
+//		readSDCardSendUART();
+//		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_RESET);
+//		exit(0);
       }
 
 
@@ -407,9 +406,9 @@ static void MX_RTC_Init(void)
   {
     Error_Handler();
   }
-  sDate.WeekDay = RTC_WEEKDAY_FRIDAY;
+  sDate.WeekDay = RTC_WEEKDAY_TUESDAY;
   sDate.Month = RTC_MONTH_MARCH;
-  sDate.Date = 11;
+  sDate.Date = 15;
   sDate.Year = 22;
 
   if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN) != HAL_OK)
@@ -642,57 +641,28 @@ void logData2SDCard(int data[], int len)
     f_close(&fil);
 }
 
+void readSDCardSendUART() {
+
+    f_open(&fil, date, FA_READ); // Data can be read from file
+    char line[FILE_LINE_SIZE]; /* Line buffer */
+
+    /*Read every line*/
+    while (f_gets(line, sizeof line, &fil)) {
+    	// Send to UART
+    	HAL_UART_Transmit(&huart3, (uint16_t *)line, sizeof(line), HAL_MAX_DELAY);
+    	HAL_Delay(100);
+    }
+
+    /* Close the file */
+    f_close(&fil);
+}
+
 uint32_t getSpaceFree(void)
 {
 	// TODO
 	return 1;
 }
 
-/**
-    * @brief
-    * @param  :
-    * @retval :
-    */
-void wifiInit(void)
-{
-	/* Initialize circular buffer API for tx and rx of AT commands */
-	Ringbuf_init();
-	char data[80] = {0};
-
-	/* Set WIFI Enable pin high */
-	HAL_GPIO_WritePin(GPIOC, WIFI_EN_Pin, GPIO_PIN_SET);
-
-	Uart_sendstring("AT+RST\r\n");
-	HAL_Delay(2000);
-
-	/********* AT **********/
-	Uart_flush();
-	Uart_sendstring("AT\r\n");
-	while(!(Wait_for("OK\r\n")));
-
-	/********* AT+CWMODE=1 **********/
-//	  Uart_flush();
-//	  Uart_sendstring("AT+CWMODE=1\r\n");
-//    while (!(Wait_for("OK\r\n")));
-//
-//	  /********* AT+CWJAP="SSID","PASSWD" **********/
-//	  Uart_flush();
-//	  sprintf (data, "AT+CWJAP=\"%s\",\"%s\"\r\n", SSID, PASSWD);
-//	  Uart_sendstring(data);
-//	  while (!(Wait_for("OK\r\n")));
-
-}
-
-/**
-    * @brief
-    * @param  :
-    * @retval :
-    */
-void sendUART(char sdcard_line_entry[])
-{
-	HAL_UART_Transmit(&huart3, (uint16_t *)sdcard_line_entry, sizeof(sdcard_line_entry), HAL_MAX_DELAY);
-	HAL_Delay(100);
-}
 
 /**
     * @brief
@@ -914,7 +884,8 @@ void sampleMat(int* data, int len)
 
 					/* Read voltage */
 					int raw_ADC_pressure = readPressure(); 
-					data[array_cnt] += raw_ADC_pressure;
+					data[array_cnt] = raw_ADC_pressure;
+//					data[array_cnt] += raw_ADC_pressure;
 					array_cnt++;
 				}
 				disableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
@@ -944,7 +915,7 @@ void calibrate(int* data, int len)
 
     for(int node = 0; node < len; ++node)
     {
-        data[node] *= -1;
+//        data[node] *= -1;
         data[node] /= rounds;
     }
 //    HAL_GPIO_WritePin(GPIOA, MCU_PA12_Pin, GPIO_PIN_RESET);
@@ -953,7 +924,7 @@ void calibrate(int* data, int len)
 
 bool checkTime(uint32_t start_time) {
 
-  if((HAL_GetTick() - start_time) >= 120000) // Run for 2 minutes
+  if((HAL_GetTick() - start_time) >= RUNTIME) // Run for 2 minutes
   {
 	  return true;
   }

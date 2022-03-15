@@ -48,7 +48,9 @@ def plot_heatmap(data: np.array, num_col: int, num_row: int, save_path: str):
     plt.style.use("seaborn")
     plt.figure(figsize=(num_col, num_row))
     plt.title("Pressure Heat Map", fontsize=50)
-    seaborn.heatmap(data, linewidth=0.30, annot=False, cmap="Blues")
+    hm = seaborn.heatmap(data, linewidth=0.30, annot=False, cmap="Blues")
+    cbar = hm.collections[0].colorbar
+    cbar.ax.tick_params(labelsize=50)
     plt.tick_params(axis="y", labelsize=30)
     plt.tick_params(axis="x", labelsize=30)
     plt.savefig(save_path)

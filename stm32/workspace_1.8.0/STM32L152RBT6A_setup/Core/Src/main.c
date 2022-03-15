@@ -45,6 +45,7 @@
 /* USER CODE BEGIN PM */
 // #define ITM_Port32(n)   (*((volatile unsigned long *)(0xE0000000+4*n)))
 #define NUM_NODES 	      1824
+#define UART_BUF_SIZE 	  NUM_NODES*5 // 4 byte for each node + comma
 #define FILE_LINE_SIZE        (9 + (4 * NUM_NODES) + NUM_NODES)
 #define SSID                  "Cloudwifi-167-504-P"
 #define PASSWD                "CWAE1923"
@@ -112,7 +113,7 @@ uint32_t getSpaceFree(void);
 
 /* Wifi */
 void wifiInit(void);
-void sendToDatabase(void);
+void sendUART(char sdcard_line_entry[]);
 
 /* Muxes */
 void muxInit(void);
@@ -126,7 +127,7 @@ int readPressure(void);
 bool belowVoltageThresh(void);
 void sampleMat(int* data, int len);
 void calibrate(int* data, int len);
-int logMessage(char* message, int len);
+bool checkTime(uint32_t start_time);
 
 /* USER CODE END PFP */
 
@@ -171,6 +172,8 @@ int main(void)
     //  wifi_init();
 
     muxInit();
+
+//    read3V3();
     // ITM_Port32(31) = 2;
 
     // int voltage_thresh_count = 0;
@@ -192,15 +195,17 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
     /* Calibrate the nodes */
-    calibrate(pressure_data_offsets, sizeof(pressure_data_offsets)/sizeof(*pressure_data_offsets));
+//    calibrate(pressure_data_offsets, sizeof(pressure_data_offsets)/sizeof(*pressure_data_offsets));
 
     HAL_Delay(1000);
 
+    uint16_t start_time = HAL_GetTick();
+
     while (1)
     {
-      /* USER CODE END WHILE */
+    /* USER CODE END WHILE */
 
-      /* USER CODE BEGIN 3 */
+    /* USER CODE BEGIN 3 */
       /* Reset the pressure data array */
       memcpy(pressure_data, pressure_data_offsets, sizeof(pressure_data));
 
@@ -209,6 +214,15 @@ int main(void)
 
       /* Write to SD card */
       logData2SDCard(pressure_data, sizeof(pressure_data)/sizeof(*pressure_data));
+
+      // TODO: Check timer. If pass 2 minutes, open SD card file, read data and write to UART
+      if (checkTime(start_time)) {
+		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_SET);
+//		//    	  sendUART(sd_card_entry);
+		exit(0);
+      }
+
+
     }
   /* USER CODE END 3 */
 }
@@ -674,9 +688,10 @@ void wifiInit(void)
     * @param  :
     * @retval :
     */
-void sendToDatabase(void)
+void sendUART(char sdcard_line_entry[])
 {
-  /* TODO */
+	HAL_UART_Transmit(&huart3, (uint16_t *)sdcard_line_entry, sizeof(sdcard_line_entry), HAL_MAX_DELAY);
+	HAL_Delay(100);
 }
 
 /**
@@ -887,12 +902,12 @@ void sampleMat(int* data, int len)
                 {
 				    if ((sense_mux == 0) && ((sense_sel == 0 ) || (sense_sel == 1)))
 				    {
-				       break;
+				       continue;
 				    }
 
 				    if ((sense_mux == 7) && (sense_sel > 2))
 				    {
-				       break;
+				       continue;
 				    }
 
 					selectChannel(sense_sel, senseMuxSelect);
@@ -918,7 +933,9 @@ void calibrate(int* data, int len)
 {
 	/* Calibrate over 100 mat readings */
     /* Don't use time based calibration in case of overflow */
-    HAL_GPIO_WritePin(GPIOA, MCU_PA12_Pin, GPIO_PIN_SET);
+//    HAL_GPIO_WritePin(GPIOA, MCU_PA12_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_SET);
+
     int rounds = 100;
     for(int round = 0; round < rounds; ++round)
     {
@@ -930,19 +947,20 @@ void calibrate(int* data, int len)
         data[node] *= -1;
         data[node] /= rounds;
     }
-    HAL_GPIO_WritePin(GPIOA, MCU_PA12_Pin, GPIO_PIN_RESET);
+//    HAL_GPIO_WritePin(GPIOA, MCU_PA12_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_RESET);
 }
 
-/**
-    * @brief  :
-    * @param  :
-    * @retval :
-    */
-int logMessage(char* message, int len)
-{
-	// TODO
-	return 1;
+bool checkTime(uint32_t start_time) {
+
+  if((HAL_GetTick() - start_time) >= 120000) // Run for 2 minutes
+  {
+	  return true;
+  }
+  return false;
 }
+
+
 /* USER CODE END 4 */
 
 /**

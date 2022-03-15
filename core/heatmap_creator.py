@@ -23,9 +23,13 @@ def get_total_pressure_data(csv_path: str) -> List[int]:
     with open(csv_path, newline="") as f:
         reader = csv.reader(f)
         for row in reader:
-            row = [int(point) for point in row[1:]]
-            res.append(row)
-
+            try:
+                new_r = [int(point) for point in row[1:]]
+            except ValueError as e:
+                logger.warning(f"Removed row: {e}")
+                continue
+            if len(new_r) == 1824:
+                res.append(new_r)
     res = np.array(res)
     result = res.sum(axis=0)
 
@@ -72,4 +76,4 @@ def create_str():
 
 
 if __name__ == "__main__":
-    create_pressure_heatmap(csv_file_name="pressure_data/03-11-22.csv")
+    create_pressure_heatmap(csv_file_name="pressure_data/no_foam.csv")

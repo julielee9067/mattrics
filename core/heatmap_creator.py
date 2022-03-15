@@ -47,8 +47,11 @@ def convert_list_to_np_array(original_list: List, num_col: int) -> np.array:
 def plot_heatmap(data: np.array, num_col: int, num_row: int, save_path: str):
     plt.style.use("seaborn")
     plt.figure(figsize=(num_col, num_row))
-    plt.title("Pressure Heat Map")
+    plt.title("Pressure Heat Map", fontsize=50)
     seaborn.heatmap(data, linewidth=0.30, annot=False, cmap="Blues")
+    plt.tick_params(axis="y", labelsize=30)
+    plt.tick_params(axis="x", labelsize=30)
+    plt.legend(fontsize=30)
     plt.savefig(save_path)
     plt.clf()
     plt.cla()
@@ -62,7 +65,7 @@ def create_pressure_heatmap(csv_file_name: str) -> str:
     data = convert_list_to_np_array(original_list=rows, num_col=32)
     now = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
     file_name = f"pressure_data/adam_johnson/adam_johnson_{now}.png"
-    plot_heatmap(data=data, num_col=32, num_row=64, save_path=file_name)
+    plot_heatmap(data=data, num_col=32, num_row=57, save_path=file_name)
     return file_name
 
 

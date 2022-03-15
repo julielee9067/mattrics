@@ -51,7 +51,6 @@ def plot_heatmap(data: np.array, num_col: int, num_row: int, save_path: str):
     seaborn.heatmap(data, linewidth=0.30, annot=False, cmap="Blues")
     plt.tick_params(axis="y", labelsize=30)
     plt.tick_params(axis="x", labelsize=30)
-    plt.legend(fontsize=30)
     plt.savefig(save_path)
     plt.clf()
     plt.cla()

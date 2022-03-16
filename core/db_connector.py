@@ -13,8 +13,14 @@ class DatabaseConnector:
         self.cursor = self.connection.cursor()
 
     def get_raw_data(self, patient_id: int, recorded_date: datetime = datetime.now()):
+        start_timestamp = (recorded_date - timedelta(days=1)).replace(hour=12)
+        end_timestamp = recorded_date.replace(hour=12)
+
+        logger.info(
+            f"Searching for data between: {start_timestamp} and {end_timestamp}"
+        )
         query = "SELECT body FROM RawData WHERE patientId = %s AND recorded_date BETWEEN %s AND %s"
-        data = (patient_id, recorded_date - timedelta(days=1), recorded_date)
+        data = (patient_id, start_timestamp, end_timestamp)
         self.cursor.execute(query, data)
         result = self.cursor.fetchall()
 
@@ -86,6 +92,6 @@ class DatabaseConnector:
 if __name__ == "__main__":
     db_connector = DatabaseConnector()
     raw_data = db_connector.get_raw_data(
-        patient_id=1,
+        patient_id=1, recorded_date=(datetime(year=2022, month=3, day=11))
     )
     print(raw_data)

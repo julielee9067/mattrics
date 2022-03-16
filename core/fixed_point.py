@@ -1,5 +1,11 @@
-import scipy as sc
-import scipy.linalg
+import csv
+from typing import List
+
+import numpy as np
+import numpy.linalg
+from numpy.random.mtrand import rand
+
+from utils import logger
 
 
 def generate_node_equations(cm, ii1):
@@ -16,9 +22,10 @@ def generate_node_equations(cm, ii1):
         coming from current sources.
     """
     N, M = cm.shape
+    logger.info(f"N: {N}, M: {M}")
     # N+M-1 nodes (ii1 is ground)
     # First N-1 are row wires, next M are column wires
-    A = sc.zeros((N + M - 1, N + M - 1))
+    A = np.zeros((N + M - 1, N + M - 1))
     row = 0  # Refers to A
 
     # Equations of horizontal wires ...
@@ -64,14 +71,15 @@ def get_ceq(cm):
     # and the next M elements to column nodes
     # There are N*M columns in B, corresponding to N*M pairs
     # The solution can be obtained in a single call to linalg.solve !!!
-    B = sc.zeros((N + M - 1, N * M))
+    B = np.zeros((N + M - 1, N * M))
+    logger.info(f"A len: {len(A)}, B len: {len(B)}")
     bcol = 0
     for jj in range(0, M):
         # To obtain Req between row node 0 and column node jj
         # the source intensity goes from jj to 0
         # Since row node 0 is not present only a
         # 1 in the vector is present
-        b = sc.zeros(N + M - 1)
+        b = np.zeros(N + M - 1)
         b[N - 1 + jj] = 1.0
         B[:, bcol] = b[:]
         bcol = bcol + 1
@@ -82,24 +90,28 @@ def get_ceq(cm):
             # The source goes from node column jj (+1)
             # and returns from node row ii (-1)
             # Note that row nodes are placed first in b vector
-            b = sc.zeros(N + M - 1)
+            b = np.zeros(N + M - 1)
             b[ii - 1] = -1
             b[N - 1 + jj] = 1
             B[:, bcol] = b[:]
             bcol = bcol + 1
-    # import ipdb; ipdb.set_trace()
-    X = sc.linalg.solve(A, B)  # X is the voltage solution for each case
-    sol2 = sc.zeros((N, M))
-    for jj in range(0, M):
-        # Req between row node 0 and column node jj
-        sol2[0, jj] = X[N - 1 + jj, jj]
-    bcol = M
-    for ii in range(1, N):
+    try:
+        X = np.linalg.solve(A, B)  # X is the voltage solution for each case
+        sol2 = np.zeros((N, M))
         for jj in range(0, M):
-            # Req between column node jj and row node ii
-            sol2[ii, jj] = X[N - 1 + jj, bcol] - X[ii - 1, bcol]
-            bcol = bcol + 1
-    return 1.0 / sol2  # return equivalent conductance
+            # Req between row node 0 and column node jj
+            sol2[0, jj] = X[N - 1 + jj, jj]
+        bcol = M
+        for ii in range(1, N):
+            for jj in range(0, M):
+                # Req between column node jj and row node ii
+                sol2[ii, jj] = X[N - 1 + jj, bcol] - X[ii - 1, bcol]
+                bcol = bcol + 1
+        return 1.0 / sol2  # return equivalent conductance
+    except Exception as e:
+        logger.error(e)
+        logger.error(f"A: {A}\nB: {B}")
+        pass
 
 
 ###
@@ -129,30 +141,76 @@ def fixed_point_solution(cmeq, cm0=None, beta=0.05, NITER=25, bounds=False, ftol
         ceq0 = get_ceq(c0)
         # Termination condition
         # Residual of the initial nonlinear problem
-        residual = sc.fabs(ceq0 - cmeq).max()
-        # print('residual', residual)
-        if residual < ftol:
-            # print(nn)
-            break
-        c1 = c0 - beta * (ceq0 - cmeq)
-        if bounds:
-            c1[c1 < 0] = 0.0
-        c0 = c1
+        logger.info(f"ceq0: {ceq0}\ncmeq: {cmeq}")
+        if ceq0 is not None:
+            residual = np.fabs(ceq0 - cmeq).max()
+            # print('residual', residual)
+            if residual < ftol:
+                # print(nn)
+                break
+            c1 = c0 - beta * (ceq0 - cmeq)
+            if bounds:
+                c1[c1 < 0] = 0.0
+            c0 = c1
+        else:
+            continue
     # print(residual)
     return c1
 
 
+def parse_csv(csv_path: str) -> List[List]:
+    res = list()
+    with open(csv_path, newline="") as f:
+        reader = csv.reader(f)
+        for row in reader:
+            try:
+                new_r = [int(point) for point in row[1:]]
+            except ValueError as e:
+                logger.warning(f"Removed row: {e}")
+                continue
+            if len(new_r) == 1824:
+                res.append(new_r)
+    res = np.array(res)
+    result = res.sum(axis=0)
+    return result
+
+
+def get_first_row_data(csv_path: str) -> List[int]:
+    with open(csv_path, newline="") as f:
+        reader = csv.reader(f)
+        row = next(reader)
+
+    result = [int(point) for point in row[1:]]
+    return result
+
+
+def convert_list_to_np_array(original_list: List, num_col: int) -> np.array:
+    matrix = [
+        original_list[i : i + num_col] for i in range(0, len(original_list), num_col)
+    ]
+
+    new = [matrix[i][:20] for i in range(num_col)]
+
+    np_array = np.asarray(new)
+    return np_array
+
+
 ###
-def test_solutions():
+def solutions():
     # Random conductance matrix. Minimum value = 2e-5, max = 2e-2
     cmin = 2e-5
     cmax = 2e-2
-    cm = cmin + (cmax - cmin) * sc.rand(16, 16)
+    cm = cmin + (cmax - cmin) * rand(3, 3)
+
+    # data = parse_csv(csv_path="pressure_data/03-11-22_1.csv")
+    data = get_first_row_data(csv_path="pressure_data/03-11-22.csv")
+    # cm = convert_list_to_np_array(original_list=data, num_col=3)
     # Get equivalent resistance matrix (the "measured" one)
     cmeq = get_ceq(cm)
     # All the algorithms should find cm as solution
     # Newton-krylov
     cm2 = fixed_point_solution(cmeq, beta=0.1, NITER=1000, ftol=1e-12, bounds=True)
+    print((cm2 - cm) / cm)
     print("Fixed point: Mean abs relative error ", abs((cm2 - cm) / cm).mean())
 
 
@@ -160,4 +218,4 @@ def test_solutions():
 
 
 if __name__ == "__main__":
-    test_solutions()
+    solutions()

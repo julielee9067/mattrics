@@ -66,14 +66,14 @@ UART_HandleTypeDef huart3;
 /* USER CODE BEGIN PV */
 /* SD card-related variables */
 FATFS fs;
-
-
+FRESULT fr;     /* FatFs return code */
 FIL fil;
 FATFS *pfs;
 DWORD fre_clust;
 uint32_t total, free_space;
 
 char date[13];
+char file_name[30] = "calibrate.csv";
 RTC_DateTypeDef nDate;
 RTC_TimeTypeDef nTime;
 
@@ -107,7 +107,7 @@ static void MX_RTC_Init(void);
 /* SD card */
 int _write(int file, char* ptr, int len);
 void writeCurrentTime(void);
-void logData2SDCard(int data[], int len);
+void logData2SDCard(int data[], int len, bool write_timestamp);
 void readSDCardSendUART();
 uint32_t getSpaceFree(void);
 
@@ -122,8 +122,9 @@ void ADCSelectCH9(void);
 float read3V3(void);
 int readPressure(void);
 bool belowVoltageThresh(void);
-void sampleMat(int* data, int len);
-void calibrate(int* data, int len);
+void sampleMat(int data[], int len);
+void calibrateMat(int data[], int len);
+void calibrate(int data[], int len);
 bool checkTime(uint32_t start_time);
 
 /* USER CODE END PFP */
@@ -177,26 +178,32 @@ int main(void)
 
     HAL_Delay(500);
 
-    HAL_RTC_GetDate(&hrtc, &nDate, RTC_FORMAT_BIN);
+    while (HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin) == GPIO_PIN_SET){}
+
+//    HAL_RTC_GetDate(&hrtc, &nDate, RTC_FORMAT_BIN);
 
     /* Mount the SD card */
-    f_mount(&fs, "", 0);
+//    fs = malloc(sizeof (FATFS));           /* Get work area for the volume */
+    fr = f_mount(&fs, "", 0);
+    fr = f_sync(&fil);
 
 //    sprintf(date, "%02u-%02u-%02u.csv", nDate.Month, nDate.Date, nDate.Year);
-    sprintf(date, "nothing.csv");
 
+    HAL_Delay(500);
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-    /* Calibrate the nodes */
-//    calibrate(pressure_data_offsets, sizeof(pressure_data_offsets)/sizeof(*pressure_data_offsets));
+
+    calibrate(pressure_data_offsets, sizeof(pressure_data_offsets)/sizeof(*pressure_data_offsets));
 
     HAL_Delay(1000);
 
     uint16_t start_time = HAL_GetTick();
+
+
 
     while (1)
     {
@@ -204,21 +211,29 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
       /* Reset the pressure data array */
-      memcpy(pressure_data, pressure_data_offsets, sizeof(pressure_data));
+//      memcpy(pressure_data, pressure_data_offsets, sizeof(pressure_data));
 
       /* Sample all nodes on mat */
       sampleMat(pressure_data, sizeof(pressure_data)/sizeof(*pressure_data));
 
       /* Write to SD card */
-      logData2SDCard(pressure_data, sizeof(pressure_data)/sizeof(*pressure_data));
+      logData2SDCard(pressure_data, NUM_NODES, true);
 
       // TODO: Check timer. If pass 2 minutes, open SD card file, read data and write to UART
       if (checkTime(start_time)) {
 		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_SET);
+		HAL_Delay(2000);
 		// Read SD card and send data to ESP8266 via UART
 //		readSDCardSendUART();
-//		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_RESET);
-//		exit(0);
+
+	    /* Unmount the default drive */
+		fr = f_mount(0, "", 0);
+//	    free(fs);                              /* Here the work area can be discarded */
+
+
+		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_RESET);
+
+	    exit(0);
       }
 
 
@@ -596,7 +611,7 @@ void writeCurrentTime(void)
     HAL_RTC_GetTime(&hrtc, &nTime, RTC_FORMAT_BIN);
     sprintf(time, "%02u:%02u:%02u,", nTime.Hours, nTime.Minutes, nTime.Seconds);
     f_lseek(&fil, f_size(&fil));
-    f_printf( &fil, "%s", time);
+    fr = f_printf( &fil, "%s", time);
 }
 
 /**
@@ -621,29 +636,36 @@ int _write(int file, char* ptr, int len)
     * @param  :
     * @retval :
     */
-void logData2SDCard(int data[], int len)
+void logData2SDCard(int data[], int len, bool write_timestamp)
 {
-    f_open(&fil, date, FA_OPEN_ALWAYS | FA_WRITE | FA_READ);
+    /*Open the file*/
+    fr = f_open(&fil, file_name, FA_OPEN_ALWAYS | FA_WRITE | FA_READ);
 
     /* Make space for line of data */
     f_lseek(&fil, FILE_LINE_SIZE);
     f_lseek(&fil, f_size(&fil));
 
-    writeCurrentTime();
+    if (write_timestamp) {
+    	writeCurrentTime();
+    }
 
 	/* Construct string to put into file */
     for(int node = 0; node < len - 1; ++node)
     {
-        f_printf(&fil, "%d,", data[node]);
+        fr = f_printf(&fil, "%d,", data[node]);
     }
 
-    f_printf(&fil, "%d\n", data[len - 1]);
-    f_close(&fil);
+    fr = f_printf(&fil, "%d\n", data[len - 1]);
+
+	/* Close the file */
+	fr = f_close(&fil);
+
+
 }
 
 void readSDCardSendUART() {
 
-    f_open(&fil, date, FA_READ); // Data can be read from file
+    f_open(&fil, file_name, FA_READ); // Data can be read from file
     char line[FILE_LINE_SIZE]; /* Line buffer */
 
     /*Read every line*/
@@ -653,8 +675,6 @@ void readSDCardSendUART() {
     	HAL_Delay(100);
     }
 
-    /* Close the file */
-    f_close(&fil);
 }
 
 uint32_t getSpaceFree(void)
@@ -849,7 +869,7 @@ bool belowVoltageThresh(void)
     * @param  :
     * @retval :
     */
-void sampleMat(int* data, int len)
+void sampleMat(int data[], int len)
 {
     int array_cnt = 0;
 
@@ -885,7 +905,6 @@ void sampleMat(int* data, int len)
 					/* Read voltage */
 					int raw_ADC_pressure = readPressure(); 
 					data[array_cnt] = raw_ADC_pressure;
-//					data[array_cnt] += raw_ADC_pressure;
 					array_cnt++;
 				}
 				disableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
@@ -900,8 +919,58 @@ void sampleMat(int* data, int len)
     * @param  :
     * @retval :
     */
-void calibrate(int* data, int len)
+void calibrateMat(int data[], int len)
 {
+    int array_cnt = 0;
+
+    if (len != NUM_NODES)
+    {
+        /* Wrongly sized array */
+        return;
+    }
+
+    for (int pwr_mux = 0; pwr_mux < 4; pwr_mux++)
+    {
+		enableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
+		for (int pwr_sel = 0; pwr_sel < 8; pwr_sel++)
+        {
+			selectChannel(pwr_sel, pwrMuxSelect);
+			for (int sense_mux = 0; sense_mux < 8; sense_mux++)
+            {
+				enableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
+				for (int sense_sel = 0; sense_sel < 8; sense_sel++)
+                {
+				    if ((sense_mux == 0) && ((sense_sel == 0 ) || (sense_sel == 1)))
+				    {
+				       continue;
+				    }
+
+				    if ((sense_mux == 7) && (sense_sel > 2))
+				    {
+				       continue;
+				    }
+
+					selectChannel(sense_sel, senseMuxSelect);
+
+					/* Read voltage */
+					int raw_ADC_pressure = readPressure();
+					data[array_cnt] += raw_ADC_pressure;
+					array_cnt++;
+				}
+				disableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
+			}
+		}
+		disableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
+	}
+
+}
+
+/**
+    * @brief  :
+    * @param  :
+    * @retval :
+    */
+void calibrate(int data[], int len) {
 	/* Calibrate over 100 mat readings */
     /* Don't use time based calibration in case of overflow */
 //    HAL_GPIO_WritePin(GPIOA, MCU_PA12_Pin, GPIO_PIN_SET);
@@ -910,15 +979,18 @@ void calibrate(int* data, int len)
     int rounds = 100;
     for(int round = 0; round < rounds; ++round)
     {
-        sampleMat(data, len);
+        calibrateMat(data, len); // Add up x rounds for each point
     }
 
-    for(int node = 0; node < len; ++node)
-    {
-//        data[node] *= -1;
-        data[node] /= rounds;
-    }
-//    HAL_GPIO_WritePin(GPIOA, MCU_PA12_Pin, GPIO_PIN_RESET);
+    // Take mean
+	for (int i = 0; i < len; i++) {
+		data[i] = data[i]/rounds; // take mean of each node over x rounds
+	}
+
+
+    /* Write to SD card on first line without timestamp*/
+	logData2SDCard(data, len, false);
+
     HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_RESET);
 }
 

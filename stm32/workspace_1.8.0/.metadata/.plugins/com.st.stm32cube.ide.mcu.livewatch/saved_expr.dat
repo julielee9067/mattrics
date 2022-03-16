@@ -6,3 +6,5 @@ Rx_Buffer
 byte
 txBuffer
 rxBuffer
+data[array_cnt]
+fr

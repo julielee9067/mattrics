@@ -1,4 +1,3 @@
-import datetime
 from datetime import datetime, timedelta
 
 import mysql.connector
@@ -12,7 +11,9 @@ class DatabaseConnector:
         self.connection = mysql.connector.connect(**MYSQL_SECRET)
         self.cursor = self.connection.cursor()
 
-    def get_raw_data(self, patient_id: int, recorded_date: datetime = datetime.now()):
+    def get_raw_data(
+        self, patient_id: int, recorded_date: datetime = datetime.now()
+    ) -> str:
         start_timestamp = (recorded_date - timedelta(days=1)).replace(hour=12)
         end_timestamp = recorded_date.replace(hour=12)
 
@@ -24,7 +25,12 @@ class DatabaseConnector:
         self.cursor.execute(query, data)
         result = self.cursor.fetchall()
 
-        return result
+        res = ""
+        for item in result:
+            for i in item:
+                res += i
+
+        return res
 
     def insert_therapist(self, first_name: str, last_name: str, email: str):
         query = (

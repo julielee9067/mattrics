@@ -18,7 +18,7 @@ def get_first_row_data(csv_path: str) -> List:
     return result
 
 
-def get_total_pressure_data(csv_path: str) -> List[int]:
+def get_pressure_data_from_csv(csv_path: str) -> List[int]:
     res = list()
     with open(csv_path, newline="") as f:
         reader = csv.reader(f)
@@ -34,6 +34,31 @@ def get_total_pressure_data(csv_path: str) -> List[int]:
     result = res.sum(axis=0)
 
     return result
+
+
+def get_pressure_data_from_raw_data(raw_data: str) -> List[int]:
+
+    res = list()
+    with open(csv_path, newline="") as f:
+        reader = csv.reader(f)
+        for row in reader:
+            try:
+                new_r = [int(point) for point in row[1:]]
+            except ValueError as e:
+                logger.warning(f"Removed row: {e}")
+                continue
+            if len(new_r) == 1824:
+                res.append(new_r)
+    res = np.array(res)
+    result = res.sum(axis=0)
+
+    return result
+
+
+def get_total_pressure_data(csv_path: str = None, raw_data: str = None) -> List[int]:
+    if csv_path is not None:
+        return get_pressure_data_from_csv(csv_path=csv_path)
+    return get_pressure_data_from_raw_data(raw_data=raw_data)
 
 
 def convert_list_to_np_array(original_list: List, num_col: int) -> np.array:
@@ -60,7 +85,7 @@ def plot_heatmap(data: np.array, num_col: int, num_row: int, save_path: str):
     logger.info(f"Successfully created heatmap: {save_path}")
 
 
-def create_pressure_heatmap(csv_file_name: str) -> str:
+def create_pressure_heatmap(csv_file_name: str = None) -> str:
     # row = get_first_row_data(csv_file_name)
     rows = get_total_pressure_data(csv_path=csv_file_name)
     data = convert_list_to_np_array(original_list=rows, num_col=32)

@@ -45,7 +45,7 @@
 /* USER CODE BEGIN PM */
 // #define ITM_Port32(n)   (*((volatile unsigned long *)(0xE0000000+4*n)))
 #define NUM_NODES 	      1824 // missing 7 rows on the mat
-#define RUNTIME 	      20000 // time in seconds to sample mat before ending program
+#define RUNTIME 	      10000 // time in seconds to sample mat before ending program
 #define UART_BUF_SIZE 	  NUM_NODES*5 // 4 byte for each node + comma
 #define FILE_LINE_SIZE        (9 + (4 * NUM_NODES) + NUM_NODES)
 #define VOLTAGE_THRESH        2.0
@@ -74,7 +74,7 @@ DWORD fre_clust;
 uint32_t total, free_space;
 
 char date[13];
-char file_name[30] = "empty.csv";
+char file_name[30] = "delay.csv";
 RTC_DateTypeDef nDate;
 RTC_TimeTypeDef nTime;
 
@@ -197,7 +197,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-
+    // Calibrate mat
     calibrate(pressure_data_offsets, sizeof(pressure_data_offsets)/sizeof(*pressure_data_offsets));
 
 //    HAL_Delay(1000);
@@ -235,8 +235,6 @@ int main(void)
 		fr = f_mount(0, "", 0);
 //	    free(fs);                              /* Here the work area can be discarded */
 
-
-		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_RESET);
 
 	    exit(0);
       }
@@ -655,7 +653,7 @@ void logData2SDCard(int data[], int len, bool write_timestamp)
     }
 
 	/* Construct string to put into file */
-    for(int node = 0; node < len - 1; ++node)
+    for(int node = 0; node < len - 1; node++)
     {
         fr = f_printf(&fil, "%d,", data[node]);
     }
@@ -988,6 +986,7 @@ void calibrateMat(int data[], int len)
 		}
 		disableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
 	}
+	HAL_Delay(10);
 
 }
 
@@ -1003,14 +1002,14 @@ void calibrate(int data[], int len) {
     HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_SET);
 
     int rounds = 100;
-    for(int round = 0; round < rounds; ++round)
+    for(int round = 0; round < rounds; round++)
     {
         calibrateMat(data, len); // Add up x rounds for each point
     }
 
     // Take mean
 	for (int i = 0; i < len; i++) {
-		data[i] = data[i]/rounds; // take mean of each node over x rounds
+		data[i] = round(data[i]/rounds); // take mean of each node over x rounds
 	}
 
     HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_RESET);

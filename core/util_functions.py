@@ -1,13 +1,13 @@
 import csv
 import statistics
-from typing import List
+from typing import Any, List
 
 import numpy as np
 
 from utils import logger
 
 
-def subtract(a, b) -> List:
+def subtract(a, b) -> Any:
     logger.info(f"A: {a}")
     logger.info(f"B: {b}")
     return np.subtract(a, b)
@@ -50,6 +50,7 @@ def filter_garbage(total_list: List) -> List:
             res.append(new_r)
 
     logger.info(f"{len(res)} row found")
+
     return res
 
 
@@ -58,4 +59,5 @@ def convert_list_to_np_array(original_list: List, num_col: int) -> np.array:
         original_list[i : i + num_col] for i in range(0, len(original_list), num_col)
     ]
     np_array = np.asarray(matrix)
+
     return np_array

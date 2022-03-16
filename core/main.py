@@ -1,12 +1,13 @@
 from core.breathing_trend_creator import create_breathing_trend
 from core.db_connector import DatabaseConnector
-from core.heatmap_creator import create_pressure_heatmap
+from core.heatmap_creator import create_pressure_heatmap, get_final_pressure_data
 from core.image_uploader import upload_breathing_image, upload_pressure_image
 
 
 def csv_main(csv_path: str = None):
     # Create pressure heatmap
-    pressure_image_path = create_pressure_heatmap(csv_path=csv_path)
+    data = get_final_pressure_data(csv_path=csv_path)
+    pressure_image_path = create_pressure_heatmap(data=data)
 
     # calculate breathing data
     breathing_trend_image_path, average_breathing_rate = create_breathing_trend(
@@ -23,9 +24,7 @@ def csv_main(csv_path: str = None):
     breathing_id = db_connector.insert_breathing_data(
         average_rate=average_breathing_rate, path=gcs_breathing_url
     )
-    db_connector.insert_daily_data(
-        patient_id=1, pressure_id=pressure_id, breathing_id=breathing_id
-    )
+    db_connector.insert_daily_data(pressure_id=pressure_id, breathing_id=breathing_id)
     db_connector.cursor.close()
 
 

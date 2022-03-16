@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 import mysql.connector
 
+from core.constants import PATIENT_ID
 from core.secrets.secret_config import MYSQL_SECRET
 from utils import logger
 
@@ -11,9 +12,7 @@ class DatabaseConnector:
         self.connection = mysql.connector.connect(**MYSQL_SECRET)
         self.cursor = self.connection.cursor()
 
-    def get_raw_data(
-        self, patient_id: int, recorded_date: datetime = datetime.now()
-    ) -> str:
+    def get_raw_data(self, recorded_date: datetime = datetime.now()) -> str:
         start_timestamp = (recorded_date - timedelta(days=1)).replace(hour=12)
         end_timestamp = recorded_date.replace(hour=12)
 
@@ -21,7 +20,7 @@ class DatabaseConnector:
             f"Searching for data between: {start_timestamp} and {end_timestamp}"
         )
         query = "SELECT body FROM RawData WHERE patientId = %s AND recorded_date BETWEEN %s AND %s"
-        data = (patient_id, start_timestamp, end_timestamp)
+        data = (PATIENT_ID, start_timestamp, end_timestamp)
         self.cursor.execute(query, data)
         result = self.cursor.fetchall()
 
@@ -77,9 +76,7 @@ class DatabaseConnector:
         logger.info(f"Successfully inserted breathing data")
         return self.cursor.lastrowid
 
-    def insert_daily_data(
-        self, patient_id: int, pressure_id: int, breathing_id: int
-    ) -> int:
+    def insert_daily_data(self, pressure_id: int, breathing_id: int) -> int:
         id_query = "SELECT id FROM DailyData ORDER BY id DESC LIMIT 1;"
         self.cursor.execute(id_query)
         row = self.cursor.fetchone()
@@ -89,7 +86,7 @@ class DatabaseConnector:
             "INSERT INTO DailyData (_id, patientId, pressureId, breathingId) "
             "VALUES (%s, %s, %s, %s)"
         )
-        self.cursor.execute(query, (_id, patient_id, pressure_id, breathing_id))
+        self.cursor.execute(query, (_id, PATIENT_ID, pressure_id, breathing_id))
         self.connection.commit()
         logger.info(f"Successfully inserted daily data")
         return self.cursor.lastrowid
@@ -98,6 +95,6 @@ class DatabaseConnector:
 if __name__ == "__main__":
     db_connector = DatabaseConnector()
     raw_data = db_connector.get_raw_data(
-        patient_id=1, recorded_date=(datetime(year=2022, month=3, day=11))
+        recorded_date=(datetime(year=2022, month=3, day=11))
     )
     print(raw_data)

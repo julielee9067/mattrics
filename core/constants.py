@@ -1,0 +1,3 @@
+NUM_COL = 32
+NUM_ROW = 57
+PATIENT_ID = 1

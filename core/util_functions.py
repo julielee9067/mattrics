@@ -4,6 +4,7 @@ from typing import Any, List
 
 import numpy as np
 
+from core.constants import TOTAL_NUM_NODES
 from utils import logger
 
 
@@ -46,7 +47,7 @@ def filter_garbage(total_list: List) -> List:
         except ValueError as e:
             logger.warning(f"Ignoring row: {e}")
             continue
-        if len(new_r) == 1824:
+        if len(new_r) == TOTAL_NUM_NODES:
             res.append(new_r)
 
     logger.info(f"{len(res)} row found")

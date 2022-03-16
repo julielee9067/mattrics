@@ -46,6 +46,8 @@
 // #define ITM_Port32(n)   (*((volatile unsigned long *)(0xE0000000+4*n)))
 #define NUM_NODES 	      1824 // missing 7 rows on the mat
 #define RUNTIME 	      10000 // time in seconds to sample mat before ending program
+#define CALIBRATION_TIME 	      10000 // time in seconds to calibrate mat
+#define CALIBRATION_DELAY 	      10 // time in milliseconds between mat callibration readings
 #define UART_BUF_SIZE 	  NUM_NODES*5 // 4 byte for each node + comma
 #define FILE_LINE_SIZE        (9 + (4 * NUM_NODES) + NUM_NODES)
 #define VOLTAGE_THRESH        2.0
@@ -74,7 +76,7 @@ DWORD fre_clust;
 uint32_t total, free_space;
 
 char date[13];
-char file_name[30] = "delay.csv";
+char file_name[30] = "rice_bag_floor.csv";
 RTC_DateTypeDef nDate;
 RTC_TimeTypeDef nTime;
 
@@ -177,8 +179,6 @@ int main(void)
     int pressure_data[NUM_NODES] = {0};
     int pressure_data_offsets[NUM_NODES] = {0};
 
-    HAL_Delay(500);
-
     while (HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin) == GPIO_PIN_SET){}
 
 //    HAL_RTC_GetDate(&hrtc, &nDate, RTC_FORMAT_BIN);
@@ -200,7 +200,9 @@ int main(void)
     // Calibrate mat
     calibrate(pressure_data_offsets, sizeof(pressure_data_offsets)/sizeof(*pressure_data_offsets));
 
-//    HAL_Delay(1000);
+    HAL_Delay(CALIBRATION_TIME);
+    // Start measuring
+	HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_SET);
 
     uint16_t start_time = HAL_GetTick();
 
@@ -222,7 +224,7 @@ int main(void)
 
       // TODO: Check timer. If pass 2 minutes, open SD card file, read data and write to UART
       if (checkTime(start_time)) {
-		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_RESET);
 		HAL_Delay(1000);
 
 		// Write calibration data to SD card
@@ -986,7 +988,7 @@ void calibrateMat(int data[], int len)
 		}
 		disableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
 	}
-	HAL_Delay(10);
+	HAL_Delay(CALIBRATION_DELAY); // need this delay for proper readings
 
 }
 

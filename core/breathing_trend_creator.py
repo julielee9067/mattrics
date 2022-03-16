@@ -1,9 +1,9 @@
 from datetime import datetime
-from typing import List
+from typing import List, Tuple
 
 import matplotlib.pyplot as plt
 
-from core.breathing_tracker import get_breathing_from_csv
+from core.breathing_tracker import get_breathing_data, get_breathing_from_csv
 from utils import logger
 
 
@@ -19,18 +19,19 @@ def get_average_per_hour(minute_list: List[int]) -> List[float]:
     return res[1:]
 
 
-def create_breathing_trend(csv_path: str) -> str:
+def create_breathing_trend(csv_path: str) -> Tuple[str, int]:
     now = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
     save_path = f"breathing_data/breathing_graph/breathing_trend/{now}.png"
-    breathing_data = get_breathing_from_csv(csv_path=csv_path)
-    averaged_result = get_average_per_hour(minute_list=breathing_data)
+    pressure_list = get_breathing_from_csv(csv_path=csv_path)
+    breathing_data = get_breathing_data(pressure_list=pressure_list)
+    averaged_result = get_average_per_hour(minute_list=pressure_list)
     plt.plot(averaged_result)
     plt.savefig(save_path)
     plt.clf()
     plt.cla()
     plt.close()
     logger.info(f"Successfully created breathing trend: {save_path}")
-    return save_path
+    return save_path, breathing_data["num_peaks"]
 
 
 if __name__ == "__main__":

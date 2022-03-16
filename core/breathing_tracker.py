@@ -19,6 +19,7 @@ def get_local_minima_and_maxima_indexes(
     maxima_index = argrelextrema(data, np.greater)[0]
     minima_index = argrelextrema(data, np.less)[0]
     logger.info(f"Maxima index: {maxima_index}, minima index: {minima_index}")
+
     return minima_index, maxima_index
 
 
@@ -60,6 +61,7 @@ def get_breathing_data(pressure_list: List[int]) -> dict:
     logger.info(
         f"Maxima interval: {maxima_interval}, average: {round(mean(maxima_interval), 2)}"
     )
+
     return {
         "t": t,
         "clean_data": clean_data,
@@ -71,7 +73,7 @@ def get_breathing_data(pressure_list: List[int]) -> dict:
     }
 
 
-def create_breathing_graph(breathing_data: dict, save_path: Path) -> None:
+def create_breathing_graph(breathing_data: dict, save_path: Path) -> int:
     # plot graph
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
@@ -87,10 +89,13 @@ def create_breathing_graph(breathing_data: dict, save_path: Path) -> None:
     plt.close()
     logger.info(f"Successfully created breathing graph: {save_path}")
 
+    return breathing_data["num_peaks"]
+
 
 def get_breathing_from_csv(csv_path: str) -> List[int]:
     result = get_data_from_csv(csv_path=csv_path)
     data = filter_garbage(total_list=result)
+
     return get_total_sum(data=data)
 
 

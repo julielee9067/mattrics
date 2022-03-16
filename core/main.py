@@ -57,5 +57,5 @@ def csv_main(csv_file_name: str = None):
 
 
 if __name__ == "__main__":
-    raw_main()
+    # raw_main()
     csv_main(csv_file_name="pressure_data/03-11-22.csv")

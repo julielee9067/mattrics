@@ -1,72 +1,34 @@
-import csv
 import datetime
-from typing import List
+from typing import List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn
 
+from core.util_functions import (
+    convert_list_to_np_array,
+    filter_garbage,
+    get_data_from_csv,
+    get_node_average,
+    subtract,
+)
 from utils import logger
 
 
-def get_first_row_data(csv_path: str) -> List:
-    with open(csv_path, newline="") as f:
-        reader = csv.reader(f)
-        row = next(reader)
+def get_pressure_data_from_csv(
+    csv_path: str, is_calibrated: bool
+) -> Tuple[List[int], List[int]]:
+    total_list = get_data_from_csv(csv_path=csv_path)
+    calibration_data = None
 
-    result = [int(point) for point in row[1:]]
-    return result
+    if is_calibrated:
+        calibration_data = [int(node) for node in total_list[-1]]
+        total_list = total_list[:-1]
 
+    result = filter_garbage(total_list=total_list)
+    result = get_node_average(data=np.array(result))
 
-def get_pressure_data_from_csv(csv_path: str) -> List[int]:
-    res = list()
-    with open(csv_path, newline="") as f:
-        reader = csv.reader(f)
-        for row in reader:
-            try:
-                new_r = [int(point) for point in row[1:]]
-            except ValueError as e:
-                logger.warning(f"Removed row: {e}")
-                continue
-            if len(new_r) == 1824:
-                res.append(new_r)
-    res = np.array(res)
-    result = res.sum(axis=0)
-
-    return result
-
-
-def get_pressure_data_from_raw_data(raw_data: str) -> List[int]:
-
-    res = list()
-    with open(csv_path, newline="") as f:
-        reader = csv.reader(f)
-        for row in reader:
-            try:
-                new_r = [int(point) for point in row[1:]]
-            except ValueError as e:
-                logger.warning(f"Removed row: {e}")
-                continue
-            if len(new_r) == 1824:
-                res.append(new_r)
-    res = np.array(res)
-    result = res.sum(axis=0)
-
-    return result
-
-
-def get_total_pressure_data(csv_path: str = None, raw_data: str = None) -> List[int]:
-    if csv_path is not None:
-        return get_pressure_data_from_csv(csv_path=csv_path)
-    return get_pressure_data_from_raw_data(raw_data=raw_data)
-
-
-def convert_list_to_np_array(original_list: List, num_col: int) -> np.array:
-    matrix = [
-        original_list[i : i + num_col] for i in range(0, len(original_list), num_col)
-    ]
-    np_array = np.asarray(matrix)
-    return np_array
+    return calibration_data, result
 
 
 def plot_heatmap(data: np.array, num_col: int, num_row: int, save_path: str):
@@ -85,24 +47,22 @@ def plot_heatmap(data: np.array, num_col: int, num_row: int, save_path: str):
     logger.info(f"Successfully created heatmap: {save_path}")
 
 
-def create_pressure_heatmap(csv_file_name: str = None) -> str:
-    # row = get_first_row_data(csv_file_name)
-    rows = get_total_pressure_data(csv_path=csv_file_name)
-    data = convert_list_to_np_array(original_list=rows, num_col=32)
+def create_pressure_heatmap(
+    csv_path: str, num_col: int = 32, num_row: int = 57, is_calibrated: bool = True
+) -> str:
+    calibration, data = get_pressure_data_from_csv(
+        csv_path=csv_path, is_calibrated=is_calibrated
+    )
+    if is_calibrated:
+        data = subtract(a=data, b=calibration)
+        logger.info(f"calibrated data: {data}")
+
+    data = convert_list_to_np_array(original_list=data, num_col=num_col)
     now = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-    file_name = f"pressure_data/adam_johnson/adam_johnson_{now}.png"
-    plot_heatmap(data=data, num_col=32, num_row=57, save_path=file_name)
+    file_name = f"pressure_data/heatmap/{now}.png"
+    plot_heatmap(data=data, num_col=num_col, num_row=num_row, save_path=file_name)
     return file_name
 
 
-def create_str():
-    a = ""
-    for i in range(2048):
-        if i == 2047:
-            a += "0"
-        else:
-            a += "0,"
-
-
 if __name__ == "__main__":
-    create_pressure_heatmap(csv_file_name="pressure_data/no_foam.csv")
+    create_pressure_heatmap(csv_path="pressure_data/testC.csv")

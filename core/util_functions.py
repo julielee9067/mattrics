@@ -1,4 +1,5 @@
 import csv
+import statistics
 from typing import List
 
 import numpy as np
@@ -26,6 +27,14 @@ def get_node_average(data: np.ndarray) -> List:
 
 def get_node_sum(data: np.ndarray) -> List:
     return data.sum(axis=0)
+
+
+def get_total_sum(data: List[List[int]]) -> List[int]:
+    return [sum(stream) for stream in data]
+
+
+def get_total_average(data: List[List[int]]) -> List[int]:
+    return [statistics.mean(stream) for stream in data]
 
 
 def filter_garbage(total_list: List) -> List:

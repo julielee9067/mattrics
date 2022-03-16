@@ -1,5 +1,3 @@
-import csv
-import re
 from datetime import datetime
 from pathlib import Path
 from statistics import mean
@@ -10,38 +8,8 @@ import numpy as np
 from scipy.fft import irfft, rfft
 from scipy.signal import argrelextrema
 
+from core.util_functions import filter_garbage, get_data_from_csv, get_total_sum
 from utils import logger
-
-
-def read_csv_file(file_path: str) -> List[List[int]]:
-    result = []
-
-    with open(file_path, newline="") as f:
-        reader = csv.reader(f)
-        for row in reader:
-            result.append(list(map(int, row[1:])))
-
-    return result
-
-
-def read_txt_file(file_path: str) -> List[List[int]]:
-    result = []
-    with open(file_path, "r+") as f:
-        contents = f.readlines()
-
-        for content in contents:
-            content = re.sub(r"\t", " ", content).split()
-            result.append(list(map(int, content)))
-
-    return result
-
-
-def get_total_pressure_list(data: List[List[int]]) -> List[int]:
-    # Get average
-    # return [statistics.mean(stream) for stream in data]
-
-    # Get total
-    return [sum(stream) for stream in data]
 
 
 def get_local_minima_and_maxima_indexes(
@@ -103,7 +71,7 @@ def get_breathing_data(pressure_list: List[int]) -> dict:
     }
 
 
-def save_respiratory_pattern(breathing_data: dict, save_path: Path) -> None:
+def create_breathing_graph(breathing_data: dict, save_path: Path) -> None:
     # plot graph
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
@@ -117,35 +85,26 @@ def save_respiratory_pattern(breathing_data: dict, save_path: Path) -> None:
     plt.clf()
     plt.cla()
     plt.close()
-    logger.info(f"Successfully created respiratory graph: {save_path}")
+    logger.info(f"Successfully created breathing graph: {save_path}")
 
 
-def get_avg_breathing_rate(csv_file_name: str) -> int:
-    result = read_csv_file(file_path=csv_file_name)
-
-    pressure_list = get_total_pressure_list(data=result)
-    breathing_data = get_breathing_data(pressure_list=pressure_list)
-    return breathing_data["num_peaks"]
+def get_breathing_from_csv(csv_path: str) -> List[int]:
+    result = get_data_from_csv(csv_path=csv_path)
+    data = filter_garbage(total_list=result)
+    return get_total_sum(data=data)
 
 
-def get_breathing_tracker_data(csv_file_name: str) -> List[int]:
-    result = read_csv_file(file_path=csv_file_name)
-    return get_total_pressure_list(data=result)
-
-
-def create_breathing_pattern(csv_file_name: str) -> str:
+def create_breathing_pattern(csv_path: str) -> str:
     now = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-    file_name = f"breathing_data/adam_johnson/adam_johnson_{now}.png"
-    result = read_csv_file(file_path=csv_file_name)
-
-    pressure_list = get_total_pressure_list(data=result)
+    file_name = f"breathing_data/breathing_graph/{now}.png"
+    pressure_list = get_breathing_from_csv(csv_path=csv_path)
     breathing_data = get_breathing_data(pressure_list=pressure_list)
-    save_respiratory_pattern(
+    create_breathing_graph(
         breathing_data=breathing_data, save_path=Path(file_name).with_suffix(".png")
     )
+
     return file_name
 
 
 if __name__ == "__main__":
-    # create_breathing_pattern(csv_file_name="pressure_data/03-11-22.csv")
-    get_avg_breathing_rate(csv_file_name="pressure_data/03-11-22.csv")
+    create_breathing_pattern(csv_path="pressure_data/03-11-22.csv")

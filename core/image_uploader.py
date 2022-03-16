@@ -35,12 +35,12 @@ def upload_breathing_image(image_path: str) -> str:
 if __name__ == "__main__":
     print(
         upload_pressure_image(
-            image_path="pressure_data/adam_johnson/adam_johnson_2022_03_10_23_59_28.png"
+            image_path="pressure_data/breathing_graph/adam_johnson_2022_03_10_23_59_28.png"
         )
     )
 
     print(
         upload_breathing_image(
-            image_path="breathing_data/adam_johnson/breathing_trend/adam_johnson_2022_03_11_00_35_01.png"
+            image_path="breathing_data/breathing_graph/breathing_trend/adam_johnson_2022_03_11_00_35_01.png"
         )
     )

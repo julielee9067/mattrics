@@ -1,35 +1,13 @@
-import csv
 from datetime import datetime
 from typing import List
 
 import matplotlib.pyplot as plt
 
-from core.breathing_tracker import get_breathing_tracker_data
+from core.breathing_tracker import get_breathing_from_csv
 from utils import logger
 
 
-def create_mock_data():
-    original = "0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "
-    a = ""
-    for i in range(47):
-        a += original
-
-    a += "0, 0, 0, 0, 0, 0, 0, 0, 0, 0"
-    print(a)
-
-
-def read_csv_file(file_path: str) -> List[int]:
-    result = []
-
-    with open(file_path, newline="") as f:
-        reader = csv.reader(f)
-        for row in reader:
-            result.append(list(map(int, row[1:])))
-
-    return result[0]
-
-
-def average_per_hour(minute_list: List[int]) -> List[float]:
+def get_average_per_hour(minute_list: List[int]) -> List[float]:
     temp = 0
     res = list()
     for i, num in enumerate(minute_list):
@@ -41,20 +19,19 @@ def average_per_hour(minute_list: List[int]) -> List[float]:
     return res[1:]
 
 
-def create_breathing_trend(csv_file_name: str) -> str:
+def create_breathing_trend(csv_path: str) -> str:
     now = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-    save_path = f"breathing_data/adam_johnson/breathing_trend/adam_johnson_{now}.png"
-    breathing_data = get_breathing_tracker_data(csv_file_name=csv_file_name)
-    averaged_result = average_per_hour(minute_list=breathing_data)
+    save_path = f"breathing_data/breathing_graph/breathing_trend/{now}.png"
+    breathing_data = get_breathing_from_csv(csv_path=csv_path)
+    averaged_result = get_average_per_hour(minute_list=breathing_data)
     plt.plot(averaged_result)
     plt.savefig(save_path)
     plt.clf()
     plt.cla()
     plt.close()
-    logger.info(f"Successfully created heatmap: {save_path}")
+    logger.info(f"Successfully created breathing trend: {save_path}")
     return save_path
 
 
 if __name__ == "__main__":
-    # create_mock_data()
-    create_breathing_trend(csv_file_name="pressure_data/03-11-22.csv")
+    create_breathing_trend(csv_path="pressure_data/03-11-22.csv")

@@ -63,7 +63,7 @@ def create_pressure_heatmap(csv_file_name: str) -> str:
     rows = get_total_pressure_data(csv_path=csv_file_name)
     data = convert_list_to_np_array(original_list=rows, num_col=32)
     now = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-    file_name = f"pressure_data/nothing.png"
+    file_name = f"pressure_data/person_test1.png"
     plot_heatmap(data=data, num_col=32, num_row=57, save_path=file_name)
     return file_name
 
@@ -78,4 +78,4 @@ def create_str():
 
 
 if __name__ == "__main__":
-    create_pressure_heatmap(csv_file_name="pressure_data/nothing.csv")
+    create_pressure_heatmap(csv_file_name="pressure_data/person_test1.csv")

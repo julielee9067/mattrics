@@ -43,7 +43,8 @@ void loop(){
 #define LED_BUILTIN 13
 #endif
 
-#define num_bytes 10240/8 //2048 points with 4 bytes each + comma
+//#define num_bytes 10240/8 //2048 points with 4 bytes each + comma
+#define num_bytes 9129 
 
 void wifiConnection() {
  if (!mqtt->loop())

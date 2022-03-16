@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <math.h>
 #include "fatfs_sd.h"
 
 /* USER CODE END Includes */
@@ -44,7 +45,7 @@
 /* USER CODE BEGIN PM */
 // #define ITM_Port32(n)   (*((volatile unsigned long *)(0xE0000000+4*n)))
 #define NUM_NODES 	      1824 // missing 7 rows on the mat
-#define RUNTIME 	      10000 // time in seconds to sample mat before ending program
+#define RUNTIME 	      20000 // time in seconds to sample mat before ending program
 #define UART_BUF_SIZE 	  NUM_NODES*5 // 4 byte for each node + comma
 #define FILE_LINE_SIZE        (9 + (4 * NUM_NODES) + NUM_NODES)
 #define VOLTAGE_THRESH        2.0
@@ -73,7 +74,7 @@ DWORD fre_clust;
 uint32_t total, free_space;
 
 char date[13];
-char file_name[30] = "calibrate.csv";
+char file_name[30] = "empty.csv";
 RTC_DateTypeDef nDate;
 RTC_TimeTypeDef nTime;
 
@@ -185,7 +186,7 @@ int main(void)
     /* Mount the SD card */
 //    fs = malloc(sizeof (FATFS));           /* Get work area for the volume */
     fr = f_mount(&fs, "", 0);
-    fr = f_sync(&fil);
+//    fr = f_sync(&fil);
 
 //    sprintf(date, "%02u-%02u-%02u.csv", nDate.Month, nDate.Date, nDate.Year);
 
@@ -199,7 +200,7 @@ int main(void)
 
     calibrate(pressure_data_offsets, sizeof(pressure_data_offsets)/sizeof(*pressure_data_offsets));
 
-    HAL_Delay(1000);
+//    HAL_Delay(1000);
 
     uint16_t start_time = HAL_GetTick();
 
@@ -222,7 +223,11 @@ int main(void)
       // TODO: Check timer. If pass 2 minutes, open SD card file, read data and write to UART
       if (checkTime(start_time)) {
 		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_SET);
-		HAL_Delay(2000);
+		HAL_Delay(1000);
+
+		// Write calibration data to SD card
+		logData2SDCard(pressure_data_offsets, NUM_NODES, false);
+
 		// Read SD card and send data to ESP8266 via UART
 //		readSDCardSendUART();
 
@@ -421,9 +426,9 @@ static void MX_RTC_Init(void)
   {
     Error_Handler();
   }
-  sDate.WeekDay = RTC_WEEKDAY_TUESDAY;
+  sDate.WeekDay = RTC_WEEKDAY_FRIDAY;
   sDate.Month = RTC_MONTH_MARCH;
-  sDate.Date = 15;
+  sDate.Date = 11;
   sDate.Year = 22;
 
   if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN) != HAL_OK)
@@ -903,8 +908,29 @@ void sampleMat(int data[], int len)
 					selectChannel(sense_sel, senseMuxSelect);
 
 					/* Read voltage */
-					int raw_ADC_pressure = readPressure(); 
-					data[array_cnt] = raw_ADC_pressure;
+					int raw_ADC_pressure = readPressure();
+					int cycle_cnt = 0;
+					int cycle_max = 10;
+					int cycle_sum = 0;
+					while(cycle_cnt < cycle_max) {
+//						float ADC_voltage = *ADC_VOLTAGE_CONVERSION;
+						cycle_sum += raw_ADC_pressure;
+						cycle_cnt++;
+					}
+					cycle_sum = round(cycle_sum/cycle_max);
+
+//					int raw_ADC_pressure = readPressure();
+//					int cycle_cnt = 0;
+//					int cycle_max = 10;
+//					float cycle_sum = 0;
+//					while(cycle_cnt < cycle_max) {
+//						float ADC_voltage = raw_ADC_pressure*ADC_VOLTAGE_CONVERSION;
+//						cycle_sum += ADC_voltage;
+//						cycle_cnt++;
+//					}
+//					cycle_sum = cycle_sum/cycle_max;
+
+					data[array_cnt] = cycle_sum;
 					array_cnt++;
 				}
 				disableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
@@ -986,10 +1012,6 @@ void calibrate(int data[], int len) {
 	for (int i = 0; i < len; i++) {
 		data[i] = data[i]/rounds; // take mean of each node over x rounds
 	}
-
-
-    /* Write to SD card on first line without timestamp*/
-	logData2SDCard(data, len, false);
 
     HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_RESET);
 }

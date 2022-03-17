@@ -69,14 +69,14 @@ UART_HandleTypeDef huart3;
 /* USER CODE BEGIN PV */
 /* SD card-related variables */
 FATFS fs;
-FRESULT fr;     /* FatFs return code */
 FIL fil;
+FRESULT fr = FR_OK;     /* FatFs return code */
 FATFS *pfs;
 DWORD fre_clust;
 uint32_t total, free_space;
 
 char date[13];
-char file_name[30] = "ABC_4.csv";
+char file_name[30] = "struct1_210g.csv";
 RTC_DateTypeDef nDate;
 RTC_TimeTypeDef nTime;
 
@@ -169,7 +169,7 @@ int main(void)
   int pressure_data[NUM_NODES] = {0};
 //
 //    /* Mount the SD card */
-  fr = f_mount(&fs, "", 0);
+  fr = f_mount(&fs, "", 0) && FR_OK;
 
 
 //  /* USER CODE END 2 */
@@ -186,19 +186,23 @@ int main(void)
     while (HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin) == GPIO_PIN_SET){}
 //
 //    // Start time for 30 seconds to settle
-//    HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_SET);
-//    HAL_Delay(WAITTIME);
-//    HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_SET);
+    HAL_Delay(WAITTIME);
+    HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_SET);
 
     /*Open the file*/
-    fr = f_open(&fil, file_name, FA_CREATE_ALWAYS | FA_WRITE);
+    fr = f_open(&fil, file_name, FA_CREATE_ALWAYS | FA_WRITE) && FR_OK;
 
     while (1)
     {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
+    	if (fr != FR_OK) {
+    		Error_Handler();
+    	}
 
 //    	sampleSingleSquare(0,0,0,0);
     	samplePrototypeMat(0, 0, pressure_data);
@@ -215,7 +219,7 @@ int main(void)
 //		readSDCardSendUART();
 
 	    /* Unmount the default drive */
-  		f_close(&fil);
+  		fr = f_close(&fil);
 		fr = f_mount(0, "", 0);
 
 	    exit(0);
@@ -623,20 +627,20 @@ int _write(int file, char* ptr, int len)
     */
 void logData2SDCard(int *data, int len)
 {
-    /* Make space for line of data */
+	/* Make space for line of data */
     f_lseek(&fil, FILE_LINE_SIZE);
     f_lseek(&fil, f_size(&fil));
 
 	/* Construct string to put into file */
     for(int node = 0; node < len - 1; node++)
     {
-        fr = f_printf(&fil, "%d,", data[node]);
+        fr = f_printf(&fil, "%d,", data[node]) && FR_OK;
     }
 
-    fr = f_printf(&fil, "%d\n", data[len - 1]);
+    fr = f_printf(&fil, "%d\n", data[len - 1]) && FR_OK;
 
     // Flush file after every mat reading
-    fr = f_sync(&fil);
+    fr = f_sync(&fil) && FR_OK;
 }
 
 void readSDCardSendUART() {
@@ -838,6 +842,9 @@ void Error_Handler(void)
     __disable_irq();
     while (1)
     {
+		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_SET);
+		HAL_Delay(500);
+		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_RESET);
     }
   /* USER CODE END Error_Handler_Debug */
 }

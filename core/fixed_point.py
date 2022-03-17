@@ -1,19 +1,27 @@
 import csv
 from datetime import datetime
-from pathlib import Path
 from typing import List
 
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.linalg
 import seaborn
-from numpy.random.mtrand import rand
 
-from core.util_functions import apply_conductance, get_data_from_csv, get_node_average
+from core.constants import TOTAL_NUM_NODES
+from core.util_functions import (
+    apply_conductance,
+    get_data_from_csv,
+    get_node_average,
+    get_square_matrices,
+    parse_combined_squares,
+    write_to_csv,
+)
 from utils import logger
 
 # TODO: ii1 is referred here as a ground, but we don't have one.
-# Adding
+
+NUM_COL = 16
+NUM_ROW = 57
 
 
 def generate_node_equations(cm, ii1):
@@ -30,7 +38,6 @@ def generate_node_equations(cm, ii1):
         coming from current sources.
     """
     N, M = cm.shape
-    logger.info(f"N: {N}, M: {M}")
     # N+M-1 nodes (ii1 is ground)
     # First N-1 are row wires, next M are column wires
     A = np.zeros((N + M - 1, N + M - 1))
@@ -80,7 +87,6 @@ def get_ceq(cm):
     # There are N*M columns in B, corresponding to N*M pairs
     # The solution can be obtained in a single call to linalg.solve !!!
     B = np.zeros((N + M - 1, N * M))
-    logger.info(f"A len: {len(A)}, B len: {len(B)}")
     bcol = 0
     for jj in range(0, M):
         # To obtain Req between row node 0 and column node jj
@@ -104,6 +110,7 @@ def get_ceq(cm):
             B[:, bcol] = b[:]
             bcol = bcol + 1
     try:
+        # X = np.linalg.lstsq(A, B, rcond=None)[0]
         X = np.linalg.solve(A, B)  # X is the voltage solution for each case
         sol2 = np.zeros((N, M))
         for jj in range(0, M):
@@ -179,11 +186,26 @@ def filter_garbage(total_list: List) -> List:
 
     for i, row in enumerate(total_list):
         try:
-            new_r = [int(point) for point in row]
+            new_r = [float(point) for point in row]
         except ValueError as e:
             logger.warning(f"Ignoring row: {e}")
             continue
-        if len(new_r) == 36:
+        res.append(new_r)
+    logger.info(f"{len(res)} row found")
+
+    return res
+
+
+def filter_full_mat_garbage(total_list: List) -> List:
+    res = list()
+
+    for i, row in enumerate(total_list):
+        try:
+            new_r = [int(point) for point in row[1:]]
+        except ValueError as e:
+            logger.warning(f"Ignoring row: {e}")
+            continue
+        if len(new_r) == TOTAL_NUM_NODES:
             res.append(new_r)
 
     logger.info(f"{len(res)} row found")
@@ -202,21 +224,41 @@ def convert_list_to_np_array(original_list: List, num_col: int) -> np.array:
     return np_array
 
 
-###
+def convert_list_to_np_array_full_mat(original_list: List, num_row: int) -> np.array:
+    matrix = [
+        original_list[i : i + num_row] for i in range(0, len(original_list), num_row)
+    ]
+    np_array = np.asarray(matrix)
+    np_array = np.transpose(np_array)
+    return np_array
+
+
 def solutions(original_data: np.array) -> np.array:
     cm = original_data
     cmeq = get_ceq(cm)
     cm2 = fixed_point_solution(cmeq, beta=0.1, NITER=1000, ftol=1e-12, bounds=True)
     print("Fixed point: Mean abs relative error ", abs((cm2 - cm) / cm).mean())
+
     return (cm2 - cm) / cm
+    # return cm2
 
 
 def get_original_data(csv_path: str) -> np.array:
     result = get_data_from_csv(csv_path=csv_path)
     data = filter_garbage(total_list=result)
     avg_data = get_node_average(data=np.array(data))
-    cm = convert_list_to_np_array(original_list=avg_data, num_col=6)
-    return cm
+    return convert_list_to_np_array(original_list=avg_data, num_col=NUM_COL)
+
+
+def get_full_mat_data(csv_path: str) -> np.array:
+    result = get_data_from_csv(csv_path=csv_path)
+    data = filter_full_mat_garbage(total_list=result)
+    avg_data = get_node_average(data=np.array(data))
+    full_mat_data = convert_list_to_np_array_full_mat(
+        original_list=avg_data, num_row=NUM_ROW
+    )
+    squared_data = get_square_matrices(data=full_mat_data)
+    return squared_data
 
 
 def plot_heatmap(
@@ -234,10 +276,27 @@ def plot_heatmap(
 
 
 if __name__ == "__main__":
-    original_data = get_original_data(csv_path="fixed_point_test_data/new3.csv")
-    conductance = apply_conductance(data=original_data)
-    data = solutions(original_data=original_data)
+    squared_data = get_full_mat_data(csv_path="pressure_data/feet_test.csv")
+    # original_data = get_original_data(csv_path="fixed_point_test_data/new2.csv")
+    f = open("fixed_point_test_data/test.csv", "w+")
+    for data in squared_data:
+        conductance = apply_conductance(data=data)
+        data = solutions(original_data=data)
+        write_to_csv(csv_path="fixed_point_test_data/test.csv", data=data)
+
+    combined_data = get_data_from_csv(csv_path="fixed_point_test_data/test.csv")
+    parsed_data = parse_combined_squares(data=combined_data)
+
+    new_data = filter_garbage(total_list=parsed_data)
+
     now = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-    file_name = f"fixed_point_test_data/result/{now}.png"
-    # plot_heatmap(data=conductance, num_col=6, num_row=6, save_path=file_name, title="original")
-    plot_heatmap(data=data, num_col=6, num_row=6, save_path=file_name, title="after")
+    original_file_name = f"fixed_point_test_data/result/original/{now}.png"
+    after_file_name = f"fixed_point_test_data/result/after/{now}.png"
+
+    plot_heatmap(
+        data=new_data,
+        num_col=32,
+        num_row=56,
+        save_path=after_file_name,
+        title="after conductance",
+    )

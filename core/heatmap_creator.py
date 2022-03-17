@@ -12,6 +12,7 @@ from core.util_functions import (
     filter_garbage,
     get_data_from_csv,
     get_node_average,
+    get_vout,
     subtract,
 )
 from utils import logger
@@ -32,7 +33,7 @@ def get_pressure_data_from_csv(csv_path: str, is_calibrated: bool) -> List[int]:
 
     filtered_data = filter_garbage(total_list=total_list)
     result = get_node_average(data=np.array(filtered_data))
-
+    result = get_vout(adc=result)
     return result
 
 
@@ -86,9 +87,16 @@ def create_pressure_heatmap(data: np.array, title: str = "") -> str:
 
 
 if __name__ == "__main__":
-    csv_path = "pressure_data/rice_bag_floor.csv"
-    data = get_final_pressure_data(is_calibrated=True, csv_path=csv_path)
+    csv_path = "pressure_data/test5_delay_fixed_210g.csv"
+    data = get_final_pressure_data(is_calibrated=False, csv_path=csv_path)
     create_pressure_heatmap(data=data, title=Path(csv_path).stem)
 
-    # data = get_diff_between_two_data(first_csv_path=csv_path, second_csv_path=csv_path)
-    # create_pressure_heatmap(data=data)
+    first = "pressure_data/test5_delay_fixed_210g.csv"
+    second = "pressure_data/test-5-delay-fixed-no-wire.csv"
+    data = get_diff_between_two_data(
+        first_csv_path=first,
+        second_csv_path=second,
+        f_calibrated=False,
+        s_calibrated=False,
+    )
+    create_pressure_heatmap(data=data)

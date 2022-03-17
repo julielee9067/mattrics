@@ -75,7 +75,7 @@ DWORD fre_clust;
 uint32_t total, free_space;
 
 char date[13];
-char file_name[30] = "g.csv";
+char file_name[30] = "new2.csv";
 RTC_DateTypeDef nDate;
 RTC_TimeTypeDef nTime;
 
@@ -210,7 +210,7 @@ int main(void)
       //
 //
 //      // TODO: Check timer. If pass 2 minutes, open SD card file, read data and write to UART
-      if (cycle_cnt >= 15) {
+      if (cycle_cnt >= 5) {
   		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_RESET);
 
 		// Read SD card and send data to ESP8266 via UART
@@ -650,14 +650,14 @@ void readSDCardSendUART() {
     f_open(&fil, file_name, FA_READ); // Data can be read from file
     char line[FILE_LINE_SIZE]; /* Line buffer */
 
-    int cnt = 0;
+    int cnt = 1;
 
     /*Read every line*/
     while (f_gets(line, sizeof line, &fil)) {
-    	if (cnt >= 2) { // skip first 2 lines of SD card bc of garbage values
+    	if (cnt > 2) { // skip first 2 lines of SD card bc of garbage values
         	// Send to UART
-        	HAL_UART_Transmit(&huart3, (uint16_t *)line, sizeof(line), HAL_MAX_DELAY);
-        	HAL_Delay(500);
+        	HAL_UART_Transmit(&huart3, (uint8_t *)line, sizeof(line), HAL_MAX_DELAY);
+        	HAL_Delay(2000);
     	}
     	cnt++;
     }
@@ -670,7 +670,6 @@ void readSDCardSendUART() {
 uint32_t getSpaceFree(void)
 {
 	// TODO
-	return 1;
 }
 
 

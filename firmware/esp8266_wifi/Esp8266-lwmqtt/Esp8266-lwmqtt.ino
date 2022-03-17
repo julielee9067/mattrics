@@ -61,17 +61,15 @@ volatile uint16_t indx; // 0-65535
 void UARTReceiveSendData() {
   if (Serial.available() > 0) {
     char c = Serial.read();
-    if (indx < FILE_LINE_SIZE) { // avoid overflowing the array
-      received_bytes [indx] = c; // save data in the next index in the array buff
-      indx++;
-      if (c == '\n') {
-        bool result = publishTelemetry(String(received_bytes));
-        delay(50);
-        Serial.println(String(received_bytes));
-        Serial.println(result);
-        indx = 0; //reset button to zero
-//        Serial.println("END\n");
-      } 
+    
+    if (indx < FILE_LINE_SIZE) {
+       received_bytes[indx] = c; // save data in the next index in the array buff
+       indx++;
+    } else {
+      bool result = publishTelemetry(String(received_bytes));
+      Serial.println(result);
+      Serial.println(String(received_bytes));
+      indx = 0; //reset button to zero
     }
   }
 }

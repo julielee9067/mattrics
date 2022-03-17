@@ -75,7 +75,7 @@ DWORD fre_clust;
 uint32_t total, free_space;
 
 char date[13];
-char file_name[30] = "new2.csv";
+char file_name[30] = "new6.csv";
 RTC_DateTypeDef nDate;
 RTC_TimeTypeDef nTime;
 

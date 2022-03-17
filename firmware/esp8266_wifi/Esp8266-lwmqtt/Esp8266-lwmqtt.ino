@@ -43,8 +43,7 @@ void loop(){
 #define LED_BUILTIN 13
 #endif
 
-//#define num_bytes 10240/8 //2048 points with 4 bytes each + comma
-#define num_bytes 9129 
+#define FILE_LINE_SIZE 180
 
 void wifiConnection() {
  if (!mqtt->loop())
@@ -55,36 +54,28 @@ void wifiConnection() {
   delay(10); // <- fixes some issues with WiFi stability
 }
 
-char received_bytes[num_bytes]; 
-char test[1280] = "abcdefghijababcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijcdefghijabcdefghijabcdefghijabcdefghijababcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijcdefghijabcdefghijabcdefghijefghijabcdefghijcdefghijabcdefghijavbcdefghijbcdefghijvabcdefghijababcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijcdefghijabcdefghijabcdefghijabcdefghijababcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijcdefghijabcdefghijabcdefghijefghijabcdefghijcdefghijabcdefghijavbcdefghijbcdefghijvabcdefghijababcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijcdefghijabcdefghijabcdefghijabcdefghijababcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijcdefghijabcdefghijabcdefghijefghijabcdefghijcdefghijabcdefghijavbcdefghijbcdefghijvijbcdefghijvijbcdefghijvijbcdefghiefghijabcdefghijcdefghijabcdefghijavbcdefghijbcdefghijvabcdefghijababcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijcdefghijabcdefghijabcdefghijabcdefghijababcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijcdefghijabcdefghijabcdefghijefghijabcdefghijcdefghijabcdefghijavbcdefghijbcdefghijvijbcdefghijvijbcdefghijvijbcdefghiijbcdefghiijbcdefghiijbcdefghiijbcdefghiijbcdefghiijbcdefghiijbcdefghicdefghiijbcdefghicdefghiijbcdefghicdefghiijbcdefghidfsfdsfdcdefghi";
+char received_bytes[FILE_LINE_SIZE]; 
 volatile uint16_t indx; // 0-65535
-volatile bool start_communication;
+
 
 void UARTReceiveSendData() {
   if (Serial.available() > 0) {
     char c = Serial.read();
-    if (indx < num_bytes) { // avoid overflowing the array
-
-      if (c == 'S' || start_communication) {
-        received_bytes [indx] = c; // save data in the next index in the array buff
-        indx++;
-      }
-        
-      if (c == 'S') { // check for start of the word
-//        Serial.println("\nSTART");
-        start_communication = true;
-      } else if (c == 'E') { //check for the end of the word
-        bool result = publishTelemetry(String(received_bytes));//(String(1));
+    if (indx < FILE_LINE_SIZE) { // avoid overflowing the array
+      received_bytes [indx] = c; // save data in the next index in the array buff
+      indx++;
+      if (c == '\n') {
+        bool result = publishTelemetry(String(received_bytes));
         delay(50);
+        Serial.println(String(received_bytes));
         Serial.println(result);
-        indx= 0; //reset button to zero
-        memset(&received_bytes[0], 0, sizeof(received_bytes));
-        start_communication = false;
+        indx = 0; //reset button to zero
 //        Serial.println("END\n");
       } 
     }
   }
 }
+
 
 
 void setup()
@@ -98,7 +89,6 @@ void setup()
 
   memset(received_bytes, 0, sizeof received_bytes);
   indx = 0;
-  start_communication = false;
 
   Serial.println("Finished initialization");
 

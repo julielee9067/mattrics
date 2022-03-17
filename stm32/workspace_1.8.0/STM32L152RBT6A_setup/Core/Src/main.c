@@ -48,7 +48,6 @@
 #define WAITTIME 	      30000 // time in seconds to sample mat before ending program
 #define CALIBRATION_TIME 	      10000 // time in seconds to calibrate mat
 #define CALIBRATION_DELAY 	      10 // time in milliseconds between mat callibration readings
-#define UART_BUF_SIZE 	  NUM_NODES*5 // 4 byte for each node + comma
 #define FILE_LINE_SIZE       5 * NUM_NODES// (9 + (4 * NUM_NODES) + NUM_NODES)
 #define VOLTAGE_THRESH        2.0
 #define VOLTAGE_THRESH_CNT    5
@@ -76,7 +75,7 @@ DWORD fre_clust;
 uint32_t total, free_space;
 
 char date[13];
-char file_name[30] = "structure1_0g.csv";
+char file_name[30] = "g.csv";
 RTC_DateTypeDef nDate;
 RTC_TimeTypeDef nTime;
 
@@ -183,13 +182,15 @@ int main(void)
 
 
     // Wait for Button press
-//    while (HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin) == GPIO_PIN_SET){}
-//
-//    // Start time for 30 seconds to settle
+    while (HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin) == GPIO_PIN_SET){}
+
+    // Start time for 30 seconds to settle
 //    HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_SET);
 //    HAL_Delay(WAITTIME);
 //    HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_RESET);
-//    HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_SET);
+
+    // LED to start writing
+    HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_SET);
 
 
     while (1)
@@ -198,32 +199,29 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-    	sampleSingleSquare(0,0,1,1);
-//    	samplePrototypeMat(0, 0, pressure_data);
-//    	HAL_Delay(500);
+    	samplePrototypeMat(0, 0, pressure_data);
       /* Reset the pressure data array */
 
-//      /* Sample all nodes on mat */
-//      sampleMat(pressure_data, sizeof(pressure_data)/sizeof(*pressure_data));
-//
+
 //      /* Write to SD card */
-//      logData2SDCard(pressure_data, sizeof(pressure_data)/sizeof(*pressure_data));
-//  	  HAL_Delay(500);
+        logData2SDCard(pressure_data, sizeof(pressure_data)/sizeof(*pressure_data));
+  	    HAL_Delay(500);
 
       //
 //
 //      // TODO: Check timer. If pass 2 minutes, open SD card file, read data and write to UART
-//      if (cycle_cnt >= 15) {
-//  		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_RESET);
+      if (cycle_cnt >= 15) {
+  		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_RESET);
 
-//		// Read SD card and send data to ESP8266 via UART
-////		readSDCardSendUART();
+		// Read SD card and send data to ESP8266 via UART
+		readSDCardSendUART();
 
-//	    /* Unmount the default drive */
-//		fr = f_mount(0, "", 0);
+	    /* Unmount the default drive */
+		fr = f_mount(0, "", 0);
 
-//	    exit(0);
-//      }
+
+	    exit(0);
+      }
 
       cycle_cnt++;
     }
@@ -627,7 +625,6 @@ int _write(int file, char* ptr, int len)
     */
 void logData2SDCard(int *data, int len)
 {
-
     /*Open the file*/
     fr = f_open(&fil, file_name, FA_OPEN_ALWAYS | FA_WRITE | FA_READ);
 
@@ -653,11 +650,16 @@ void readSDCardSendUART() {
     f_open(&fil, file_name, FA_READ); // Data can be read from file
     char line[FILE_LINE_SIZE]; /* Line buffer */
 
+    int cnt = 0;
+
     /*Read every line*/
     while (f_gets(line, sizeof line, &fil)) {
-    	// Send to UART
-    	HAL_UART_Transmit(&huart3, (uint16_t *)line, sizeof(line), HAL_MAX_DELAY);
-    	HAL_Delay(100);
+    	if (cnt >= 2) { // skip first 2 lines of SD card bc of garbage values
+        	// Send to UART
+        	HAL_UART_Transmit(&huart3, (uint16_t *)line, sizeof(line), HAL_MAX_DELAY);
+        	HAL_Delay(500);
+    	}
+    	cnt++;
     }
 
 	/* Close the file */
@@ -808,26 +810,7 @@ void samplePrototypeMat(int pwr_mux, int sense_mux, int* data)
 
 }
 
-/**
-    * @brief  :
-    * @param  :
-    * @retval :
-    */
-int sampleSingleSquare(int pwr_mux, int sense_mux, int pwr_sel, int sense_sel)
-{
 
-	enableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
-	enableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
-
-	selectChannel(pwr_sel, pwrMuxSelect);
-	selectChannel(sense_sel, senseMuxSelect);
-
-	/* Read voltage */
-	int raw_ADC_pressure = readPressure();
-
-	return raw_ADC_pressure;
-
-}
 bool checkTime(uint32_t start_time) {
 
   if((HAL_GetTick() - start_time) >= WAITTIME) // Run for 30 seconds

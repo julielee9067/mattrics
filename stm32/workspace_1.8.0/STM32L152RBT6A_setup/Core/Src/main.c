@@ -45,7 +45,7 @@
 /* USER CODE BEGIN PM */
 // #define ITM_Port32(n)   (*((volatile unsigned long *)(0xE0000000+4*n)))
 #define NUM_NODES 	      36 // 6 by 6 prototype mat
-#define RUNTIME 	      10000 // time in seconds to sample mat before ending program
+#define WAITTIME 	      30000 // time in seconds to sample mat before ending program
 #define CALIBRATION_TIME 	      10000 // time in seconds to calibrate mat
 #define CALIBRATION_DELAY 	      10 // time in milliseconds between mat callibration readings
 #define UART_BUF_SIZE 	  NUM_NODES*5 // 4 byte for each node + comma
@@ -76,7 +76,7 @@ DWORD fre_clust;
 uint32_t total, free_space;
 
 char date[13];
-char file_name[30] = "proto_test2.csv";
+char file_name[30] = "structure1_0g.csv";
 RTC_DateTypeDef nDate;
 RTC_TimeTypeDef nTime;
 
@@ -122,8 +122,8 @@ void enableMux(GPIO_TypeDef *type, int pin);
 void disableMux(GPIO_TypeDef *type, int pin);
 int readPressure(void);
 bool checkTime(uint32_t start_time);
-int samplePrototypeMat(int pwr_mux, int sense_mux, int* data);
-
+void samplePrototypeMat(int pwr_mux, int sense_mux, int* data);
+int sampleSingleSquare(int pwr_mux, int sense_mux, int pwr_sel, int sense_sel);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -151,7 +151,6 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-    // ITM_Port32(31) = 1;
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -178,52 +177,53 @@ int main(void)
 //  /* Infinite loop */
 //  /* USER CODE BEGIN WHILE */
 //
-//    uint16_t start_time = HAL_GetTick();
 
 
     int cycle_cnt = 0;
 
-    while (HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin) == GPIO_PIN_SET){}
-    HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_SET);
+
+    // Wait for Button press
+//    while (HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin) == GPIO_PIN_SET){}
+//
+//    // Start time for 30 seconds to settle
+//    HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_SET);
+//    HAL_Delay(WAITTIME);
+//    HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_RESET);
+//    HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_SET);
+
 
     while (1)
     {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    	samplePrototypeMat(0, 0, pressure_data);
-    	HAL_Delay(500);
+
+    	sampleSingleSquare(0,0,1,1);
+//    	samplePrototypeMat(0, 0, pressure_data);
+//    	HAL_Delay(500);
       /* Reset the pressure data array */
 
 //      /* Sample all nodes on mat */
 //      sampleMat(pressure_data, sizeof(pressure_data)/sizeof(*pressure_data));
 //
 //      /* Write to SD card */
-      logData2SDCard(pressure_data, sizeof(pressure_data)/sizeof(*pressure_data));
-  	  HAL_Delay(500);
+//      logData2SDCard(pressure_data, sizeof(pressure_data)/sizeof(*pressure_data));
+//  	  HAL_Delay(500);
 
       //
 //
 //      // TODO: Check timer. If pass 2 minutes, open SD card file, read data and write to UART
-      if (cycle_cnt >= 15) {
-  		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_SET);
-		HAL_Delay(3000);
-		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_RESET);
-//
-//		// Write calibration data to SD card
-//		logData2SDCard(pressure_data_offsets, NUM_NODES, false);
-//
+//      if (cycle_cnt >= 15) {
+//  		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_RESET);
+
 //		// Read SD card and send data to ESP8266 via UART
 ////		readSDCardSendUART();
-//
+
 //	    /* Unmount the default drive */
-		fr = f_mount(0, "", 0);
-////	    free(fs);                              /* Here the work area can be discarded */
-//
-//
-	    exit(0);
-      }
+//		fr = f_mount(0, "", 0);
+
+//	    exit(0);
+//      }
 
       cycle_cnt++;
     }
@@ -660,6 +660,9 @@ void readSDCardSendUART() {
     	HAL_Delay(100);
     }
 
+	/* Close the file */
+	fr = f_close(&fil);
+
 }
 
 uint32_t getSpaceFree(void)
@@ -765,14 +768,13 @@ void disableMux(GPIO_TypeDef *type, int pin)
     */
 int readPressure(void)
 {
-    // ADCSelectCH9();
     HAL_ADC_Start(&hadc);
     HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY);
     int data = HAL_ADC_GetValue(&hadc);
     HAL_ADC_Stop(&hadc);
+	HAL_Delay(5);
     return data;
 }
-
 
 
 
@@ -781,41 +783,24 @@ int readPressure(void)
     * @param  :
     * @retval :
     */
-int samplePrototypeMat(int pwr_mux, int sense_mux, int* data)
+void samplePrototypeMat(int pwr_mux, int sense_mux, int* data)
 {
+
 	int array_cnt = 0;
 	enableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
 	enableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
 
 	for (int pwr_sel = 0; pwr_sel < 6; pwr_sel++) {
+
+
 		selectChannel(pwr_sel, pwrMuxSelect);
 		for (int sense_sel = 0; sense_sel < 6; sense_sel++) {
+
 			selectChannel(sense_sel, senseMuxSelect);
 
 			/* Read voltage */
 			int raw_ADC_pressure = readPressure();
-//			int cycle_cnt = 0;
-//			int cycle_max = 10;
-//			int cycle_sum = 0;
-//			while(cycle_cnt < cycle_max) {
-////						float ADC_voltage = *ADC_VOLTAGE_CONVERSION;
-//				cycle_sum += raw_ADC_pressure;
-//				cycle_cnt++;
-//			}
-//			cycle_sum = round(cycle_sum/cycle_max);
 
-//					int raw_ADC_pressure = readPressure();
-//					int cycle_cnt = 0;
-//					int cycle_max = 10;
-//					float cycle_sum = 0;
-//					while(cycle_cnt < cycle_max) {
-//						float ADC_voltage = raw_ADC_pressure*ADC_VOLTAGE_CONVERSION;
-//						cycle_sum += ADC_voltage;
-//						cycle_cnt++;
-//					}
-//					cycle_sum = cycle_sum/cycle_max;
-
-//			data[array_cnt] = cycle_sum;
 			data[array_cnt] = raw_ADC_pressure;
 			array_cnt++;
 		}
@@ -823,9 +808,29 @@ int samplePrototypeMat(int pwr_mux, int sense_mux, int* data)
 
 }
 
+/**
+    * @brief  :
+    * @param  :
+    * @retval :
+    */
+int sampleSingleSquare(int pwr_mux, int sense_mux, int pwr_sel, int sense_sel)
+{
+
+	enableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
+	enableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
+
+	selectChannel(pwr_sel, pwrMuxSelect);
+	selectChannel(sense_sel, senseMuxSelect);
+
+	/* Read voltage */
+	int raw_ADC_pressure = readPressure();
+
+	return raw_ADC_pressure;
+
+}
 bool checkTime(uint32_t start_time) {
 
-  if((HAL_GetTick() - start_time) >= RUNTIME) // Run for 2 minutes
+  if((HAL_GetTick() - start_time) >= WAITTIME) // Run for 30 seconds
   {
 	  return true;
   }

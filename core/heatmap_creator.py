@@ -1,4 +1,5 @@
 import datetime
+from pathlib import Path
 from typing import List
 
 import matplotlib.pyplot as plt
@@ -35,10 +36,12 @@ def get_pressure_data_from_csv(csv_path: str, is_calibrated: bool) -> List[int]:
     return result
 
 
-def plot_heatmap(data: np.array, num_col: int, num_row: int, save_path: str):
+def plot_heatmap(
+    data: np.array, num_col: int, num_row: int, save_path: str, title: str
+):
     plt.style.use("seaborn")
     plt.figure(figsize=(num_col, num_row))
-    plt.title("Pressure Heat Map", fontsize=50)
+    plt.title(f"{title} Pressure Heat Map", fontsize=50)
     hm = seaborn.heatmap(data, linewidth=0.30, annot=False, cmap="Blues")
     cbar = hm.collections[0].colorbar
     cbar.ax.tick_params(labelsize=50)
@@ -64,26 +67,28 @@ def get_diff_between_two_data(
         csv_path=second_csv_path, is_calibrated=s_calibrated
     )
     difference = subtract(a=f_data, b=s_data)
-    return convert_list_to_np_array(original_list=difference, num_col=NUM_COL)
+    return convert_list_to_np_array(original_list=difference, num_row=NUM_ROW)
 
 
 def get_final_pressure_data(csv_path: str, is_calibrated: bool = True) -> np.array:
     data = get_pressure_data_from_csv(csv_path=csv_path, is_calibrated=is_calibrated)
-    return convert_list_to_np_array(original_list=data, num_col=NUM_COL)
+    return convert_list_to_np_array(original_list=data, num_row=NUM_ROW)
 
 
-def create_pressure_heatmap(data: np.array) -> str:
+def create_pressure_heatmap(data: np.array, title: str = "") -> str:
     now = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
     file_name = f"pressure_data/heatmap/{now}.png"
-    plot_heatmap(data=data, num_col=NUM_COL, num_row=NUM_ROW, save_path=file_name)
+    plot_heatmap(
+        data=data, num_col=NUM_COL, num_row=NUM_ROW, save_path=file_name, title=title
+    )
 
     return file_name
 
 
 if __name__ == "__main__":
-    csv_path = "pressure_data/testC.csv"
-    data = get_final_pressure_data(csv_path=csv_path)
-    create_pressure_heatmap(data=data)
+    csv_path = "pressure_data/rice_bag_floor.csv"
+    data = get_final_pressure_data(is_calibrated=True, csv_path=csv_path)
+    create_pressure_heatmap(data=data, title=Path(csv_path).stem)
 
     # data = get_diff_between_two_data(first_csv_path=csv_path, second_csv_path=csv_path)
     # create_pressure_heatmap(data=data)

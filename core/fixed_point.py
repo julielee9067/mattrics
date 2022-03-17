@@ -1,11 +1,19 @@
 import csv
+from datetime import datetime
+from pathlib import Path
 from typing import List
 
+import matplotlib.pyplot as plt
 import numpy as np
 import numpy.linalg
+import seaborn
 from numpy.random.mtrand import rand
 
+from core.util_functions import apply_conductance, get_data_from_csv, get_node_average
 from utils import logger
+
+# TODO: ii1 is referred here as a ground, but we don't have one.
+# Adding
 
 
 def generate_node_equations(cm, ii1):
@@ -141,7 +149,6 @@ def fixed_point_solution(cmeq, cm0=None, beta=0.05, NITER=25, bounds=False, ftol
         ceq0 = get_ceq(c0)
         # Termination condition
         # Residual of the initial nonlinear problem
-        logger.info(f"ceq0: {ceq0}\ncmeq: {cmeq}")
         if ceq0 is not None:
             residual = np.fabs(ceq0 - cmeq).max()
             # print('residual', residual)
@@ -158,23 +165,6 @@ def fixed_point_solution(cmeq, cm0=None, beta=0.05, NITER=25, bounds=False, ftol
     return c1
 
 
-def parse_csv(csv_path: str) -> List[List]:
-    res = list()
-    with open(csv_path, newline="") as f:
-        reader = csv.reader(f)
-        for row in reader:
-            try:
-                new_r = [int(point) for point in row[1:]]
-            except ValueError as e:
-                logger.warning(f"Removed row: {e}")
-                continue
-            if len(new_r) == 1824:
-                res.append(new_r)
-    res = np.array(res)
-    result = res.sum(axis=0)
-    return result
-
-
 def get_first_row_data(csv_path: str) -> List[int]:
     with open(csv_path, newline="") as f:
         reader = csv.reader(f)
@@ -184,38 +174,70 @@ def get_first_row_data(csv_path: str) -> List[int]:
     return result
 
 
+def filter_garbage(total_list: List) -> List:
+    res = list()
+
+    for i, row in enumerate(total_list):
+        try:
+            new_r = [int(point) for point in row]
+        except ValueError as e:
+            logger.warning(f"Ignoring row: {e}")
+            continue
+        if len(new_r) == 36:
+            res.append(new_r)
+
+    logger.info(f"{len(res)} row found")
+
+    return res
+
+
 def convert_list_to_np_array(original_list: List, num_col: int) -> np.array:
     matrix = [
         original_list[i : i + num_col] for i in range(0, len(original_list), num_col)
     ]
 
-    new = [matrix[i][:20] for i in range(num_col)]
+    new = [matrix[i][:num_col] for i in range(num_col)]
 
     np_array = np.asarray(new)
     return np_array
 
 
 ###
-def solutions():
-    # Random conductance matrix. Minimum value = 2e-5, max = 2e-2
-    cmin = 2e-5
-    cmax = 2e-2
-    cm = cmin + (cmax - cmin) * rand(3, 3)
-
-    # data = parse_csv(csv_path="pressure_data/03-11-22_1.csv")
-    data = get_first_row_data(csv_path="pressure_data/03-11-22.csv")
-    # cm = convert_list_to_np_array(original_list=data, num_col=3)
-    # Get equivalent resistance matrix (the "measured" one)
+def solutions(original_data: np.array) -> np.array:
+    cm = original_data
     cmeq = get_ceq(cm)
-    # All the algorithms should find cm as solution
-    # Newton-krylov
     cm2 = fixed_point_solution(cmeq, beta=0.1, NITER=1000, ftol=1e-12, bounds=True)
-    print((cm2 - cm) / cm)
     print("Fixed point: Mean abs relative error ", abs((cm2 - cm) / cm).mean())
+    return (cm2 - cm) / cm
 
 
-###
+def get_original_data(csv_path: str) -> np.array:
+    result = get_data_from_csv(csv_path=csv_path)
+    data = filter_garbage(total_list=result)
+    avg_data = get_node_average(data=np.array(data))
+    cm = convert_list_to_np_array(original_list=avg_data, num_col=6)
+    return cm
+
+
+def plot_heatmap(
+    data: np.array, num_col: int, num_row: int, save_path: str, title: str
+):
+    plt.style.use("seaborn")
+    plt.figure(figsize=(num_col, num_row))
+    plt.title(f"{title} Pressure Heat Map")
+    seaborn.heatmap(data, linewidth=0.30, annot=False, cmap="Blues")
+    plt.savefig(save_path)
+    plt.clf()
+    plt.cla()
+    plt.close()
+    logger.info(f"Successfully created heatmap: {save_path}")
 
 
 if __name__ == "__main__":
-    solutions()
+    original_data = get_original_data(csv_path="fixed_point_test_data/new3.csv")
+    conductance = apply_conductance(data=original_data)
+    data = solutions(original_data=original_data)
+    now = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+    file_name = f"fixed_point_test_data/result/{now}.png"
+    # plot_heatmap(data=conductance, num_col=6, num_row=6, save_path=file_name, title="original")
+    plot_heatmap(data=data, num_col=6, num_row=6, save_path=file_name, title="after")

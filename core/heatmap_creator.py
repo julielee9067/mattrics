@@ -12,7 +12,7 @@ from core.util_functions import (
     filter_garbage,
     get_data_from_csv,
     get_node_average,
-    get_vout,
+    get_vout_from_adc,
     subtract,
 )
 from utils import logger
@@ -33,7 +33,7 @@ def get_pressure_data_from_csv(csv_path: str, is_calibrated: bool) -> List[int]:
 
     filtered_data = filter_garbage(total_list=total_list)
     result = get_node_average(data=np.array(filtered_data))
-    result = get_vout(adc=result)
+    result = get_vout_from_adc(adc=result)
     return result
 
 

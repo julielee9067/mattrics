@@ -42,40 +42,6 @@ def write_to_csv(csv_path: str, data: List[List]):
     logger.info(f"Successfully written: {csv_path}")
 
 
-def get_square_matrices(data: np.array) -> List:
-    res = list()
-    for i in range(0, 32, 16):
-        for j in range(0, 48, 16):
-            res.append(data[j : j + 16, i : i + 16])
-
-    for i in range(0, 32, 8):
-        for j in range(48, 56, 8):
-            res.append(data[j : j + 8, i : i + 8])
-
-    return res
-
-
-def parse_combined_squares(data: np.array) -> np.array:
-    stack_list = []
-    for i in range(0, 96, 32):
-        start = np.asarray(data[i : i + 16])
-        end = np.asarray(data[i + 16 : i + 32])
-        stack = np.hstack((start, end))
-        stack_list.append(stack)
-
-    start = np.asarray(data[96:104])
-    for i in range(104, 128, 8):
-        end = np.asarray(data[i : i + 8])
-        start = np.hstack((start, end))
-
-    stack_list.append(start)
-    start = stack_list[0]
-    for stack in stack_list[1:]:
-        start = np.vstack((start, stack))
-
-    return start
-
-
 def get_node_average(data: np.ndarray) -> List:
     return np.average(data, axis=0)
 
@@ -119,36 +85,35 @@ def convert_list_to_np_array(original_list: List, num_row: int) -> np.array:
     return np_array
 
 
-def get_vout(adc: np.array) -> np.array:
+def get_vout_from_adc(adc: np.array) -> np.array:
     vout = adc * VOUT_CONSTANT * 1000
     logger.info(f"vout: {vout}")
     return vout
 
 
-def get_resistance(vout: np.array) -> np.array:
+def get_resistance_from_vout(vout: np.array) -> np.array:
     resistance = (3.3 * 470 / vout) - 470 - 2
     logger.info(f"resistance: {resistance}")
     return resistance
 
 
-def get_conductance(resistance: np.array) -> np.array:
+def get_conductance_from_r(resistance: np.array) -> np.array:
     conductance = np.power(resistance, -1)
     logger.info(f"conductance: {conductance}")
     return conductance
 
 
-def apply_conductance(data: np.array) -> np.array:
-    vout = get_vout(adc=data)
-    resistance = get_resistance(vout=vout)
-    conductance = get_conductance(resistance=resistance)
-
+def get_conductance_from_adc(data: np.array) -> np.array:
+    vout = get_vout_from_adc(adc=data)
+    resistance = get_resistance_from_vout(vout=vout)
+    conductance = get_conductance_from_r(resistance=resistance)
     return conductance
 
 
-def get_fit_curve(vout_data: np.array):
+def get_fit_curve_coefficients(vout_data: np.array):
     return np.polyfit(x=WEIGHTS, y=vout_data, deg=FIT_CURVE_DEGREE)
 
 
-def get_adjusted_value(row_num: int, col_num: int, value: Any[int, float]):
+def get_fitted_value(row_num: int, col_num: int, value: Any[int, float]):
     coeff = FIT_COEFFICIENTS[row_num][col_num]
     return np.polyval(p=coeff, x=value)

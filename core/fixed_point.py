@@ -9,11 +9,9 @@ import seaborn
 
 from core.constants import TOTAL_NUM_NODES
 from core.util_functions import (
-    apply_conductance,
+    get_conductance_from_adc,
     get_data_from_csv,
     get_node_average,
-    get_square_matrices,
-    parse_combined_squares,
     write_to_csv,
 )
 from utils import logger
@@ -172,6 +170,40 @@ def fixed_point_solution(cmeq, cm0=None, beta=0.05, NITER=25, bounds=False, ftol
     return c1
 
 
+def get_square_matrices(data: np.array) -> List:
+    res = list()
+    for i in range(0, 32, 16):
+        for j in range(0, 48, 16):
+            res.append(data[j : j + 16, i : i + 16])
+
+    for i in range(0, 32, 8):
+        for j in range(48, 56, 8):
+            res.append(data[j : j + 8, i : i + 8])
+
+    return res
+
+
+def parse_combined_squares(data: np.array) -> np.array:
+    stack_list = []
+    for i in range(0, 96, 32):
+        start = np.asarray(data[i : i + 16])
+        end = np.asarray(data[i + 16 : i + 32])
+        stack = np.hstack((start, end))
+        stack_list.append(stack)
+
+    start = np.asarray(data[96:104])
+    for i in range(104, 128, 8):
+        end = np.asarray(data[i : i + 8])
+        start = np.hstack((start, end))
+
+    stack_list.append(start)
+    start = stack_list[0]
+    for stack in stack_list[1:]:
+        start = np.vstack((start, stack))
+
+    return start
+
+
 def get_first_row_data(csv_path: str) -> List[int]:
     with open(csv_path, newline="") as f:
         reader = csv.reader(f)
@@ -280,7 +312,7 @@ if __name__ == "__main__":
     # original_data = get_original_data(csv_path="fixed_point_test_data/new2.csv")
     f = open("fixed_point_test_data/test.csv", "w+")
     for data in squared_data:
-        conductance = apply_conductance(data=data)
+        conductance = get_conductance_from_adc(data=data)
         data = solutions(original_data=data)
         write_to_csv(csv_path="fixed_point_test_data/test.csv", data=data)
 

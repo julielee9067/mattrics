@@ -48,7 +48,7 @@
 #define WAITTIME 	          15000 // time in seconds to sample mat before ending program
 #define CALIBRATION_DELAY 	  10 // time in milliseconds between mat callibration readings
 #define CALIBRATION_CYCLES 	  3
-#define SAMPLE_CYCLES 	      15
+#define SAMPLE_CYCLES 	      5
 #define ADC_DELAY        	  3
 #define RUNTIME 	          10000 // time in seconds to sample mat before ending program
 #define FILE_LINE_SIZE        (9 + (4 * NUM_NODES) + NUM_NODES) // time + (ADC integer reading (4 bytes) + comma)*NUM_NODES
@@ -76,7 +76,7 @@ DWORD fre_clust;
 uint32_t total, free_space;
 
 char date[13];
-char file_name[30] = "empty_fullmat_1.csv";
+char file_name[30] = "Jules_fullmat_3.csv";
 RTC_DateTypeDef nDate;
 RTC_TimeTypeDef nTime;
 

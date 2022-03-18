@@ -54,8 +54,9 @@ void wifiConnection() {
   delay(10); // <- fixes some issues with WiFi stability
 }
 
-char received_bytes[FILE_LINE_SIZE]; 
 volatile uint16_t indx; // 0-65535
+bool start_communication = false;
+char received_bytes[FILE_LINE_SIZE]; 
 
 
 void UARTReceiveSendData() {

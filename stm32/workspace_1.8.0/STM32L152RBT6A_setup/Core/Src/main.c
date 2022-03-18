@@ -45,8 +45,7 @@
 /* USER CODE BEGIN PM */
 // #define ITM_Port32(n)   (*((volatile unsigned long *)(0xE0000000+4*n)))
 #define NUM_NODES 	          36 // 6 by 6 prototype mat
-#define WAITTIME 	          15000 // time in seconds to sample mat before ending program
-#define SAMPLE_CYCLES 	      15
+#define SAMPLE_CYCLES 	      5
 #define SAMPLE_TIME           30000 // 30 seconds
 #define ADC_DELAY        	  5
 #define FILE_LINE_SIZE        5 * NUM_NODES// (9 + (4 * NUM_NODES) + NUM_NODES)
@@ -75,7 +74,7 @@ DWORD fre_clust;
 uint32_t total, free_space;
 
 char date[13];
-char file_name[30] = "Ayo_breathing1.csv";
+char file_name[30] = "E.csv";
 RTC_DateTypeDef nDate;
 RTC_TimeTypeDef nTime;
 
@@ -202,16 +201,17 @@ int main(void)
 
 //      /* Write to SD card */
         logData2SDCard(pressure_data, sizeof(pressure_data)/sizeof(*pressure_data));
-  	    HAL_Delay(500);
 
       //
 //
-//      if (cycle_cnt >= 5) {
-  	  if (checkTime(start_time)) {
+      if (cycle_cnt >= SAMPLE_CYCLES) {
+//  	  if (checkTime(start_time)) {
   		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_G_Pin, GPIO_PIN_RESET);
+  		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_SET);
 
 		// Read SD card and send data to ESP8266 via UART
-//		readSDCardSendUART();
+		readSDCardSendUART();
+  		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_RESET);
 
 	    /* Unmount the default drive */
 		fr = f_mount(0, "", 0);
@@ -648,11 +648,13 @@ void readSDCardSendUART() {
     char line[FILE_LINE_SIZE]; /* Line buffer */
 
     int cnt = 1;
+    char start_char = 'S';
 
     /*Read every line*/
     while (f_gets(line, sizeof line, &fil)) {
     	if (cnt > 2) { // skip first 2 lines of SD card bc of garbage values
         	// Send to UART
+//    		HAL_UART_Transmit(&huart3, (uint8_t*)start_char, sizeof(start_char), HAL_MAX_DELAY);
         	HAL_UART_Transmit(&huart3, (uint8_t *)line, sizeof(line), HAL_MAX_DELAY);
         	HAL_Delay(2000);
     	}

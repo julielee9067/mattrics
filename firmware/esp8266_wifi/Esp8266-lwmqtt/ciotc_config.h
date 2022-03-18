@@ -16,8 +16,8 @@
 
 // WIFI
 // Wifi network details.
-const char *ssid = "mattrics";//"Cloudwifi-167-504-P";
-const char *password = "mattrics123";//"CWAE1923";
+const char *ssid = "Cloudwifi-167-504-P"; // "mattrics";//
+const char *password = "CWAE1923"; // "mattrics123";//
 
 // Cloud iot details.
 const char *project_id = "mattrics-338705";

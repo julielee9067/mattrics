@@ -8,6 +8,7 @@ import seaborn
 
 from core.constants import NUM_COL, NUM_ROW
 from core.util_functions import (
+    apply_fit_curve,
     convert_list_to_np_array,
     filter_garbage,
     get_data_from_csv,
@@ -22,7 +23,8 @@ def get_pressure_data_from_csv(csv_path: str, is_calibrated: bool) -> List[int]:
     total_list = get_data_from_csv(csv_path=csv_path)
 
     if is_calibrated:
-        calibration_data = [int(node) for node in total_list[-1]]
+        print(total_list[-1])
+        calibration_data = [int(node) for node in total_list[-1] if node != ""]
         total_list = total_list[:-1]
         filtered_data = filter_garbage(total_list=total_list)
         avg_data = get_node_average(data=np.array(filtered_data))
@@ -73,7 +75,9 @@ def get_diff_between_two_data(
 
 def get_final_pressure_data(csv_path: str, is_calibrated: bool = True) -> np.array:
     data = get_pressure_data_from_csv(csv_path=csv_path, is_calibrated=is_calibrated)
-    return convert_list_to_np_array(original_list=data, num_row=NUM_ROW)
+    np_array = convert_list_to_np_array(original_list=data, num_row=NUM_ROW)
+    # return apply_fit_curve(data=np_array)
+    return np_array
 
 
 def create_pressure_heatmap(data: np.array, title: str = "") -> str:
@@ -87,16 +91,16 @@ def create_pressure_heatmap(data: np.array, title: str = "") -> str:
 
 
 if __name__ == "__main__":
-    csv_path = "pressure_data/test5_delay_fixed_210g.csv"
-    data = get_final_pressure_data(is_calibrated=False, csv_path=csv_path)
+    csv_path = "pressure_data/Jules_fullmat_2.csv"
+    data = get_final_pressure_data(is_calibrated=True, csv_path=csv_path)
     create_pressure_heatmap(data=data, title=Path(csv_path).stem)
 
-    first = "pressure_data/test5_delay_fixed_210g.csv"
-    second = "pressure_data/test-5-delay-fixed-no-wire.csv"
-    data = get_diff_between_two_data(
-        first_csv_path=first,
-        second_csv_path=second,
-        f_calibrated=False,
-        s_calibrated=False,
-    )
-    create_pressure_heatmap(data=data)
+    # first = "pressure_data/test5_delay_fixed_210g.csv"
+    # second = "pressure_data/test-5-delay-fixed-no-wire.csv"
+    # data = get_diff_between_two_data(
+    #     first_csv_path=first,
+    #     second_csv_path=second,
+    #     f_calibrated=False,
+    #     s_calibrated=False,
+    # )
+    # create_pressure_heatmap(data=data)

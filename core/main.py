@@ -25,9 +25,10 @@ def csv_main(csv_path: str = None):
         average_rate=average_breathing_rate, path=gcs_breathing_url
     )
     db_connector.insert_daily_data(pressure_id=pressure_id, breathing_id=breathing_id)
+    # db_connector.insert_pressure_daily_data(pressure_id=pressure_id)
     db_connector.cursor.close()
 
 
 if __name__ == "__main__":
     # raw_main()
-    csv_main(csv_path="pressure_data/testC.csv")
+    csv_main(csv_path="pressure_data/Jules_fullmat.csv")

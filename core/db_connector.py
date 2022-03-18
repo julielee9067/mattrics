@@ -58,7 +58,7 @@ class DatabaseConnector:
         logger.info(f"Successfully inserted pressure data")
         return self.cursor.lastrowid
 
-    def insert_breathing_data(self, average_rate: int, path: str) -> int:
+    def insert_breathing_data(self, average_rate: float, path: str) -> int:
         id_query = (
             "SELECT breathingId "
             "FROM Breathing "
@@ -87,6 +87,20 @@ class DatabaseConnector:
             "VALUES (%s, %s, %s, %s)"
         )
         self.cursor.execute(query, (_id, PATIENT_ID, pressure_id, breathing_id))
+        self.connection.commit()
+        logger.info(f"Successfully inserted daily data")
+        return self.cursor.lastrowid
+
+    def insert_pressure_daily_data(self, pressure_id: int) -> int:
+        id_query = "SELECT id FROM DailyData ORDER BY id DESC LIMIT 1;"
+        self.cursor.execute(id_query)
+        row = self.cursor.fetchone()
+        _id = row[0] + 1
+
+        query = (
+            "INSERT INTO DailyData (_id, patientId, pressureId) " "VALUES (%s, %s, %s)"
+        )
+        self.cursor.execute(query, (_id, PATIENT_ID, pressure_id))
         self.connection.commit()
         logger.info(f"Successfully inserted daily data")
         return self.cursor.lastrowid

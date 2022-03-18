@@ -46,8 +46,6 @@
 // #define ITM_Port32(n)   (*((volatile unsigned long *)(0xE0000000+4*n)))
 #define NUM_NODES 	         36 // 6 by 6 prototype mat
 #define WAITTIME 	         30000 // time in seconds to sample mat before ending program
-#define CALIBRATION_TIME 	 10000 // time in seconds to calibrate mat
-#define CALIBRATION_DELAY 	 10 // time in milliseconds between mat callibration readings
 #define UART_BUF_SIZE 	     NUM_NODES*5 // 4 byte for each node + comma
 #define FILE_LINE_SIZE       5 * NUM_NODES// (9 + (4 * NUM_NODES) + NUM_NODES)
 #define VOLTAGE_THRESH       2.0
@@ -76,7 +74,7 @@ DWORD fre_clust;
 uint32_t total, free_space;
 
 char date[13];
-char file_name[30] = "struct1_210g.csv";
+char file_name[30] = "drain_210g.csv";
 RTC_DateTypeDef nDate;
 RTC_TimeTypeDef nTime;
 
@@ -763,7 +761,7 @@ void disableMux(GPIO_TypeDef *type, int pin)
     */
 int readPressure(void)
 {
-	HAL_Delay(3);
+	HAL_Delay(5);
 	HAL_ADC_Start(&hadc);
     HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY);
     int data = HAL_ADC_GetValue(&hadc);

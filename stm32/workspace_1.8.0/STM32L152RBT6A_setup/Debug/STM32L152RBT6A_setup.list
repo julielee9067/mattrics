@@ -35,15 +35,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  15 .debug_ranges 00001258  00000000  00000000  0003e5c8  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  00018461  00000000  00000000  0003f820  2**0
+ 16 .debug_macro  00018455  00000000  00000000  0003f820  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   00019221  00000000  00000000  00057c81  2**0
+ 17 .debug_line   00019221  00000000  00000000  00057c75  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    00089d6a  00000000  00000000  00070ea2  2**0
+ 18 .debug_str    00089d3e  00000000  00000000  00070e96  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000053  00000000  00000000  000fac0c  2**0
+ 19 .comment      00000053  00000000  00000000  000fabd4  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  000051bc  00000000  00000000  000fac60  2**2
+ 20 .debug_frame  000051bc  00000000  00000000  000fac28  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -3558,8 +3558,8 @@ int readPressure(void)
  8001794:	b580      	push	{r7, lr}
  8001796:	b082      	sub	sp, #8
  8001798:	af00      	add	r7, sp, #0
-	HAL_Delay(3);
- 800179a:	2003      	movs	r0, #3
+	HAL_Delay(5);
+ 800179a:	2005      	movs	r0, #5
  800179c:	f000 fb32 	bl	8001e04 <HAL_Delay>
 	HAL_ADC_Start(&hadc);
  80017a0:	480a      	ldr	r0, [pc, #40]	; (80017cc <readPressure+0x38>)

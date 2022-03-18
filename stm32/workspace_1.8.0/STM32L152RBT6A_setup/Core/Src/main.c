@@ -44,14 +44,11 @@
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 // #define ITM_Port32(n)   (*((volatile unsigned long *)(0xE0000000+4*n)))
-#define NUM_NODES 	      1824 // missing 7 rows on the mat
-#define RUNTIME 	      10000 // time in seconds to sample mat before ending program
-#define CALIBRATION_TIME 	      10000 // time in seconds to calibrate mat
-#define CALIBRATION_DELAY 	      10 // time in milliseconds between mat callibration readings
-#define UART_BUF_SIZE 	  NUM_NODES*5 // 4 byte for each node + comma
-#define FILE_LINE_SIZE        (9 + (4 * NUM_NODES) + NUM_NODES)
-#define VOLTAGE_THRESH        2.0
-#define VOLTAGE_THRESH_CNT    5
+#define NUM_NODES 	          1824 // missing 7 rows on the mat
+#define WAITTIME 	          30000 // time in seconds to sample mat before ending program
+#define CALIBRATION_DELAY 	  10 // time in milliseconds between mat callibration readings
+#define RUNTIME 	          10000 // time in seconds to sample mat before ending program
+#define FILE_LINE_SIZE        (9 + (5 * NUM_NODES)) // time + (ADC integer reading (4 bytes) + comma)*NUM_NODES
 
 /* USER CODE END PM */
 
@@ -69,19 +66,16 @@ UART_HandleTypeDef huart3;
 /* USER CODE BEGIN PV */
 /* SD card-related variables */
 FATFS fs;
-FRESULT fr;     /* FatFs return code */
+FRESULT fr = FR_OK;     /* FatFs return code */
 FIL fil;
 FATFS *pfs;
 DWORD fre_clust;
 uint32_t total, free_space;
 
 char date[13];
-char file_name[30] = "rice_bag_floor.csv";
+char file_name[30] = "drain_210g.csv";
 RTC_DateTypeDef nDate;
 RTC_TimeTypeDef nTime;
-
-/* Wifi-related variables */
-char buffer[100];
 
 /* Muxing-related variables */
 /* At 3.3V, expect ADC reading of 4095 */
@@ -120,11 +114,7 @@ void muxInit(void);
 void selectChannel(int pin, int array[]);
 void enableMux(GPIO_TypeDef *type, int pin);
 void disableMux(GPIO_TypeDef *type, int pin);
-void ADCSelectCH3(void);
-void ADCSelectCH9(void);
-float read3V3(void);
 int readPressure(void);
-bool belowVoltageThresh(void);
 void sampleMat(int data[], int len);
 void calibrateMat(int data[], int len);
 void calibrate(int data[], int len);
@@ -172,71 +162,85 @@ int main(void)
 
     muxInit();
 
-//    read3V3();
-    // ITM_Port32(31) = 2;
-
     // int voltage_thresh_count = 0;
     int pressure_data[NUM_NODES] = {0};
-    int pressure_data_offsets[NUM_NODES] = {0};
+    int calibration_data[NUM_NODES] = {0};
 
-    while (HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin) == GPIO_PIN_SET){}
+    //    /* Mount the SD card */
+    fr = f_mount(&fs, "", 0) && FR_OK;
+    int cycle_cnt = 0;
 
 //    HAL_RTC_GetDate(&hrtc, &nDate, RTC_FORMAT_BIN);
-
-    /* Mount the SD card */
-//    fs = malloc(sizeof (FATFS));           /* Get work area for the volume */
-    fr = f_mount(&fs, "", 0);
-//    fr = f_sync(&fil);
-
 //    sprintf(date, "%02u-%02u-%02u.csv", nDate.Month, nDate.Date, nDate.Year);
 
-    HAL_Delay(500);
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-    // Calibrate mat
-    calibrate(pressure_data_offsets, sizeof(pressure_data_offsets)/sizeof(*pressure_data_offsets));
+    /*Wait for user button press to start the program*/
+    while (HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin) == GPIO_PIN_SET){}
 
-    HAL_Delay(CALIBRATION_TIME);
-    // Start measuring
+	// Set RED LED to start measuring calibration data with nothing on the mat
 	HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_SET);
 
-    uint16_t start_time = HAL_GetTick();
+	// Calibrate mat
+    calibrate(calibration_data, sizeof(calibration_data)/sizeof(*calibration_data));
 
+    // Mat finished calibration, turn off RED LED
+	HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_RESET);
 
+	// Wait for user to put a weight on the mat
+    while (HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin) == GPIO_PIN_SET){}
+
+	// Set Blue LED
+	HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_SET);
+	// wait 30s for readign to settle
+	HAL_Delay(WAITTIME);
+	// turn off blue LED
+	HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_RESET);
+
+    /*Open the file to write data to*/
+    fr = f_open(&fil, file_name, FA_CREATE_ALWAYS | FA_WRITE) && FR_OK;
+
+	// Turn on green LED to indicate data logging
+	HAL_GPIO_WritePin(GPIOC, GPIO_RGB_G_Pin, GPIO_PIN_SET);
+
+//    uint16_t start_time = HAL_GetTick();
 
     while (1)
     {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-      /* Reset the pressure data array */
-//      memcpy(pressure_data, pressure_data_offsets, sizeof(pressure_data));
+
+    	if (fr != FR_OK) {
+    		Error_Handler();
+    	}
 
       /* Sample all nodes on mat */
       sampleMat(pressure_data, sizeof(pressure_data)/sizeof(*pressure_data));
 
       /* Write to SD card */
       logData2SDCard(pressure_data, NUM_NODES, true);
+  	  HAL_Delay(50);
 
       // TODO: Check timer. If pass 2 minutes, open SD card file, read data and write to UART
-      if (checkTime(start_time)) {
-		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_RESET);
-		HAL_Delay(1000);
+//      if (checkTime(start_time)) {
+  	  if (cycle_cnt >=15) {
+  		  // Set Green pin to indicate logging is occuring
+		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_G_Pin, GPIO_PIN_RESET);
 
 		// Write calibration data to SD card
-		logData2SDCard(pressure_data_offsets, NUM_NODES, false);
+		logData2SDCard(calibration_data, NUM_NODES, false);
 
 		// Read SD card and send data to ESP8266 via UART
 //		readSDCardSendUART();
 
 	    /* Unmount the default drive */
+  		fr = f_close(&fil);
 		fr = f_mount(0, "", 0);
-//	    free(fs);                              /* Here the work area can be discarded */
-
 
 	    exit(0);
       }
@@ -643,8 +647,6 @@ int _write(int file, char* ptr, int len)
     */
 void logData2SDCard(int data[], int len, bool write_timestamp)
 {
-    /*Open the file*/
-    fr = f_open(&fil, file_name, FA_OPEN_ALWAYS | FA_WRITE | FA_READ);
 
     /* Make space for line of data */
     f_lseek(&fil, FILE_LINE_SIZE);
@@ -655,16 +657,14 @@ void logData2SDCard(int data[], int len, bool write_timestamp)
     }
 
 	/* Construct string to put into file */
-    for(int node = 0; node < len - 1; node++)
-    {
-        fr = f_printf(&fil, "%d,", data[node]);
+    for(int node = 0; node < len - 1; node++) {
+        fr = f_printf(&fil, "%d,", data[node]) && FR_OK;
     }
 
-    fr = f_printf(&fil, "%d\n", data[len - 1]);
+    fr = f_printf(&fil, "%d\n", data[len - 1]) && FR_OK;
 
-	/* Close the file */
-	fr = f_close(&fil);
-
+    // Flush file after every mat reading
+    fr = f_sync(&fil) && FR_OK;
 
 }
 
@@ -782,92 +782,17 @@ void disableMux(GPIO_TypeDef *type, int pin)
     * @param  :
     * @retval :
     */
-void ADCSelectCH3(void)
-{
-    /* Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time */
-    ADC_ChannelConfTypeDef sConfig = {0};
-
-    sConfig.Channel = ADC_CHANNEL_3;
-    sConfig.Rank = 1;
-    sConfig.SamplingTime = ADC_SAMPLETIME_4CYCLES;
-    if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
-    {
-	  Error_Handler();
-    }
-}
-
-/**
-    * @brief
-    * @param  :
-    * @retval :
-    */
-void ADCSelectCH9(void)
-{ 
-    /* Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time */
-    ADC_ChannelConfTypeDef sConfig = {0};
-
-    sConfig.Channel = ADC_CHANNEL_9;
-    sConfig.Rank = 1;
-    sConfig.SamplingTime = ADC_SAMPLETIME_4CYCLES;
-    if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
-    {
-	  Error_Handler();
-    }
-}
-
-/**
-    * @brief  :
-    * @param  :
-    * @retval :
-    */
-float read3V3(void)
-{
-    ADCSelectCH3();
-    HAL_ADC_Start(&hadc);
-    HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY);
-
-    /* Convert to Voltage */
-    float data = HAL_ADC_GetValue(&hadc) * ADC_VOLTAGE_CONVERSION;
-    HAL_ADC_Stop(&hadc);
-    HAL_Delay(100);
-    return data;
-}
-
-/**
-    * @brief  :
-    * @param  :
-    * @retval :
-    */
 int readPressure(void)
 {
-    // ADCSelectCH9();
-    HAL_ADC_Start(&hadc);
+	HAL_Delay(5);
+	HAL_ADC_Start(&hadc);
     HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY);
     int data = HAL_ADC_GetValue(&hadc);
     HAL_ADC_Stop(&hadc);
     return data;
 }
 
-/**
-    * @brief  :
-    * @param  :
-    * @retval :
-    */
-bool belowVoltageThresh(void)
-{
-	float voltage_value = read3V3();
-	// TODO: Implement timer
-	if (voltage_value < VOLTAGE_THRESH) {
-		/* Turn on red LED */
-	    HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_SET);
 
-		/* Log error to SD card */
-	    // TODO
-	    return true;
-	}
-
-	return false;
-}
 
 /**
     * @brief  :
@@ -989,7 +914,6 @@ void calibrateMat(int data[], int len)
 		disableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
 	}
 	HAL_Delay(CALIBRATION_DELAY); // need this delay for proper readings
-
 }
 
 /**
@@ -1000,8 +924,6 @@ void calibrateMat(int data[], int len)
 void calibrate(int data[], int len) {
 	/* Calibrate over 100 mat readings */
     /* Don't use time based calibration in case of overflow */
-//    HAL_GPIO_WritePin(GPIOA, MCU_PA12_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_SET);
 
     int rounds = 100;
     for(int round = 0; round < rounds; round++)
@@ -1013,8 +935,6 @@ void calibrate(int data[], int len) {
 	for (int i = 0; i < len; i++) {
 		data[i] = round(data[i]/rounds); // take mean of each node over x rounds
 	}
-
-    HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_RESET);
 }
 
 bool checkTime(uint32_t start_time) {

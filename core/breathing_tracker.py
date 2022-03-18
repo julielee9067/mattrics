@@ -1,6 +1,5 @@
 from datetime import datetime
 from pathlib import Path
-from statistics import mean
 from typing import List, Tuple
 
 import matplotlib.pyplot as plt
@@ -9,11 +8,9 @@ from scipy.fft import irfft, rfft
 from scipy.signal import argrelextrema
 
 from core.util_functions import (
-    filter_garbage,
     filter_garbage_wo_timestamp,
     get_data_from_csv,
     get_total_average,
-    get_total_sum,
     get_vout_from_adc,
 )
 from utils import logger

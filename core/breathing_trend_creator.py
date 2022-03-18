@@ -4,7 +4,6 @@ from typing import List, Tuple
 
 import matplotlib.pyplot as plt
 
-from core.breathing_tracker import get_breathing_data, get_breathing_from_csv
 from utils import logger
 
 

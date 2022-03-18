@@ -1,30 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
-		<item key="selection" value="date"/>
+		<item key="selection" value="sampleMat"/>
 		<item key="wrap" value="true"/>
 		<item key="casesensitive" value="false"/>
 		<item key="wholeword" value="false"/>
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
-			<item value="date"/>
-			<item value="file_name"/>
-			<item value="BTN_TEST_Pin"/>
-			<item value="Btn"/>
-			<item value="while"/>
-			<item value="while("/>
-			<item value="logData2SDCard"/>
-			<item value="logData"/>
-			<item value="write"/>
-			<item value="main("/>
-			<item value="22"/>
+			<item value="sampleMat"/>
+			<item value="calibrateMat"/>
 			<item value="calibrate"/>
-			<item value="getDate"/>
-			<item value="getTime"/>
-			<item value="HAL_RTC_GetDate"/>
+			<item value="CALIBRATION_CYCLES"/>
+			<item value="cycle_cnt"/>
+			<item value="ADC_DELAY"/>
+			<item value="HAL_DELAY"/>
+			<item value="RUNTIME"/>
+			<item value="readPressure"/>
+			<item value="10"/>
+			<item value="15"/>
+			<item value="readSDCardSendUART"/>
+			<item value="readSDCard"/>
+			<item value="readSD"/>
+			<item value="f_sync"/>
 		</list>
 		<list key="replacehistory">
+			<item value="calibration_data"/>
 			<item value="fr = f_printf"/>
 			<item value="readSDCardSendUART"/>
 			<item value="htim6"/>
@@ -32,7 +33,7 @@
 		</list>
 	</section>
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
-		<item key="DIALOG_X_ORIGIN" value="1391"/>
+		<item key="DIALOG_X_ORIGIN" value="638"/>
 		<item key="DIALOG_Y_ORIGIN" value="398"/>
 		<item key="DIALOG_WIDTH" value="336"/>
 		<item key="DIALOG_HEIGHT" value="454"/>

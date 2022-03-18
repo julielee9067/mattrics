@@ -134,6 +134,7 @@ static void setupCertAndPrivateKey()
 
 static void setupWifi()
 {
+  Serial.println("hi");
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   Serial.println("Connecting to WiFi");

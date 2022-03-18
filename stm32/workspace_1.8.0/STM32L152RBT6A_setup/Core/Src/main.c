@@ -47,8 +47,11 @@
 #define NUM_NODES 	          1824 // missing 7 rows on the mat
 #define WAITTIME 	          30000 // time in seconds to sample mat before ending program
 #define CALIBRATION_DELAY 	  10 // time in milliseconds between mat callibration readings
+#define CALIBRATION_CYCLES 	  3
+#define SAMPLE_CYCLES 	      15
+#define ADC_DELAY        	  3
 #define RUNTIME 	          10000 // time in seconds to sample mat before ending program
-#define FILE_LINE_SIZE        (9 + (5 * NUM_NODES)) // time + (ADC integer reading (4 bytes) + comma)*NUM_NODES
+#define FILE_LINE_SIZE        (9 + (4 * NUM_NODES) + NUM_NODES) // time + (ADC integer reading (4 bytes) + comma)*NUM_NODES
 
 /* USER CODE END PM */
 
@@ -73,7 +76,7 @@ DWORD fre_clust;
 uint32_t total, free_space;
 
 char date[13];
-char file_name[30] = "drain_210g.csv";
+char file_name[30] = "panel1_.csv";
 RTC_DateTypeDef nDate;
 RTC_TimeTypeDef nTime;
 
@@ -194,7 +197,7 @@ int main(void)
 	// Wait for user to put a weight on the mat
     while (HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin) == GPIO_PIN_SET){}
 
-	// Set Blue LED
+//	 Set Blue LED
 	HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_SET);
 	// wait 30s for readign to settle
 	HAL_Delay(WAITTIME);
@@ -222,17 +225,17 @@ int main(void)
       /* Sample all nodes on mat */
       sampleMat(pressure_data, sizeof(pressure_data)/sizeof(*pressure_data));
 
-      /* Write to SD card */
+      /* Write sampled data to SD card */
       logData2SDCard(pressure_data, NUM_NODES, true);
   	  HAL_Delay(50);
 
       // TODO: Check timer. If pass 2 minutes, open SD card file, read data and write to UART
 //      if (checkTime(start_time)) {
-  	  if (cycle_cnt >=15) {
+  	  if (cycle_cnt >=SAMPLE_CYCLES) {
   		  // Set Green pin to indicate logging is occuring
 		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_G_Pin, GPIO_PIN_RESET);
 
-		// Write calibration data to SD card
+		// Write calibration data to SD card on the last row (without timestamp)
 		logData2SDCard(calibration_data, NUM_NODES, false);
 
 		// Read SD card and send data to ESP8266 via UART
@@ -245,7 +248,7 @@ int main(void)
 	    exit(0);
       }
 
-
+      cycle_cnt++;
     }
   /* USER CODE END 3 */
 }
@@ -673,14 +676,23 @@ void readSDCardSendUART() {
     f_open(&fil, file_name, FA_READ); // Data can be read from file
     char line[FILE_LINE_SIZE]; /* Line buffer */
 
+    int cnt = 1;
+
     /*Read every line*/
     while (f_gets(line, sizeof line, &fil)) {
-    	// Send to UART
-    	HAL_UART_Transmit(&huart3, (uint16_t *)line, sizeof(line), HAL_MAX_DELAY);
-    	HAL_Delay(100);
+    	if (cnt > 2) { // skip first 2 lines of SD card bc of garbage values
+        	// Send to UART
+        	HAL_UART_Transmit(&huart3, (uint8_t *)line, sizeof(line), HAL_MAX_DELAY);
+        	HAL_Delay(2000);
+    	}
+    	cnt++;
     }
 
+	/* Close the file */
+	fr = f_close(&fil);
+
 }
+
 
 uint32_t getSpaceFree(void)
 {
@@ -784,7 +796,7 @@ void disableMux(GPIO_TypeDef *type, int pin)
     */
 int readPressure(void)
 {
-	HAL_Delay(5);
+	HAL_Delay(ADC_DELAY);
 	HAL_ADC_Start(&hadc);
     HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY);
     int data = HAL_ADC_GetValue(&hadc);
@@ -834,28 +846,8 @@ void sampleMat(int data[], int len)
 
 					/* Read voltage */
 					int raw_ADC_pressure = readPressure();
-					int cycle_cnt = 0;
-					int cycle_max = 10;
-					int cycle_sum = 0;
-					while(cycle_cnt < cycle_max) {
-//						float ADC_voltage = *ADC_VOLTAGE_CONVERSION;
-						cycle_sum += raw_ADC_pressure;
-						cycle_cnt++;
-					}
-					cycle_sum = round(cycle_sum/cycle_max);
 
-//					int raw_ADC_pressure = readPressure();
-//					int cycle_cnt = 0;
-//					int cycle_max = 10;
-//					float cycle_sum = 0;
-//					while(cycle_cnt < cycle_max) {
-//						float ADC_voltage = raw_ADC_pressure*ADC_VOLTAGE_CONVERSION;
-//						cycle_sum += ADC_voltage;
-//						cycle_cnt++;
-//					}
-//					cycle_sum = cycle_sum/cycle_max;
-
-					data[array_cnt] = cycle_sum;
+					data[array_cnt] = raw_ADC_pressure;
 					array_cnt++;
 				}
 				disableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
@@ -913,7 +905,6 @@ void calibrateMat(int data[], int len)
 		}
 		disableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
 	}
-	HAL_Delay(CALIBRATION_DELAY); // need this delay for proper readings
 }
 
 /**
@@ -922,18 +913,17 @@ void calibrateMat(int data[], int len)
     * @retval :
     */
 void calibrate(int data[], int len) {
-	/* Calibrate over 100 mat readings */
+	/* Calibrate over 10 mat readings */
     /* Don't use time based calibration in case of overflow */
 
-    int rounds = 100;
-    for(int round = 0; round < rounds; round++)
+    for(int round = 0; round < CALIBRATION_CYCLES; round++)
     {
         calibrateMat(data, len); // Add up x rounds for each point
     }
 
     // Take mean
 	for (int i = 0; i < len; i++) {
-		data[i] = round(data[i]/rounds); // take mean of each node over x rounds
+		data[i] = round(data[i]/CALIBRATION_CYCLES); // take mean of each node over x rounds
 	}
 }
 

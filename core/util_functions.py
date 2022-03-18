@@ -87,6 +87,24 @@ def filter_garbage(total_list: List) -> List:
     return res
 
 
+def filter_garbage_wo_timestamp(total_list: List) -> List:
+    res = list()
+
+    for i, row in enumerate(total_list):
+        try:
+            new_r = [int(point) for point in row if point != ""]
+        except ValueError as e:
+            logger.warning(f"Ignoring row: {e}")
+            continue
+
+        if len(new_r) == TOTAL_NUM_NODES:
+            res.append(new_r)
+
+    logger.info(f"{len(res)} row found")
+
+    return res
+
+
 def convert_list_to_np_array(original_list: List, num_row: int) -> np.array:
     matrix = [
         original_list[i : i + num_row] for i in range(0, len(original_list), num_row)

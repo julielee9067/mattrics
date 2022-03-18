@@ -48,19 +48,21 @@ def stack_vout_vals(vout_vals: np.array) -> np.array:
     return res
 
 
-def plot_from_coeff(y):
+def plot_from_coeff(item, title):
     plt.figure()
     plt.style.use("seaborn")
 
-    for item in item_list:
-        trend = np.polyfit(WEIGHTS, item, FIT_CURVE_DEGREE)
-        x_line = np.linspace(0, 210)
-        fit = np.polyval(trend, x_line)
-        plt.plot(x_line, fit)
-        plt.scatter(WEIGHTS, item)
+    trend = np.polyfit(WEIGHTS, item, FIT_CURVE_DEGREE)
+    x_line = np.linspace(0, 210)
+    fit = np.polyval(trend, x_line)
+    plt.plot(x_line, fit)
+    plt.scatter(WEIGHTS, item)
+    plt.title(f"Voltage vs. Weight for coordinate {title}")
+    plt.xlabel("Weight [grams]")
+    plt.ylabel("Voltage [mV]")
 
     now = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-    save_path = f"coeff_data/{now}.png"
+    save_path = f"coeff_data/{title}_{now}.png"
     plt.savefig(save_path)
     plt.clf()
     plt.cla()
@@ -69,7 +71,7 @@ def plot_from_coeff(y):
 
 
 if __name__ == "__main__":
-    iterate_through_calibration_folder()
+    # iterate_through_calibration_folder()
 
     total_list = get_data_from_csv(csv_path="coeff_data/drained_calibrated.csv")
     vout_per_weight = dict()
@@ -88,8 +90,9 @@ if __name__ == "__main__":
     stacked = stack_vout_vals(vout_vals=sorted_list)
 
     item_list = []
-    for col in stacked[5:6]:
-        for item in col[5:6]:
+    for col in stacked:
+        for item in col:
             item_list.append(list(item))
             coeff = get_fit_curve_coefficients(vout_data=item)
-            plot_from_coeff(y=item)
+            location = zip(*np.where(stacked == item))
+            plot_from_coeff(item=item, title=list(location)[0][:-1])

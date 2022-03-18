@@ -8,7 +8,14 @@ import numpy as np
 from scipy.fft import irfft, rfft
 from scipy.signal import argrelextrema
 
-from core.util_functions import filter_garbage, get_data_from_csv, get_total_sum
+from core.util_functions import (
+    filter_garbage,
+    filter_garbage_wo_timestamp,
+    get_data_from_csv,
+    get_total_average,
+    get_total_sum,
+    get_vout_from_adc,
+)
 from utils import logger
 
 
@@ -43,7 +50,7 @@ def get_time_intervals(minima_index: np.ndarray, maxima_index: np.ndarray):
 
 
 def get_breathing_data(pressure_list: List[int]) -> dict:
-    peak_threshold = 0
+    peak_threshold = 200
     clean_data = apply_fft(data=pressure_list, fft_threshold=peak_threshold)
     t = np.arange(start=0, stop=int(len(pressure_list) / 2), step=0.5)
 
@@ -54,13 +61,13 @@ def get_breathing_data(pressure_list: List[int]) -> dict:
     logger.info(f"Number of peaks: {len(maxima)} with threshold: {peak_threshold}")
 
     # get intervals
-    minima_interval, maxima_interval = get_time_intervals(minima_index, maxima_index)
-    logger.info(
-        f"Minima interval: {minima_interval}, average: {round(mean(minima_interval), 2)}"
-    )
-    logger.info(
-        f"Maxima interval: {maxima_interval}, average: {round(mean(maxima_interval), 2)}"
-    )
+    # minima_interval, maxima_interval = get_time_intervals(minima_index, maxima_index)
+    # logger.info(
+    #     f"Minima interval: {minima_interval}, average: {round(mean(minima_interval), 2)}"
+    # )
+    # logger.info(
+    #     f"Maxima interval: {maxima_interval}, average: {round(mean(maxima_interval), 2)}"
+    # )
 
     return {
         "t": t,
@@ -77,8 +84,9 @@ def create_breathing_graph(breathing_data: dict, save_path: Path) -> int:
     # plot graph
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
+    plt.title(f"{save_path.stem} Pressure Heat Map")
     ax.set_xlabel("Time (s)")
-    ax.set_ylabel("Total Pressure")
+    ax.set_ylabel("Average Voltage [mV]")
     ax.plot(breathing_data["t"], breathing_data["clean_data"])
     ax.plot(breathing_data["minima_index"] / 2, breathing_data["minima"], "x")
     ax.plot(breathing_data["maxima_index"] / 2, breathing_data["maxima"], "x")
@@ -94,9 +102,13 @@ def create_breathing_graph(breathing_data: dict, save_path: Path) -> int:
 
 def get_breathing_from_csv(csv_path: str) -> List[int]:
     result = get_data_from_csv(csv_path=csv_path)
-    data = filter_garbage(total_list=result)
 
-    return get_total_sum(data=data)
+    # TODO: FIX THIS FOR FULL MAT
+    data = filter_garbage_wo_timestamp(total_list=result)  # For prototype mat
+    # data = filter_garbage(total_list=result)  # For Full mat
+
+    vout = get_vout_from_adc(adc=np.array(data))
+    return get_total_average(data=vout)
 
 
 def create_breathing_pattern(csv_path: str) -> str:
@@ -112,4 +124,4 @@ def create_breathing_pattern(csv_path: str) -> str:
 
 
 if __name__ == "__main__":
-    create_breathing_pattern(csv_path="pressure_data/03-11-22.csv")
+    create_breathing_pattern(csv_path="pressure_data/Ayo_breathing5.csv")

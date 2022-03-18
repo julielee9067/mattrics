@@ -8,9 +8,9 @@ import seaborn
 
 from core.constants import NUM_COL, NUM_ROW
 from core.util_functions import (
-    apply_fit_curve,
     convert_list_to_np_array,
     filter_garbage,
+    filter_garbage_wo_timestamp,
     get_data_from_csv,
     get_node_average,
     get_vout_from_adc,
@@ -23,17 +23,22 @@ def get_pressure_data_from_csv(csv_path: str, is_calibrated: bool) -> List[int]:
     total_list = get_data_from_csv(csv_path=csv_path)
 
     if is_calibrated:
-        print(total_list[-1])
         calibration_data = [int(node) for node in total_list[-1] if node != ""]
         total_list = total_list[:-1]
         filtered_data = filter_garbage(total_list=total_list)
         avg_data = get_node_average(data=np.array(filtered_data))
         result = subtract(a=avg_data, b=calibration_data)
         logger.info(f"calibrated data: {result}")
-
         return result
 
     filtered_data = filter_garbage(total_list=total_list)
+    result = get_node_average(data=np.array(filtered_data))
+    result = get_vout_from_adc(adc=result)
+    return result
+
+
+def get_pressure_data_from_db(raw_data: List) -> List[int]:
+    filtered_data = filter_garbage_wo_timestamp(total_list=raw_data)
     result = get_node_average(data=np.array(filtered_data))
     result = get_vout_from_adc(adc=result)
     return result
@@ -44,12 +49,9 @@ def plot_heatmap(
 ):
     plt.style.use("seaborn")
     plt.figure(figsize=(num_col, num_row))
-    plt.title(f"{title} Pressure Heat Map", fontsize=50)
-    hm = seaborn.heatmap(data, linewidth=0.30, annot=False, cmap="Blues")
-    cbar = hm.collections[0].colorbar
-    cbar.ax.tick_params(labelsize=50)
-    plt.tick_params(axis="y", labelsize=30)
-    plt.tick_params(axis="x", labelsize=30)
+    plt.title(f"{title} Pressure Heat Map")
+    print(data)
+    seaborn.heatmap(data, linewidth=0.30, annot=False, cmap="Blues")
     plt.savefig(save_path)
     plt.clf()
     plt.cla()
@@ -91,8 +93,8 @@ def create_pressure_heatmap(data: np.array, title: str = "") -> str:
 
 
 if __name__ == "__main__":
-    csv_path = "pressure_data/Jules_fullmat_2.csv"
-    data = get_final_pressure_data(is_calibrated=True, csv_path=csv_path)
+    csv_path = "pressure_data/Ayo_breathing1.csv"
+    data = get_final_pressure_data(is_calibrated=False, csv_path=csv_path)
     create_pressure_heatmap(data=data, title=Path(csv_path).stem)
 
     # first = "pressure_data/test5_delay_fixed_210g.csv"

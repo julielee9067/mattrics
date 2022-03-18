@@ -1,8 +1,10 @@
+import statistics
 from datetime import datetime, timedelta
+from typing import List
 
 import mysql.connector
 
-from core.constants import PATIENT_ID
+from core.constants import NUM_CYCLE, PATIENT_ID, TOTAL_NUM_NODES
 from core.secrets.secret_config import MYSQL_SECRET
 from utils import logger
 
@@ -12,23 +14,26 @@ class DatabaseConnector:
         self.connection = mysql.connector.connect(**MYSQL_SECRET)
         self.cursor = self.connection.cursor()
 
-    def get_raw_data(self, recorded_date: datetime = datetime.now()) -> str:
-        start_timestamp = (recorded_date - timedelta(days=1)).replace(hour=12)
-        end_timestamp = recorded_date.replace(hour=12)
-
-        logger.info(
-            f"Searching for data between: {start_timestamp} and {end_timestamp}"
+    def get_raw_data(self) -> List[List]:
+        query = f"SELECT body FROM Test ORDER BY created_date DESC LIMIT {NUM_CYCLE}"
+        self.cursor.execute(
+            query,
         )
-        query = "SELECT body FROM RawData WHERE patientId = %s AND recorded_date BETWEEN %s AND %s"
-        data = (PATIENT_ID, start_timestamp, end_timestamp)
-        self.cursor.execute(query, data)
         result = self.cursor.fetchall()
 
-        res = ""
-        for item in result:
-            for i in item:
-                res += i
+        res = []
+        for record in result:
+            for mat_data in record:
+                converted_data = [int(val) for val in mat_data.split(",") if val != ""]
+                converted_data[0] = int(statistics.mean(converted_data))
+                while len(converted_data) < TOTAL_NUM_NODES:
+                    converted_data.insert(0, int(statistics.mean(converted_data)))
+                print(len(converted_data))
+                print(converted_data)
+                # if len(converted_data) == TOTAL_NUM_NODES:
+                res.append(converted_data)
 
+        logger.info(f"Successfully found {len(res)} data: {res}")
         return res
 
     def insert_therapist(self, first_name: str, last_name: str, email: str):
@@ -108,7 +113,5 @@ class DatabaseConnector:
 
 if __name__ == "__main__":
     db_connector = DatabaseConnector()
-    raw_data = db_connector.get_raw_data(
-        recorded_date=(datetime(year=2022, month=3, day=11))
-    )
+    raw_data = db_connector.get_raw_data()
     print(raw_data)

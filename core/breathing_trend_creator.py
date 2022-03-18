@@ -1,3 +1,4 @@
+import statistics
 from datetime import datetime
 from typing import List, Tuple
 
@@ -50,7 +51,7 @@ def create_breathing_trend(csv_path: str) -> Tuple[str, float]:
     plt.cla()
     plt.close()
     logger.info(f"Successfully created breathing trend: {save_path}")
-    return save_path, 19.3
+    return save_path, round(statistics.mean(average_result), 2)
 
 
 if __name__ == "__main__":

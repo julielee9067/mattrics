@@ -44,13 +44,13 @@
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 // #define ITM_Port32(n)   (*((volatile unsigned long *)(0xE0000000+4*n)))
-#define NUM_NODES 	      36 // 6 by 6 prototype mat
-#define WAITTIME 	      30000 // time in seconds to sample mat before ending program
-#define CALIBRATION_TIME 	      10000 // time in seconds to calibrate mat
-#define CALIBRATION_DELAY 	      10 // time in milliseconds between mat callibration readings
-#define FILE_LINE_SIZE       5 * NUM_NODES// (9 + (4 * NUM_NODES) + NUM_NODES)
-#define VOLTAGE_THRESH        2.0
-#define VOLTAGE_THRESH_CNT    5
+#define NUM_NODES 	          36 // 6 by 6 prototype mat
+#define WAITTIME 	          15000 // time in seconds to sample mat before ending program
+#define SAMPLE_CYCLES 	      15
+#define SAMPLE_TIME           30000 // 30 seconds
+#define ADC_DELAY        	  5
+#define FILE_LINE_SIZE        5 * NUM_NODES// (9 + (4 * NUM_NODES) + NUM_NODES)
+
 
 /* USER CODE END PM */
 
@@ -75,7 +75,7 @@ DWORD fre_clust;
 uint32_t total, free_space;
 
 char date[13];
-char file_name[30] = "new6.csv";
+char file_name[30] = "Ayo_breathing1.csv";
 RTC_DateTypeDef nDate;
 RTC_TimeTypeDef nTime;
 
@@ -166,6 +166,7 @@ int main(void)
 
 
     int pressure_data[NUM_NODES] = {0};
+
 //
 //    /* Mount the SD card */
     fr = f_mount(&fs, "", 0);
@@ -179,18 +180,14 @@ int main(void)
 
 
     int cycle_cnt = 0;
+    int start_time = HAL_GetTick();
 
 
     // Wait for Button press
     while (HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin) == GPIO_PIN_SET){}
 
-    // Start time for 30 seconds to settle
-//    HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_SET);
-//    HAL_Delay(WAITTIME);
-//    HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_RESET);
-
     // LED to start writing
-    HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(GPIOC, GPIO_RGB_G_Pin, GPIO_PIN_SET);
 
 
     while (1)
@@ -209,12 +206,12 @@ int main(void)
 
       //
 //
-//      // TODO: Check timer. If pass 2 minutes, open SD card file, read data and write to UART
-      if (cycle_cnt >= 5) {
-  		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_RESET);
+//      if (cycle_cnt >= 5) {
+  	  if (checkTime(start_time)) {
+  		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_G_Pin, GPIO_PIN_RESET);
 
 		// Read SD card and send data to ESP8266 via UART
-		readSDCardSendUART();
+//		readSDCardSendUART();
 
 	    /* Unmount the default drive */
 		fr = f_mount(0, "", 0);
@@ -812,7 +809,7 @@ void samplePrototypeMat(int pwr_mux, int sense_mux, int* data)
 
 bool checkTime(uint32_t start_time) {
 
-  if((HAL_GetTick() - start_time) >= WAITTIME) // Run for 30 seconds
+  if((HAL_GetTick() - start_time) >= SAMPLE_TIME) // Run for 30 seconds
   {
 	  return true;
   }

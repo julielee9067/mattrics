@@ -76,7 +76,7 @@ DWORD fre_clust;
 uint32_t total, free_space;
 
 char date[13];
-char file_name[30] = "Jules_fullmat_3.csv";
+char file_name[30] = "panel3_250g.csv";
 RTC_DateTypeDef nDate;
 RTC_TimeTypeDef nTime;
 
@@ -185,24 +185,24 @@ int main(void)
     /*Wait for user button press to start the program*/
     while (HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin) == GPIO_PIN_SET){}
 
-//	// Set RED LED to start measuring calibration data with nothing on the mat
+	// Set RED LED to start measuring calibration data with nothing on the mat
 	HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_SET);
 
 	// Calibrate mat
-    calibrate(calibration_data, sizeof(calibration_data)/sizeof(*calibration_data)); // 30s
+    calibrate(calibration_data, sizeof(calibration_data)/sizeof(*calibration_data)); // 18s
 
     // Mat finished calibration, turn off RED LED
 	HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_RESET);
-//
-//	// Wait for user to put a weight on the mat
-//    while (HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin) == GPIO_PIN_SET){}
 
-////	 Set Blue LED
-//	HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_SET);
-//	// wait 15s for readign to settle
-	HAL_Delay(WAITTIME);
-//	// turn off blue LED
-//	HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_RESET);
+	// Wait for user to put a weight on the mat
+    while (HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin) == GPIO_PIN_SET){}
+
+	// Set Blue LED
+	HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_SET);
+	// wait 15s for reading to settle
+	HAL_Delay(WAITTIME); //15s
+	// turn off blue LED
+	HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_RESET);
 
     /*Open the file to write data to*/
     fr = f_open(&fil, file_name, FA_CREATE_ALWAYS | FA_WRITE) && FR_OK;
@@ -223,7 +223,7 @@ int main(void)
     	}
 
       /* Sample all nodes on mat */
-      sampleMat(pressure_data, sizeof(pressure_data)/sizeof(*pressure_data)); // 150s
+      sampleMat(pressure_data, sizeof(pressure_data)/sizeof(*pressure_data)); // 30s
 
       /* Write sampled data to SD card */
       logData2SDCard(pressure_data, NUM_NODES, true);

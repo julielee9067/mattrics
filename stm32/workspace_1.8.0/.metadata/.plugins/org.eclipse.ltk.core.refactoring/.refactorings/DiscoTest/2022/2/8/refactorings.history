@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<session version="1.0">
-<refactoring comment="Rename resource &apos;DiscoTest/Core/Inc/lwesp_opts_template.h&apos; to &apos;lwesp_opts.h&apos;" description="Rename resource &apos;lwesp_opts_template.h&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="Core/Inc/lwesp_opts_template.h" name="lwesp_opts.h" stamp="1645209209620" updateReferences="true"/>
-</session>

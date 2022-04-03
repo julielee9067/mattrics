@@ -43,11 +43,9 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-// #define ITM_Port32(n)   (*((volatile unsigned long *)(0xE0000000+4*n)))
-#define NUM_NODES 	         36 // 6 by 6 prototype mat
-#define WAITTIME 	         30000 // time in seconds to sample mat before ending program
-#define UART_BUF_SIZE 	     NUM_NODES*5 // 4 byte for each node + comma
-#define FILE_LINE_SIZE       5 * NUM_NODES// (9 + (4 * NUM_NODES) + NUM_NODES)
+#define NUM_NODES 	     36
+#define WAITTIME 	     30000
+#define UART_BUF_SIZE 	     (NUM_NODES * 5 + 1)
 #define VOLTAGE_THRESH       2.0
 #define VOLTAGE_THRESH_CNT   5
 
@@ -112,7 +110,6 @@ void logData2SDCard(int *data, int len);
 void readSDCardSendUART();
 uint32_t getSpaceFree(void);
 
-
 /* Muxes */
 void muxInit(void);
 void selectChannel(int pin, int array[]);
@@ -163,68 +160,44 @@ int main(void)
 
   muxInit();
 
-
   int pressure_data[NUM_NODES] = {0};
-//
-//    /* Mount the SD card */
-  fr = f_mount(&fs, "", 0) && FR_OK;
 
+  /* USER CODE END 2 */
 
-//  /* USER CODE END 2 */
-//
-//  /* Infinite loop */
-//  /* USER CODE BEGIN WHILE */
-//
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
 
+  while (HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin) == GPIO_PIN_SET){}
 
-  int cycle_cnt = 0;
+  HAL_GPIO_WritePin(GPIOC, GPIO_RGB_G_Pin, GPIO_PIN_SET);
 
-
-    // Wait for Button press
-    while (HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin) == GPIO_PIN_SET){}
-//
-//    // Start time for 30 seconds to settle
-    HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_SET);
-    HAL_Delay(WAITTIME);
-    HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_SET);
-
-    /*Open the file*/
-    fr = f_open(&fil, file_name, FA_CREATE_ALWAYS | FA_WRITE) && FR_OK;
-
-    while (1)
-    {
+  while (HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin) == GPIO_PIN_SET)
+  {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    samplePrototypeMat(0, 0, pressure_data);
 
-    	if (fr != FR_OK) {
-    		Error_Handler();
-    	}
+    char test[6] = {0};
+    char start_tx = '<';
 
-//    	sampleSingleSquare(0,0,0,0);
-    	samplePrototypeMat(0, 0, pressure_data);
-
-//      /* Write to SD card */
-    	logData2SDCard(pressure_data, sizeof(pressure_data)/sizeof(*pressure_data));
-    	HAL_Delay(50);
-
-
-      if (cycle_cnt >= 15) {
-  		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_RESET);
-
-		// Read SD card and send data to ESP8266 via UART
-//		readSDCardSendUART();
-
-	    /* Unmount the default drive */
-  		fr = f_close(&fil);
-		fr = f_mount(0, "", 0);
-
-	    exit(0);
+    for (int n = 0; n < NUM_NODES; ++n)
+    {
+      if (n == 0)
+      {
+	 HAL_UART_Transmit(&huart3, &start_tx, sizeof(char), HAL_MAX_DELAY);
+	 HAL_Delay(15);
       }
 
-      cycle_cnt++;
+      sprintf(test, "%d >", pressure_data[n]);
+      HAL_UART_Transmit(&huart3, (uint8_t*)test, sizeof(test), HAL_MAX_DELAY);
+      HAL_Delay(15);
     }
+  }
+
+  HAL_GPIO_WritePin(GPIOC, GPIO_RGB_G_Pin, GPIO_PIN_RESET);
+
+  exit(0);
   /* USER CODE END 3 */
 }
 
@@ -623,13 +596,13 @@ int _write(int file, char* ptr, int len)
     * @param  :
     * @retval :
     */
-void logData2SDCard(int *data, int len)
+/*void logData2SDCard(int *data, int len)
 {
-	/* Make space for line of data */
+	/* Make space for line of data
     f_lseek(&fil, FILE_LINE_SIZE);
     f_lseek(&fil, f_size(&fil));
 
-	/* Construct string to put into file */
+	/* Construct string to put into file
     for(int node = 0; node < len - 1; node++)
     {
         fr = f_printf(&fil, "%d,", data[node]) && FR_OK;
@@ -639,24 +612,24 @@ void logData2SDCard(int *data, int len)
 
     // Flush file after every mat reading
     fr = f_sync(&fil) && FR_OK;
-}
+}*/
 
-void readSDCardSendUART() {
+/* void readSDCardSendUART() {
 
     f_open(&fil, file_name, FA_READ); // Data can be read from file
-    char line[FILE_LINE_SIZE]; /* Line buffer */
+    char line[FILE_LINE_SIZE]; /* Line buffer
 
-    /*Read every line*/
+    /*Read every line
     while (f_gets(line, sizeof line, &fil)) {
     	// Send to UART
     	HAL_UART_Transmit(&huart3, (uint16_t *)line, sizeof(line), HAL_MAX_DELAY);
     	HAL_Delay(100);
     }
 
-	/* Close the file */
+	/* Close the file
 	fr = f_close(&fil);
 
-}
+}*/
 
 uint32_t getSpaceFree(void)
 {
@@ -776,25 +749,27 @@ int readPressure(void)
     * @param  :
     * @retval :
     */
-void samplePrototypeMat(int pwr_mux, int sense_mux, int* data) {
-	int array_cnt = 0;
-	enableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
-	enableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
+void samplePrototypeMat(int pwr_mux, int sense_mux, int* data)
+{
+  int array_cnt = 0;
+  enableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
+  enableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
 
-	for (int pwr_sel = 0; pwr_sel < 6; pwr_sel++) {
-		selectChannel(pwr_sel, pwrMuxSelect);
-		for (int sense_sel = 0; sense_sel < 6; sense_sel++) {
+  for (int pwr_sel = 0; pwr_sel < 6; pwr_sel++)
+  {
+    selectChannel(pwr_sel, pwrMuxSelect);
+    for (int sense_sel = 0; sense_sel < 6; sense_sel++)
+    {
+      selectChannel(sense_sel, senseMuxSelect);
 
-			selectChannel(sense_sel, senseMuxSelect);
+      /* Read voltage */
+      int raw_ADC_pressure = readPressure();
 
-			/* Read voltage */
-			int raw_ADC_pressure = readPressure();
-
-			data[array_cnt] = raw_ADC_pressure;
-			array_cnt++;
-		}
-	}
-
+      data[array_cnt] = raw_ADC_pressure;
+      // data[array_cnt] = array_cnt;
+      array_cnt++;
+    }
+  }
 }
 
 /**

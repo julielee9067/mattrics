@@ -15,6 +15,7 @@
   *
   ******************************************************************************
   */
+
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -31,27 +32,16 @@
 
 /* USER CODE END Includes */
 
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
-
-/* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-
-/* USER CODE END PD */
-
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-// #define ITM_Port32(n)   (*((volatile unsigned long *)(0xE0000000+4*n)))
-#define NUM_NODES 	          1824 // missing 7 rows on the mat
-#define WAITTIME 	          15000 // time in seconds to sample mat before ending program
-#define CALIBRATION_DELAY 	  10 // time in milliseconds between mat callibration readings
+#define NUM_NODES 	          1824 									/* missing 7 rows on the mat */
+#define WAIT_TIME 	          20000 								/* time in seconds to sample mat before ending program */
+#define CALIBRATION_DELAY 	  10 									/* time in milliseconds between mat calibration readings */
 #define CALIBRATION_CYCLES 	  3
 #define SAMPLE_CYCLES 	      5
 #define ADC_DELAY        	  3
-#define RUNTIME 	          10000 // time in seconds to sample mat before ending program
-#define FILE_LINE_SIZE        (9 + (4 * NUM_NODES) + NUM_NODES) // time + (ADC integer reading (4 bytes) + comma)*NUM_NODES
+#define RUNTIME 	          10000 								/* time in seconds to sample mat before ending program */
+#define FILE_LINE_SIZE        (9 + (4 * NUM_NODES) + NUM_NODES) 	/* time + (ADC integer reading (4 bytes) + comma)*NUM_NODES */
 
 /* USER CODE END PM */
 
@@ -69,14 +59,15 @@ UART_HandleTypeDef huart3;
 /* USER CODE BEGIN PV */
 /* SD card-related variables */
 FATFS fs;
-FRESULT fr = FR_OK;     /* FatFs return code */
+FRESULT fr = FR_OK;
 FIL fil;
 FATFS *pfs;
 DWORD fre_clust;
 uint32_t total, free_space;
 
 char date[13];
-char file_name[30] = "Jules_fullmat_3.csv";
+char file_name[30] = "data0.csv";
+
 RTC_DateTypeDef nDate;
 RTC_TimeTypeDef nTime;
 
@@ -103,6 +94,7 @@ static void MX_I2C1_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_RTC_Init(void);
+
 /* USER CODE BEGIN PFP */
 /* SD card */
 int _write(int file, char* ptr, int len);
@@ -110,7 +102,6 @@ void writeCurrentTime(void);
 void logData2SDCard(int data[], int len, bool write_timestamp);
 void readSDCardSendUART();
 uint32_t getSpaceFree(void);
-
 
 /* Muxes */
 void muxInit(void);
@@ -124,10 +115,6 @@ void calibrate(int data[], int len);
 bool checkTime(uint32_t start_time);
 
 /* USER CODE END PFP */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-/* USER CODE END 0 */
 
 /**
   * @brief  The application entry point.
@@ -150,7 +137,6 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-    // ITM_Port32(31) = 1;
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -161,85 +147,85 @@ int main(void)
   MX_USART3_UART_Init();
   MX_FATFS_Init();
   MX_RTC_Init();
+
   /* USER CODE BEGIN 2 */
+  muxInit();
 
-    muxInit();
+  int pressure_data[NUM_NODES] = {0};
+  int calibration_data[NUM_NODES] = {0};
 
-    // int voltage_thresh_count = 0;
-    int pressure_data[NUM_NODES] = {0};
-    int calibration_data[NUM_NODES] = {0};
+  /* Mount the SD card */
+  fr = f_mount(&fs, "", 0) && FR_OK;
+  int cycle_cnt = 0;
 
-    //    /* Mount the SD card */
-    fr = f_mount(&fs, "", 0) && FR_OK;
-    int cycle_cnt = 0;
-
-//    HAL_RTC_GetDate(&hrtc, &nDate, RTC_FORMAT_BIN);
-//    sprintf(date, "%02u-%02u-%02u.csv", nDate.Month, nDate.Date, nDate.Year);
-
+  HAL_RTC_GetDate(&hrtc, &nDate, RTC_FORMAT_BIN);
+  sprintf(date, "%02u-%02u-%02u.csv", nDate.Month, nDate.Date, nDate.Year);
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-    /*Wait for user button press to start the program*/
-    while (HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin) == GPIO_PIN_SET){}
+  /* Wait for user button press to start the program */
+  while (HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin) == GPIO_PIN_SET){}
 
-//	// Set RED LED to start measuring calibration data with nothing on the mat
-	HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_SET);
+  /* Set RED LED to start measuring calibration data with nothing on the mat */
+  HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_SET);
 
-	// Calibrate mat
-    calibrate(calibration_data, sizeof(calibration_data)/sizeof(*calibration_data)); // 30s
+  /* Calibration */
+  calibrate(calibration_data, sizeof(calibration_data)/sizeof(*calibration_data)); // 30s
 
-    // Mat finished calibration, turn off RED LED
-	HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_RESET);
-//
-//	// Wait for user to put a weight on the mat
-//    while (HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin) == GPIO_PIN_SET){}
+  /* Reset the RED LED after calibration */
+  HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_RESET);
 
-////	 Set Blue LED
-//	HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_SET);
-//	// wait 15s for readign to settle
-	HAL_Delay(WAITTIME);
-//	// turn off blue LED
-//	HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_RESET);
+  /* Wait for user to get on the mat and press the button */
+  while (HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin) == GPIO_PIN_SET){}
 
-    /*Open the file to write data to*/
-    fr = f_open(&fil, file_name, FA_CREATE_ALWAYS | FA_WRITE) && FR_OK;
+  /* Set Blue LED */
+  HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_SET);
 
-	// Turn on green LED to indicate data logging
-	HAL_GPIO_WritePin(GPIOC, GPIO_RGB_G_Pin, GPIO_PIN_SET);
+  /* Wait for reading to settle */
+  HAL_Delay(WAIT_TIME);
 
-//    uint16_t start_time = HAL_GetTick();
+  /* Turn off blue LED */
+  HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_RESET);
 
-    while (1)
-    {
+  /*Open the file to write data to*/
+  fr = f_open(&fil, file_name, FA_CREATE_ALWAYS | FA_WRITE) && FR_OK;
+
+  uint16_t start_time = HAL_GetTick();
+
+  while(1)
+  {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 
-    	if (fr != FR_OK) {
-    		Error_Handler();
-    	}
+    if (fr != FR_OK)
+    {
+      Error_Handler();
+    }
 
-      /* Sample all nodes on mat */
-      sampleMat(pressure_data, sizeof(pressure_data)/sizeof(*pressure_data)); // 150s
+    /* Sample all nodes on mat */
+    sampleMat(pressure_data, sizeof(pressure_data)/sizeof(*pressure_data)); // 150s
 
-      /* Write sampled data to SD card */
-      logData2SDCard(pressure_data, NUM_NODES, true);
-  	  HAL_Delay(50);
+    /* Write sampled data to SD card */
+    logData2SDCard(pressure_data, NUM_NODES, true);
+  	HAL_Delay(50);
 
-      // TODO: Check timer. If pass 2 minutes, open SD card file, read data and write to UART
-//      if (checkTime(start_time)) {
-  	  if (cycle_cnt >=SAMPLE_CYCLES) {
-  		  // Set Green pin to indicate logging is occuring
-		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_G_Pin, GPIO_PIN_RESET);
+    /* TODO: Check timer. If pass 2 minutes, open SD card file, read data and write to UART */
+    if (checkTime(start_time))
+    {
+  	  if (cycle_cnt >=SAMPLE_CYCLES)
+  	  {
+  		/* Set Green pin to indicate logging is occuring */
+		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_G_Pin, GPIO_PIN_SET);
 
-		// Write calibration data to SD card on the last row (without timestamp)
+		/* Write calibration data to SD card on the last row (without timestamp) */
 		logData2SDCard(calibration_data, NUM_NODES, false);
 
-		// Read SD card and send data to ESP8266 via UART
-//		readSDCardSendUART();
+		/* Read SD card and send data to ESP8266 via UART */
+		readSDCardSendUART();
 
 	    /* Unmount the default drive */
   		fr = f_close(&fil);
@@ -250,6 +236,7 @@ int main(void)
 
       cycle_cnt++;
     }
+
   /* USER CODE END 3 */
 }
 
@@ -296,6 +283,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC;
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
@@ -544,23 +532,23 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
-  /*Configure GPIO pin Output Level */
+  /* Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, SENSE_EN6_L_Pin|SENSE_EN7_L_Pin|SENSE_EN8_L_Pin|PWR_MUX_IN_Pin
                           |SENSE_EN2_L_Pin|SENSE_EN1_L_Pin|PWR_EN3_L_Pin|PWR_EN2_L_Pin
                           |GPIO_RGB_B_Pin|GPIO_RGB_G_Pin|GPIO_RGB_R_Pin|WIFI_EN_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin Output Level */
+  /* Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, SENSE_S1_Pin|SENSE_S2_Pin|SENSE_S3_Pin|PWR_S1_Pin
                           |PWR_S2_Pin|PWR_S3_Pin|PWR_EN4_L_Pin|MCU_PA12_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin Output Level */
+  /* Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, PWR_EN1_L_Pin|MCU_BOOT1_Pin|SENSE_EN3_L_Pin|SENSE_EN4_L_Pin
                           |SENSE_EN5_L_Pin|SPI_CS2_L_Pin|SD_CS_L_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin Output Level */
+  /* Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(WIFI_RST_GPIO_Port, WIFI_RST_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : SENSE_EN6_L_Pin SENSE_EN7_L_Pin SENSE_EN8_L_Pin PWR_MUX_IN_Pin
+  /* Configure GPIO pins : SENSE_EN6_L_Pin SENSE_EN7_L_Pin SENSE_EN8_L_Pin PWR_MUX_IN_Pin
                            SENSE_EN2_L_Pin SENSE_EN1_L_Pin PWR_EN3_L_Pin PWR_EN2_L_Pin
                            GPIO_RGB_B_Pin GPIO_RGB_G_Pin GPIO_RGB_R_Pin WIFI_EN_Pin */
   GPIO_InitStruct.Pin = SENSE_EN6_L_Pin|SENSE_EN7_L_Pin|SENSE_EN8_L_Pin|PWR_MUX_IN_Pin
@@ -612,327 +600,343 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 /**
-    * @brief
-    * @param  :
-    * @retval :
-    */
+  * @brief
+  * @param  :
+  * @retval :
+  */
 void writeCurrentTime(void)
 {
-    char time[10];
+  char time[10];
 
-    HAL_RTC_GetTime(&hrtc, &nTime, RTC_FORMAT_BIN);
-    sprintf(time, "%02u:%02u:%02u,", nTime.Hours, nTime.Minutes, nTime.Seconds);
-    f_lseek(&fil, f_size(&fil));
-    fr = f_printf( &fil, "%s", time);
+  HAL_RTC_GetTime(&hrtc, &nTime, RTC_FORMAT_BIN);
+  sprintf(time, "%02u:%02u:%02u,", nTime.Hours, nTime.Minutes, nTime.Seconds);
+  f_lseek(&fil, f_size(&fil));
+  fr = f_printf( &fil, "%s", time);
 }
 
 /**
-    * @brief  Change _write function in stdio to be used in printf to redirect output to the SWV.
-    * @param  file: name of file to write to
-    * @param  ptr: data to write
-    * @param len: length of data to write
-    * @retval len: length of data to write
-    */
+  * @brief  Change _write function in stdio to be used in printf to redirect output to the SWV.
+  * @param  file: name of file to write to
+  * @param  ptr: data to write
+  * @param len: length of data to write
+  * @retval len: length of data to write
+  */
 int _write(int file, char* ptr, int len)
 {
-	int data_index;
-	for (data_index = 0; data_index < len; data_index++)
-	{
-		ITM_SendChar(*ptr++);
-	}
-	return len;
+  int data_index;
+  for (data_index = 0; data_index < len; data_index++)
+  {
+	ITM_SendChar(*ptr++);
+  }
+
+  return len;
 }
 
 /**
-    * @brief
-    * @param  :
-    * @retval :
-    */
+  * @brief
+  * @param  :
+  * @retval :
+  */
 void logData2SDCard(int data[], int len, bool write_timestamp)
 {
 
-    /* Make space for line of data */
-    f_lseek(&fil, FILE_LINE_SIZE);
-    f_lseek(&fil, f_size(&fil));
+  /* Make space for line of data */
+  f_lseek(&fil, FILE_LINE_SIZE);
+  f_lseek(&fil, f_size(&fil));
 
-    if (write_timestamp) {
-    	writeCurrentTime();
-    }
+  if (write_timestamp)
+  {
+   	writeCurrentTime();
+  }
 
-	/* Construct string to put into file */
-    for(int node = 0; node < len - 1; node++) {
-        fr = f_printf(&fil, "%d,", data[node]) && FR_OK;
-    }
+  /* Construct string to put into file */
+  for(int node = 0; node < len - 1; node++)
+  {
+    fr = f_printf(&fil, "%d,", data[node]) && FR_OK;
+  }
 
-    fr = f_printf(&fil, "%d\n", data[len - 1]) && FR_OK;
+  fr = f_printf(&fil, "%d\n", data[len - 1]) && FR_OK;
 
-    // Flush file after every mat reading
-    fr = f_sync(&fil) && FR_OK;
+  /* Flush file after every mat reading */
+  fr = f_sync(&fil) && FR_OK;
 
 }
 
-void readSDCardSendUART() {
+void readSDCardSendUART()
+{
+  f_open(&fil, file_name, FA_READ); // Data can be read from file
+  char line[FILE_LINE_SIZE]; /* Line buffer */
 
-    f_open(&fil, file_name, FA_READ); // Data can be read from file
-    char line[FILE_LINE_SIZE]; /* Line buffer */
+  int cnt = 1;
 
-    int cnt = 1;
-
-    /*Read every line*/
-    while (f_gets(line, sizeof line, &fil)) {
-    	if (cnt > 2) { // skip first 2 lines of SD card bc of garbage values
-        	// Send to UART
-        	HAL_UART_Transmit(&huart3, (uint8_t *)line, sizeof(line), HAL_MAX_DELAY);
-        	HAL_Delay(2000);
-    	}
-    	cnt++;
+  /* Read every line*/
+  while (f_gets(line, sizeof line, &fil))
+  {
+   	if (cnt > 2)
+   	{
+   	  /* Skip first 2 lines of SD card because of garbage values */
+      /* Send to UART */
+      HAL_UART_Transmit(&huart3, (uint8_t *)line, sizeof(line), HAL_MAX_DELAY);
+      HAL_Delay(2000);
     }
 
-	/* Close the file */
-	fr = f_close(&fil);
+   	cnt++;
+  }
 
+  /* Close the file */
+  fr = f_close(&fil);
 }
 
 
 uint32_t getSpaceFree(void)
 {
-	// TODO
-	return 1;
+  /* TODO */
+  return 1;
 }
 
 
 /**
-    * @brief
-    * @param  :
-    * @retval :
-    */
-void muxInit(void) {
-	/* Set load switch */
-	HAL_GPIO_WritePin(GPIOC, PWR_MUX_IN_Pin, GPIO_PIN_SET);
+  * @brief
+  * @param  :
+  * @retval :
+  */
+void muxInit(void)
+{
+  /* Set load switch */
+  HAL_GPIO_WritePin(GPIOC, PWR_MUX_IN_Pin, GPIO_PIN_SET);
 
-	/* All muxes are active low. We want to set them high (disabled) at startup */
-	for (int pwr_mux = 0; pwr_mux < 4; pwr_mux++)
-	{
-		disableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
-	}
-	for (int sense_mux = 0; sense_mux < 8; sense_mux++)
-	{
-		disableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
-	}
+  /* All muxes are active low. We want to set them high (disabled) at startup */
+  for (int pwr_mux = 0; pwr_mux < 4; pwr_mux++)
+  {
+	disableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
+  }
+
+  for (int sense_mux = 0; sense_mux < 8; sense_mux++)
+  {
+	disableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
+  }
 }
 
 /**
-    * @brief  Sets to S0, S1, and S2 select pins
-    */
-void selectChannel(int pin, int array[]) {
-	switch (pin) {
-		case 0:
-			HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_RESET);
-			break;
-		case 1:
-			HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_SET);
-			HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_RESET);
-			break;
-		case 2:
-			HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_SET);
-			HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_RESET);
-			break;
-		case 3:
-			HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_SET);
-			HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_SET);
-			HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_RESET);
-			break;
-		case 4:
-			HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_SET);
-			break;
-		case 5:
-			HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_SET);
-			HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_SET);
-			break;
-		case 6:
-			HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_SET);
-			HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_SET);
-			break;
-		case 7:
-			HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_SET);
-			HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_SET);
-			HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_SET);
-			break;
-	}
+  * @brief  Sets to S0, S1, and S2 select pins
+  */
+void selectChannel(int pin, int array[])
+{
+  switch (pin)
+  {
+	case 0:
+      HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_RESET);
+	  HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_RESET);
+	  HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_RESET);
+	  break;
+	case 1:
+	  HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_SET);
+	  HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_RESET);
+	  HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_RESET);
+	  break;
+	case 2:
+      HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_RESET);
+      HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_SET);
+      HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_RESET);
+      break;
+	case 3:
+	  HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_SET);
+	  HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_SET);
+	  HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_RESET);
+	  break;
+	case 4:
+	  HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_RESET);
+	  HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_RESET);
+	  HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_SET);
+	  break;
+	case 5:
+	  HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_SET);
+	  HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_RESET);
+	  HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_SET);
+	  break;
+	case 6:
+	  HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_RESET);
+	  HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_SET);
+	  HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_SET);
+	  break;
+	case 7:
+	  HAL_GPIO_WritePin(GPIOA, array[0], GPIO_PIN_SET);
+	  HAL_GPIO_WritePin(GPIOA, array[1], GPIO_PIN_SET);
+	  HAL_GPIO_WritePin(GPIOA, array[2], GPIO_PIN_SET);
+	  break;
+  }
 }
 
 /**
-    * @brief
-    * @param  :
-    * @retval :
-    */
+  * @brief
+  * @param  :
+  * @retval :
+  */
 void enableMux(GPIO_TypeDef *type, int pin)
 {
-	HAL_GPIO_WritePin(type,  pin,  GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(type,  pin,  GPIO_PIN_RESET);
 }
 
 /**
-    * @brief
-    * @param  :
-    * @retval :
-    */
+  * @brief
+  * @param  :
+  * @retval :
+  */
 void disableMux(GPIO_TypeDef *type, int pin)
 {
-	HAL_GPIO_WritePin(type,  pin,  GPIO_PIN_SET);
+  HAL_GPIO_WritePin(type,  pin,  GPIO_PIN_SET);
 }
 
 /**
-    * @brief  :
-    * @param  :
-    * @retval :
-    */
+  * @brief  :
+  * @param  :
+  * @retval :
+  */
 int readPressure(void)
 {
-	HAL_Delay(ADC_DELAY);
-	HAL_ADC_Start(&hadc);
-    HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY);
-    int data = HAL_ADC_GetValue(&hadc);
-    HAL_ADC_Stop(&hadc);
-    return data;
+  HAL_Delay(ADC_DELAY);
+  HAL_ADC_Start(&hadc);
+  HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY);
+  int data = HAL_ADC_GetValue(&hadc);
+  HAL_ADC_Stop(&hadc);
+
+  return data;
 }
 
-
-
 /**
-    * @brief  :
-    * @param  :
-    * @retval :
-    */
+  * @brief  :
+  * @param  :
+  * @retval :
+  */
 void sampleMat(int data[], int len)
 {
-    int array_cnt = 0;
+  int array_cnt = 0;
 
-    if (len != NUM_NODES) 
-    {
-        /* Wrongly sized array */ 
-        return;
-    }
+  if (len != NUM_NODES)
+  {
+    /* Wrongly sized array */
+    return;
+  }
 
-    for (int pwr_mux = 0; pwr_mux < 4; pwr_mux++) 
+  for (int pwr_mux = 0; pwr_mux < 4; pwr_mux++)
+  {
+    enableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
+	for (int pwr_sel = 0; pwr_sel < 8; pwr_sel++)
     {
-		enableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
-		for (int pwr_sel = 0; pwr_sel < 8; pwr_sel++) 
+	  selectChannel(pwr_sel, pwrMuxSelect);
+	  for (int sense_mux = 0; sense_mux < 8; sense_mux++)
+      {
+	    enableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
+		for (int sense_sel = 0; sense_sel < 8; sense_sel++)
         {
-			selectChannel(pwr_sel, pwrMuxSelect);
-			for (int sense_mux = 0; sense_mux < 8; sense_mux++) 
-            {
-				enableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
-				for (int sense_sel = 0; sense_sel < 8; sense_sel++) 
-                {
-				    if ((sense_mux == 0) && ((sense_sel == 0 ) || (sense_sel == 1)))
-				    {
-				       continue;
-				    }
+		  if ((sense_mux == 0) && ((sense_sel == 0 ) || (sense_sel == 1)))
+		  {
+		    continue;
+		  }
 
-				    if ((sense_mux == 7) && (sense_sel > 2))
-				    {
-				       continue;
-				    }
+		  if ((sense_mux == 7) && (sense_sel > 2))
+		  {
+			continue;
+		  }
 
-					selectChannel(sense_sel, senseMuxSelect);
+		  selectChannel(sense_sel, senseMuxSelect);
 
-					/* Read voltage */
-					int raw_ADC_pressure = readPressure();
+		  /* Read voltage */
+		  int raw_ADC_pressure = readPressure();
 
-					data[array_cnt] = raw_ADC_pressure;
-					array_cnt++;
-				}
-				disableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
-			}
+		  data[array_cnt] = raw_ADC_pressure;
+		  array_cnt++;
 		}
-		disableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
+
+		disableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
+	  }
 	}
+
+	disableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
+  }
 }
 
 /**
-    * @brief  :
-    * @param  :
-    * @retval :
-    */
+  * @brief  :
+  * @param  :
+  * @retval :
+  */
 void calibrateMat(int data[], int len)
 {
-    int array_cnt = 0;
+  int array_cnt = 0;
 
-    if (len != NUM_NODES)
-    {
-        /* Wrongly sized array */
-        return;
-    }
+  if (len != NUM_NODES)
+  {
+    /* Wrongly sized array */
+    return;
+  }
 
-    for (int pwr_mux = 0; pwr_mux < 4; pwr_mux++)
+  for (int pwr_mux = 0; pwr_mux < 4; pwr_mux++)
+  {
+	enableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
+	for (int pwr_sel = 0; pwr_sel < 8; pwr_sel++)
     {
-		enableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
-		for (int pwr_sel = 0; pwr_sel < 8; pwr_sel++)
+	  selectChannel(pwr_sel, pwrMuxSelect);
+	  for (int sense_mux = 0; sense_mux < 8; sense_mux++)
+      {
+	    enableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
+		for (int sense_sel = 0; sense_sel < 8; sense_sel++)
         {
-			selectChannel(pwr_sel, pwrMuxSelect);
-			for (int sense_mux = 0; sense_mux < 8; sense_mux++)
-            {
-				enableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
-				for (int sense_sel = 0; sense_sel < 8; sense_sel++)
-                {
-				    if ((sense_mux == 0) && ((sense_sel == 0 ) || (sense_sel == 1)))
-				    {
-				       continue;
-				    }
+		  if ((sense_mux == 0) && ((sense_sel == 0 ) || (sense_sel == 1)))
+		  {
+		    continue;
+          }
 
-				    if ((sense_mux == 7) && (sense_sel > 2))
-				    {
-				       continue;
-				    }
+		  if ((sense_mux == 7) && (sense_sel > 2))
+          {
+		    continue;
+		  }
 
-					selectChannel(sense_sel, senseMuxSelect);
+		  selectChannel(sense_sel, senseMuxSelect);
 
-					/* Read voltage */
-					int raw_ADC_pressure = readPressure();
-					data[array_cnt] += raw_ADC_pressure;
-					array_cnt++;
-				}
-				disableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
-			}
+		  /* Read voltage */
+		  int raw_ADC_pressure = readPressure();
+		  data[array_cnt] += raw_ADC_pressure;
+		  array_cnt++;
 		}
-		disableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
+
+	  disableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
+	  }
 	}
+
+  disableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
+  }
 }
 
 /**
-    * @brief  :
-    * @param  :
-    * @retval :
-    */
-void calibrate(int data[], int len) {
-	/* Calibrate over 10 mat readings */
-    /* Don't use time based calibration in case of overflow */
+  * @brief  :
+  * @param  :
+  * @retval :
+  */
+void calibrate(int data[], int len)
+{
+  /* Calibrate over CALIBRATION_CYCLES number of mat readings - Don't use time based calibration in case of overflow */
+  for(int round = 0; round < CALIBRATION_CYCLES; round++)
+  {
+    /* Sum x rounds for each point */
+    calibrateMat(data, len);
+  }
 
-    for(int round = 0; round < CALIBRATION_CYCLES; round++)
-    {
-        calibrateMat(data, len); // Add up x rounds for each point
-    }
-
-    // Take mean
-	for (int i = 0; i < len; i++) {
-		data[i] = round(data[i]/CALIBRATION_CYCLES); // take mean of each node over x rounds
-	}
+  /* Taking the mean */
+  for (int i = 0; i < len; i++)
+  {
+	/* Take mean of each node over x rounds */
+	data[i] = round(data[i]/CALIBRATION_CYCLES);
+  }
 }
 
-bool checkTime(uint32_t start_time) {
-
-  if((HAL_GetTick() - start_time) >= RUNTIME) // Run for 2 minutes
+bool checkTime(uint32_t start_time)
+{
+  if((HAL_GetTick() - start_time) >= RUNTIME)
   {
-	  return true;
+	return true;
   }
+
   return false;
 }
 
@@ -946,11 +950,11 @@ bool checkTime(uint32_t start_time) {
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-    /* User can add his own implementation to report the HAL error return state */
-    __disable_irq();
-    while (1)
-    {
-    }
+  /* User can add his own implementation to report the HAL error return state */
+  __disable_irq();
+  while (1)
+  {
+  }
   /* USER CODE END Error_Handler_Debug */
 }
 
@@ -965,8 +969,8 @@ void Error_Handler(void)
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
-    /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+  /* User can add his own implementation to report the file name and line number,
+  ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */

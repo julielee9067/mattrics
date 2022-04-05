@@ -15,8 +15,8 @@ from utils import logger
 
 
 def subtract(a, b) -> Any:
-    logger.info(f"A: {a}")
-    logger.info(f"B: {b}")
+    logger.info(f"{len(a)}, A: {a}")
+    logger.info(f"{len(b)}, B: {b}")
     logger.info(f"A-B: {np.subtract(a, b)}")
     return np.subtract(a, b) * -1
 
@@ -79,8 +79,7 @@ def filter_garbage(total_list: List) -> List:
             logger.warning(f"Ignoring row: {e}")
             continue
 
-        if len(new_r) == TOTAL_NUM_NODES:
-            res.append(new_r)
+        res.append(new_r[:TOTAL_NUM_NODES])
 
     logger.info(f"{len(res)} row found")
 

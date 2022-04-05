@@ -18,22 +18,23 @@ from utils import logger
 
 
 def get_listed_val_from_csv(csv_path: str) -> List[List]:
-    data = get_final_pressure_data(csv_path=csv_path, is_calibrated=False)
+    data = get_final_pressure_data(csv_path=csv_path, is_calibrated=True)
     listed_val = []
     for row in data:
-        listed_val.append(list(row))
+        listed_val.append([round(float(val), 2) for val in row])
 
     return listed_val
 
 
 def iterate_through_calibration_folder():
-    path_list = Path("pressure_data/Velostat Calibration Files/drained").rglob("*.csv")
+    path_list = Path("pressure_data/panel_1").rglob("*.csv")
     for path in path_list:
         path_in_str = str(path)
         logger.info(f"Parsing {path_in_str}")
 
         listed_val = get_listed_val_from_csv(csv_path=path_in_str)
-        weight = int(re.search(r"\d+", path_in_str)[0])
+        weight = int(re.findall(r"\d+", path_in_str)[-1])
+        logger.info(f"WEIGHT: {weight}")
         concatenated_data = list(np.concatenate(listed_val).flat)
         concatenated_data.insert(0, weight)
         write_1d_list_to_csv(
@@ -53,7 +54,7 @@ def plot_from_coeff(item, title):
     plt.style.use("seaborn")
 
     trend = np.polyfit(WEIGHTS, item, FIT_CURVE_DEGREE)
-    x_line = np.linspace(0, 210)
+    x_line = np.linspace(0, 2500)
     fit = np.polyval(trend, x_line)
     plt.plot(x_line, fit)
     plt.scatter(WEIGHTS, item)
@@ -78,6 +79,7 @@ if __name__ == "__main__":
 
     for values_per_weight in total_list:
         weight = int(float(values_per_weight[0]))
+        print(f"Weight converted: {weight}")
         float_converted = [float(val) for val in values_per_weight[1:]]
         vout_per_weight[weight] = create_2d_array_from_1d(
             original_array=float_converted, num_col=NUM_COL
@@ -88,11 +90,11 @@ if __name__ == "__main__":
         sorted_list.append(vout_per_weight[weight])
 
     stacked = stack_vout_vals(vout_vals=sorted_list)
-
     item_list = []
-    for col in stacked:
-        for item in col:
-            item_list.append(list(item))
-            coeff = get_fit_curve_coefficients(vout_data=item)
-            location = zip(*np.where(stacked == item))
-            plot_from_coeff(item=item, title=list(location)[0][:-1])
+    # print(list(stacked[13][31]))  # ROW AND THEN COLUMN
+    for r, row in enumerate(stacked):
+        for c, node in enumerate(row):
+            item_list.append(list(node))
+            coeff = get_fit_curve_coefficients(vout_data=node)
+            # location = zip(*np.where(stacked == list(item)))
+            plot_from_coeff(item=node, title=f"({c}, {r})")

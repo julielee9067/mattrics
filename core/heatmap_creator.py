@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn
 
-from core.constants import NUM_COL, NUM_ROW
+from core.constants import NUM_COL, NUM_ROW, TOTAL_NUM_NODES
 from core.util_functions import (
     convert_list_to_np_array,
     filter_garbage,
@@ -23,8 +23,10 @@ def get_pressure_data_from_csv(csv_path: str, is_calibrated: bool) -> List[int]:
     total_list = get_data_from_csv(csv_path=csv_path)
 
     if is_calibrated:
-        calibration_data = [int(node) for node in total_list[-1] if node != ""]
-        total_list = total_list[:-1]
+        calibration_data = [
+            int(node) for node in total_list[-1][:TOTAL_NUM_NODES] if node != ""
+        ]
+        # total_list = total_list[:-1]
         filtered_data = filter_garbage(total_list=total_list)
         avg_data = get_node_average(data=np.array(filtered_data))
         result = subtract(a=avg_data, b=calibration_data)
@@ -50,7 +52,6 @@ def plot_heatmap(
     plt.style.use("seaborn")
     plt.figure(figsize=(num_col, num_row))
     plt.title(f"{title} Pressure Heat Map")
-    print(data)
     seaborn.heatmap(data, linewidth=0.30, annot=False, cmap="Blues")
     plt.savefig(save_path)
     plt.clf()
@@ -93,8 +94,8 @@ def create_pressure_heatmap(data: np.array, title: str = "") -> str:
 
 
 if __name__ == "__main__":
-    csv_path = "pressure_data/Ayo_breathing1.csv"
-    data = get_final_pressure_data(is_calibrated=False, csv_path=csv_path)
+    csv_path = "pressure_data/panel_1/panel1_0g.csv"
+    data = get_final_pressure_data(is_calibrated=True, csv_path=csv_path)
     create_pressure_heatmap(data=data, title=Path(csv_path).stem)
 
     # first = "pressure_data/test5_delay_fixed_210g.csv"

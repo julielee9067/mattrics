@@ -1,22 +1,28 @@
-IS_FULL_MAT = False
+IS_FULL_MAT = True
+IS_CUT = True
 
 if not IS_FULL_MAT:
     NUM_COL = 6
     NUM_ROW = 6
     TOTAL_NUM_NODES = 36
 else:
-    NUM_COL = 32
-    NUM_ROW = 57
-    TOTAL_NUM_NODES = 1824
+    if IS_CUT:
+        NUM_COL = 32
+        NUM_ROW = 14
+        TOTAL_NUM_NODES = 448
+    else:
+        NUM_COL = 32
+        NUM_ROW = 57
+        TOTAL_NUM_NODES = 1824
 
-NUM_CYCLE = 4
+NUM_CYCLE = 8
 
 PATIENT_ID = 1
 VOUT_CONSTANT = 0.0008056641
 
-FIT_CURVE_DEGREE = 6
+FIT_CURVE_DEGREE = 4
 FIT_COEFFICIENTS = [[]]
-WEIGHTS = [0, 18, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180, 195, 210]
+WEIGHTS = [0, 200, 250, 300, 500, 700, 1800, 2500]
 
 VOUT_PER_WEIGHT = {
     0: [

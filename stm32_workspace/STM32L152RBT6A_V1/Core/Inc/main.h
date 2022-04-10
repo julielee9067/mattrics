@@ -109,6 +109,8 @@ void Error_Handler(void);
 #define GPIO_RGB_R_GPIO_Port GPIOC
 #define LS_FLAG_Pin GPIO_PIN_8
 #define LS_FLAG_GPIO_Port GPIOA
+#define TIM_TOGG_Pin GPIO_PIN_11
+#define TIM_TOGG_GPIO_Port GPIOA
 #define MCU_PA12_Pin GPIO_PIN_12
 #define MCU_PA12_GPIO_Port GPIOA
 #define UART_RX_Pin GPIO_PIN_10

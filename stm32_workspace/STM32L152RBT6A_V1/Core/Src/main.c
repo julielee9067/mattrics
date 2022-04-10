@@ -32,16 +32,31 @@
 
 /* USER CODE END Includes */
 
+/* Private typedef -----------------------------------------------------------*/
+/* USER CODE BEGIN PTD */
+
+/* USER CODE END PTD */
+
+/* Private define ------------------------------------------------------------*/
+/* USER CODE BEGIN PD */
+/* USER CODE END PD */
+
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-#define NUM_NODES 	          1824 									/* missing 7 rows on the mat */
-#define WAIT_TIME 	          20000 								/* time in seconds to sample mat before ending program */
-#define CALIBRATION_DELAY 	  10 									/* time in milliseconds between mat calibration readings */
-#define CALIBRATION_CYCLES 	  3
-#define SAMPLE_CYCLES 	      5
-#define ADC_DELAY        	  3
-#define RUNTIME 	          10000 								/* time in seconds to sample mat before ending program */
-#define FILE_LINE_SIZE        (9 + (4 * NUM_NODES) + NUM_NODES) 	/* time + (ADC integer reading (4 bytes) + comma)*NUM_NODES */
+#define NUM_NODES_FULL 	        1824 													/* Missing 7 rows on the mat */
+#define NUM_NODES_PARTIAL    	96 														/* Nodes selected for partial sampling */
+#define WAIT_TIME 	         	20000 													/* Time in ms to sample mat before ending program */
+#define CALIBRATION_DELAY 	 	10 														/* Time in ms between mat calibration readings */
+#define CALIBRATION_CYCLES 	 	3
+#define SAMPLE_CYCLES 	     	5
+#define ADC_DELAY        	 	3
+#define RUNTIME 	          	10000 													/* Time in ms to sample mat before ending program */
+// #define BREATHING_PERIOD		500													    /* Time in ms of breathing cycle sampling period */
+// #define PRESSURE_MAP_PERIOD		300000													/* Time in ms of pressure map cycle sampling period */
+#define BREATHING_PERIOD		500													    /* Time in ms of breathing cycle sampling period */
+#define PRESSURE_MAP_PERIOD		30000													/* Time in ms of pressure map cycle sampling period */
+#define FILE_LINE_SIZE_FULL   	(9 + (4 * NUM_NODES_FULL) + NUM_NODES_FULL) 			/* Time + (ADC integer reading (4 bytes) + comma) * NUM_NODES_FULL */
+#define FILE_LINE_SIZE_PARTIAL	(9 + (4 * NUM_NODES_PARTIAL) + NUM_NODES_PARTIAL) 		/* Time + (ADC integer reading (4 bytes) + comma) * NUM_NODES_PARTIAL */
 
 /* USER CODE END PM */
 
@@ -60,13 +75,15 @@ UART_HandleTypeDef huart3;
 /* SD card-related variables */
 FATFS fs;
 FRESULT fr = FR_OK;
-FIL fil;
+FIL pressure_map_fil;
+FIL breathing_fil;
 FATFS *pfs;
 DWORD fre_clust;
 uint32_t total, free_space;
 
 char date[13];
-char file_name[30] = "data0.csv";
+char pressure_map_file_name[30] = "pressure_map_data.csv";
+char breathing_file_name[30] = "breathing_data.csv";
 
 RTC_DateTypeDef nDate;
 RTC_TimeTypeDef nTime;
@@ -98,9 +115,9 @@ static void MX_RTC_Init(void);
 /* USER CODE BEGIN PFP */
 /* SD card */
 int _write(int file, char* ptr, int len);
-void writeCurrentTime(void);
-void logData2SDCard(int data[], int len, bool write_timestamp);
-void readSDCardSendUART();
+void writeCurrentTime(FIL* fil);
+void logData2SDCard(FIL* fil, int file_line_size, int data[], int len, bool write_timestamp);
+void readSDCardSendUART(FIL* fil, char* file_name, int file_line_size);
 uint32_t getSpaceFree(void);
 
 /* Muxes */
@@ -109,12 +126,18 @@ void selectChannel(int pin, int array[]);
 void enableMux(GPIO_TypeDef *type, int pin);
 void disableMux(GPIO_TypeDef *type, int pin);
 int readPressure(void);
-void sampleMat(int data[], int len);
+void sampleMatFull(int data[], int len);
+void sampleMatPartial(int data[], int len);
 void calibrateMat(int data[], int len);
 void calibrate(int data[], int len);
-bool checkTime(uint32_t start_time);
+bool checkTime(uint32_t start_time, int threshold);
 
 /* USER CODE END PFP */
+
+/* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
+
+/* USER CODE END 0 */
 
 /**
   * @brief  The application entry point.
@@ -151,15 +174,21 @@ int main(void)
   /* USER CODE BEGIN 2 */
   muxInit();
 
-  int pressure_data[NUM_NODES] = {0};
-  int calibration_data[NUM_NODES] = {0};
+  int pressure_map_data[NUM_NODES_FULL] = {0};
+  int breathing_data[NUM_NODES_PARTIAL] = {0};
+
+  int pressure_map_calibration_data[NUM_NODES_FULL] = {0};
+  int breathing_calibration_data[NUM_NODES_PARTIAL] = {0};
+
+  uint32_t breathing_time;
+  uint32_t pressure_map_time;
 
   /* Mount the SD card */
   fr = f_mount(&fs, "", 0) && FR_OK;
-  int cycle_cnt = 0;
+  // int cycle_cnt = 0;
 
-  HAL_RTC_GetDate(&hrtc, &nDate, RTC_FORMAT_BIN);
-  sprintf(date, "%02u-%02u-%02u.csv", nDate.Month, nDate.Date, nDate.Year);
+  // HAL_RTC_GetDate(&hrtc, &nDate, RTC_FORMAT_BIN);
+  // sprintf(date, "%02u-%02u-%02u.csv", nDate.Month, nDate.Date, nDate.Year);
 
   /* USER CODE END 2 */
 
@@ -172,8 +201,8 @@ int main(void)
   /* Set RED LED to start measuring calibration data with nothing on the mat */
   HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_SET);
 
-  /* Calibration */
-  calibrate(calibration_data, sizeof(calibration_data)/sizeof(*calibration_data)); // 30s
+  /* Calibration for 30s */
+  calibrate(pressure_map_calibration_data, sizeof(pressure_map_calibration_data)/sizeof(*pressure_map_calibration_data));
 
   /* Reset the RED LED after calibration */
   HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_RESET);
@@ -181,62 +210,121 @@ int main(void)
   /* Wait for user to get on the mat and press the button */
   while (HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin) == GPIO_PIN_SET){}
 
-  /* Set Blue LED */
-  HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_SET);
+  /* Set RED LED */
+  HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_SET);
 
   /* Wait for reading to settle */
   HAL_Delay(WAIT_TIME);
 
-  /* Turn off blue LED */
-  HAL_GPIO_WritePin(GPIOC, GPIO_RGB_B_Pin, GPIO_PIN_RESET);
+  /* Turn off RED LED */
+  HAL_GPIO_WritePin(GPIOC, GPIO_RGB_R_Pin, GPIO_PIN_RESET);
 
-  /*Open the file to write data to*/
-  fr = f_open(&fil, file_name, FA_CREATE_ALWAYS | FA_WRITE) && FR_OK;
+  /* Open the file to write pressure map data to */
+  fr = f_open(&pressure_map_fil, pressure_map_file_name, FA_CREATE_ALWAYS | FA_WRITE) && FR_OK;
 
-  uint16_t start_time = HAL_GetTick();
+  if (fr != FR_OK)
+  {
+	Error_Handler();
+  }
 
-  while(1)
+  /* Open the file to write breathing data to */
+  fr = f_open(&breathing_fil, breathing_file_name, FA_CREATE_ALWAYS | FA_WRITE) && FR_OK;
+
+  if (fr != FR_OK)
+  {
+	Error_Handler();
+  }
+
+  // uint16_t start_time = HAL_GetTick();
+  breathing_time = HAL_GetTick();
+  pressure_map_time = HAL_GetTick();
+
+  /* Set GREEN LED */
+  HAL_GPIO_WritePin(GPIOC, GPIO_RGB_G_Pin, GPIO_PIN_SET);
+
+  /* Button press stops the code */
+  while(HAL_GPIO_ReadPin(BTN_TEST_GPIO_Port, BTN_TEST_Pin) == GPIO_PIN_SET)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    /* Toggle timing GPIO */
+	// HAL_GPIO_WritePin(GPIOA, TIM_TOGG_Pin, GPIO_PIN_SET);
 
-    if (fr != FR_OK)
-    {
-      Error_Handler();
-    }
+	if (checkTime(breathing_time, BREATHING_PERIOD))
+	{
+      /* Toggle timing GPIO */
+      // HAL_GPIO_WritePin(GPIOA, TIM_TOGG_Pin, GPIO_PIN_SET);
 
-    /* Sample all nodes on mat */
-    sampleMat(pressure_data, sizeof(pressure_data)/sizeof(*pressure_data)); // 150s
+      /* Update timer */
+      breathing_time = HAL_GetTick();
 
-    /* Write sampled data to SD card */
-    logData2SDCard(pressure_data, NUM_NODES, true);
-  	HAL_Delay(50);
+	  /* Sample selected nodes on mat for breathing */
+	  sampleMatPartial(breathing_data, sizeof(breathing_data)/sizeof(*breathing_data));
 
-    /* TODO: Check timer. If pass 2 minutes, open SD card file, read data and write to UART */
-    if (checkTime(start_time))
-    {
-  	  if (cycle_cnt >=SAMPLE_CYCLES)
-  	  {
-  		/* Set Green pin to indicate logging is occuring */
-		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_G_Pin, GPIO_PIN_SET);
+	  /* Write sampled data to SD card */
+	  logData2SDCard(&breathing_fil, FILE_LINE_SIZE_PARTIAL, breathing_data, NUM_NODES_PARTIAL, true);
 
-		/* Write calibration data to SD card on the last row (without timestamp) */
-		logData2SDCard(calibration_data, NUM_NODES, false);
+	  /* Toggle timing GPIO */
+	  // HAL_GPIO_WritePin(GPIOA, TIM_TOGG_Pin, GPIO_PIN_RESET);
+	}
 
-		/* Read SD card and send data to ESP8266 via UART */
-		readSDCardSendUART();
+	if (checkTime(pressure_map_time, PRESSURE_MAP_PERIOD))
+	{
+	  /* Toggle timing GPIO */
+	  // HAL_GPIO_WritePin(GPIOA, TIM_TOGG_Pin, GPIO_PIN_SET);
 
-	    /* Unmount the default drive */
-  		fr = f_close(&fil);
-		fr = f_mount(0, "", 0);
+	  /* Update timer */
+	  pressure_map_time = HAL_GetTick();
 
-	    exit(0);
-      }
+	  /* Sample all nodes on mat */
+	  sampleMatFull(pressure_map_data, sizeof(pressure_map_data)/sizeof(*pressure_map_data));
 
-      cycle_cnt++;
-    }
+	  /* Write partial sampled data to SD card */
+	  logData2SDCard(&pressure_map_fil, FILE_LINE_SIZE_FULL, pressure_map_data, NUM_NODES_FULL, true);
 
+	  /* Toggle timing GPIO */
+	  // HAL_GPIO_WritePin(GPIOA, TIM_TOGG_Pin, GPIO_PIN_RESET);
+	}
+
+//    /* TODO: Check timer. If pass 2 minutes, open SD card file, read data and write to UART */
+//    if (checkTime(start_time, RUNTIME))
+//    {
+//  	  if (cycle_cnt >= SAMPLE_CYCLES)
+//  	  {
+//  		/* Set Green pin to indicate logging is occurring */
+//		HAL_GPIO_WritePin(GPIOC, GPIO_RGB_G_Pin, GPIO_PIN_SET);
+//
+//		/* Write calibration data to SD card on the last row (without timestamp) */
+//		logData2SDCard(pressure_map_calibration_data, NUM_NODES_FULL, false);
+//
+//		/* Read SD card and send data to ESP8266 via UART */
+//		readSDCardSendUART();
+//
+//	    /* Unmount the default drive */
+//  		fr = f_close(&fil);
+//		fr = f_mount(0, "", 0);
+//
+//	    break;
+//      }
+//
+//      cycle_cnt++;
+//    }
+
+	/* Toggle timing GPIO */
+	// HAL_GPIO_WritePin(GPIOA, TIM_TOGG_Pin, GPIO_PIN_RESET);
+  }
+
+  /* Turn off GREEN LED */
+  HAL_GPIO_WritePin(GPIOC, GPIO_RGB_G_Pin, GPIO_PIN_RESET);
+
+  /* Close the files and unmount the default drive */
+  fr = f_close(&pressure_map_fil);
+  fr = f_close(&breathing_fil);
+
+  fr = f_mount(0, "", 0);
+
+  return EXIT_SUCCESS;
   /* USER CODE END 3 */
 }
 
@@ -283,7 +371,6 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC;
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
@@ -532,23 +619,24 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
-  /* Configure GPIO pin Output Level */
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, SENSE_EN6_L_Pin|SENSE_EN7_L_Pin|SENSE_EN8_L_Pin|PWR_MUX_IN_Pin
                           |SENSE_EN2_L_Pin|SENSE_EN1_L_Pin|PWR_EN3_L_Pin|PWR_EN2_L_Pin
                           |GPIO_RGB_B_Pin|GPIO_RGB_G_Pin|GPIO_RGB_R_Pin|WIFI_EN_Pin, GPIO_PIN_RESET);
 
-  /* Configure GPIO pin Output Level */
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, SENSE_S1_Pin|SENSE_S2_Pin|SENSE_S3_Pin|PWR_S1_Pin
-                          |PWR_S2_Pin|PWR_S3_Pin|PWR_EN4_L_Pin|MCU_PA12_Pin, GPIO_PIN_RESET);
+                          |PWR_S2_Pin|PWR_S3_Pin|PWR_EN4_L_Pin|TIM_TOGG_Pin
+                          |MCU_PA12_Pin, GPIO_PIN_RESET);
 
-  /* Configure GPIO pin Output Level */
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, PWR_EN1_L_Pin|MCU_BOOT1_Pin|SENSE_EN3_L_Pin|SENSE_EN4_L_Pin
                           |SENSE_EN5_L_Pin|SPI_CS2_L_Pin|SD_CS_L_Pin, GPIO_PIN_RESET);
 
-  /* Configure GPIO pin Output Level */
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(WIFI_RST_GPIO_Port, WIFI_RST_Pin, GPIO_PIN_RESET);
 
-  /* Configure GPIO pins : SENSE_EN6_L_Pin SENSE_EN7_L_Pin SENSE_EN8_L_Pin PWR_MUX_IN_Pin
+  /*Configure GPIO pins : SENSE_EN6_L_Pin SENSE_EN7_L_Pin SENSE_EN8_L_Pin PWR_MUX_IN_Pin
                            SENSE_EN2_L_Pin SENSE_EN1_L_Pin PWR_EN3_L_Pin PWR_EN2_L_Pin
                            GPIO_RGB_B_Pin GPIO_RGB_G_Pin GPIO_RGB_R_Pin WIFI_EN_Pin */
   GPIO_InitStruct.Pin = SENSE_EN6_L_Pin|SENSE_EN7_L_Pin|SENSE_EN8_L_Pin|PWR_MUX_IN_Pin
@@ -560,9 +648,11 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : SENSE_S1_Pin SENSE_S2_Pin SENSE_S3_Pin PWR_S1_Pin
-                           PWR_S2_Pin PWR_S3_Pin PWR_EN4_L_Pin MCU_PA12_Pin */
+                           PWR_S2_Pin PWR_S3_Pin PWR_EN4_L_Pin TIM_TOGG_Pin
+                           MCU_PA12_Pin */
   GPIO_InitStruct.Pin = SENSE_S1_Pin|SENSE_S2_Pin|SENSE_S3_Pin|PWR_S1_Pin
-                          |PWR_S2_Pin|PWR_S3_Pin|PWR_EN4_L_Pin|MCU_PA12_Pin;
+                          |PWR_S2_Pin|PWR_S3_Pin|PWR_EN4_L_Pin|TIM_TOGG_Pin
+                          |MCU_PA12_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -600,26 +690,26 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 /**
-  * @brief
-  * @param  :
-  * @retval :
+  * @brief Writes the current time to the file
+  * @param None
+  * @retval None
   */
-void writeCurrentTime(void)
+void writeCurrentTime(FIL* fil)
 {
   char time[10];
 
   HAL_RTC_GetTime(&hrtc, &nTime, RTC_FORMAT_BIN);
   sprintf(time, "%02u:%02u:%02u,", nTime.Hours, nTime.Minutes, nTime.Seconds);
-  f_lseek(&fil, f_size(&fil));
-  fr = f_printf( &fil, "%s", time);
+  f_lseek(fil, f_size(fil));
+  fr = f_printf( fil, "%s", time);
 }
 
 /**
-  * @brief  Change _write function in stdio to be used in printf to redirect output to the SWV.
-  * @param  file: name of file to write to
-  * @param  ptr: data to write
+  * @brief Change _write function in stdio to be used in printf to redirect output to the SWV
+  * @param file: name of file to write to
+  * @param ptr: data to write
   * @param len: length of data to write
-  * @retval len: length of data to write
+  * @retval int: length of data to write
   */
 int _write(int file, char* ptr, int len)
 {
@@ -633,44 +723,50 @@ int _write(int file, char* ptr, int len)
 }
 
 /**
-  * @brief
-  * @param  :
-  * @retval :
+  * @brief Write data to the SD card
+  * @param data: buffer with data to write
+  * @param len: length of the data to write
+  * @param write_timestamp: controls if the add a time stamp to the entry at the front
+  * @retval None
   */
-void logData2SDCard(int data[], int len, bool write_timestamp)
+void logData2SDCard(FIL* fil, int file_line_size, int data[], int len, bool write_timestamp)
 {
-
   /* Make space for line of data */
-  f_lseek(&fil, FILE_LINE_SIZE);
-  f_lseek(&fil, f_size(&fil));
+  f_lseek(fil, file_line_size);
+  f_lseek(fil, f_size(fil));
 
   if (write_timestamp)
   {
-   	writeCurrentTime();
+   	writeCurrentTime(fil);
   }
 
   /* Construct string to put into file */
   for(int node = 0; node < len - 1; node++)
   {
-    fr = f_printf(&fil, "%d,", data[node]) && FR_OK;
+    fr = f_printf(fil, "%d,", data[node]) && FR_OK;
   }
 
-  fr = f_printf(&fil, "%d\n", data[len - 1]) && FR_OK;
+  fr = f_printf(fil, "%d\n", data[len - 1]) && FR_OK;
 
   /* Flush file after every mat reading */
-  fr = f_sync(&fil) && FR_OK;
+  fr = f_sync(fil) && FR_OK;
 
 }
 
-void readSDCardSendUART()
+/**
+  * @brief Read data from the SD card and send it over UART
+  * @param None
+  * @retval None
+  */
+void readSDCardSendUART(FIL* fil, char* file_name, int file_line_size)
 {
-  f_open(&fil, file_name, FA_READ); // Data can be read from file
-  char line[FILE_LINE_SIZE]; /* Line buffer */
+  f_open(fil, file_name, FA_READ); // Data can be read from file
+  char line[file_line_size]; /* Line buffer */
 
   int cnt = 1;
 
   /* Read every line*/
-  while (f_gets(line, sizeof line, &fil))
+  while (f_gets(line, sizeof line, fil))
   {
    	if (cnt > 2)
    	{
@@ -684,10 +780,14 @@ void readSDCardSendUART()
   }
 
   /* Close the file */
-  fr = f_close(&fil);
+  fr = f_close(fil);
 }
 
-
+/**
+  * @brief Gets space left in the SD card
+  * @param None
+  * @retval uint32_t: space left in SD card
+  */
 uint32_t getSpaceFree(void)
 {
   /* TODO */
@@ -696,9 +796,9 @@ uint32_t getSpaceFree(void)
 
 
 /**
-  * @brief
-  * @param  :
-  * @retval :
+  * @brief Initializes the hardware for muxing
+  * @param None
+  * @retval None
   */
 void muxInit(void)
 {
@@ -718,7 +818,10 @@ void muxInit(void)
 }
 
 /**
-  * @brief  Sets to S0, S1, and S2 select pins
+  * @brief Sets to S0, S1, and S2 select pins
+  * @param pin: port bit to be written
+  * @param array: GPIO information to write to the GPIO
+  * @retval None
   */
 void selectChannel(int pin, int array[])
 {
@@ -768,9 +871,10 @@ void selectChannel(int pin, int array[])
 }
 
 /**
-  * @brief
-  * @param  :
-  * @retval :
+  * @brief Enables mux
+  * @param type: GPIO type
+  * @param pin: port bit to be written
+  * @retval None
   */
 void enableMux(GPIO_TypeDef *type, int pin)
 {
@@ -778,9 +882,10 @@ void enableMux(GPIO_TypeDef *type, int pin)
 }
 
 /**
-  * @brief
-  * @param  :
-  * @retval :
+  * @brief Disables mux
+  * @param  type: GPIO type
+  * @param pin: port bit to be written
+  * @retval None
   */
 void disableMux(GPIO_TypeDef *type, int pin)
 {
@@ -788,9 +893,9 @@ void disableMux(GPIO_TypeDef *type, int pin)
 }
 
 /**
-  * @brief  :
-  * @param  :
-  * @retval :
+  * @brief Reads the ADC value
+  * @param None
+  * @retval int: ADC reading
   */
 int readPressure(void)
 {
@@ -804,15 +909,16 @@ int readPressure(void)
 }
 
 /**
-  * @brief  :
-  * @param  :
-  * @retval :
+  * @brief Reads the entire mat for one cycle
+  * @param data: buffer to store ADC readings
+  * @param len: length of the buffer
+  * @retval None
   */
-void sampleMat(int data[], int len)
+void sampleMatFull(int data[], int len)
 {
   int array_cnt = 0;
 
-  if (len != NUM_NODES)
+  if (len != NUM_NODES_FULL)
   {
     /* Wrongly sized array */
     return;
@@ -857,15 +963,60 @@ void sampleMat(int data[], int len)
 }
 
 /**
-  * @brief  :
-  * @param  :
-  * @retval :
+  * @brief Reads the entire mat for one cycle
+  * @param data: buffer to store ADC readings
+  * @param len: length of the buffer
+  * @retval None
+  */
+void sampleMatPartial(int data[], int len)
+{
+  int array_cnt = 0;
+
+  if (len != NUM_NODES_PARTIAL)
+  {
+    /* Wrongly sized array */
+    return;
+  }
+
+  for (int pwr_mux = 1; pwr_mux < 3; pwr_mux++)
+  {
+    enableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
+	for (int pwr_sel = 0; pwr_sel < 8; pwr_sel += 2)
+    {
+	  selectChannel(pwr_sel, pwrMuxSelect);
+	  for (int sense_mux = 1; sense_mux < 4; sense_mux++)
+      {
+	    enableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
+		for (int sense_sel = 0; sense_sel < 8; sense_sel += 2)
+        {
+		  selectChannel(sense_sel, senseMuxSelect);
+
+		  /* Read voltage */
+		  int raw_ADC_pressure = readPressure();
+
+		  data[array_cnt] = raw_ADC_pressure;
+		  array_cnt++;
+		}
+
+		disableMux(senseMuxType[sense_mux], senseMuxEnable[sense_mux]);
+	  }
+	}
+
+	disableMux(pwrMuxType[pwr_mux], pwrMuxEnable[pwr_mux]);
+  }
+}
+
+/**
+  * @brief Calibrates the mat by offsetting by the mean of ambient readings
+  * @param data: buffer to store ADC readings
+  * @param len: length of buffer
+  * @retval None
   */
 void calibrateMat(int data[], int len)
 {
   int array_cnt = 0;
 
-  if (len != NUM_NODES)
+  if (len != NUM_NODES_FULL)
   {
     /* Wrongly sized array */
     return;
@@ -909,9 +1060,9 @@ void calibrateMat(int data[], int len)
 }
 
 /**
-  * @brief  :
-  * @param  :
-  * @retval :
+  * @brief Calibrates the mat
+  * @param
+  * @retval
   */
 void calibrate(int data[], int len)
 {
@@ -930,16 +1081,20 @@ void calibrate(int data[], int len)
   }
 }
 
-bool checkTime(uint32_t start_time)
+/**
+  * @brief  :
+  * @param  :
+  * @retval :
+  */
+bool checkTime(uint32_t start_time, int threshold)
 {
-  if((HAL_GetTick() - start_time) >= RUNTIME)
+  if((HAL_GetTick() - start_time) >= threshold)
   {
 	return true;
   }
 
   return false;
 }
-
 
 /* USER CODE END 4 */
 
